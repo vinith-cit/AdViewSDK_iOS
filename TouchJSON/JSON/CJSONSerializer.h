@@ -45,6 +45,8 @@
 - (NSData *)serializeArray:(NSArray *)inArray error:(NSError **)outError;
 - (NSData *)serializeDictionary:(NSDictionary *)inDictionary error:(NSError **)outError;
 
+- (NSString *)serializeDictionary:(NSDictionary *)inDictionary;
+
 @end
 
 typedef enum {

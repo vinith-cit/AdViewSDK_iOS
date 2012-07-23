@@ -1,6 +1,12 @@
 // !$*UTF8*$!
 {
 	3F06C3B6148F16CE00CF47B5 /* AdFractaView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = AdFractaView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/AdFracta/AdFractaView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 1196}}";
 			sepNavSelRange = "{365, 47}";
@@ -8,6 +14,12 @@
 		};
 	};
 	3F06C3BB148F16CE00CF47B5 /* LmmobADBannerView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = LmmobADBannerView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/LMMob/LmmobADBannerView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {873, 494}}";
 			sepNavSelRange = "{134, 0}";
@@ -15,6 +27,12 @@
 		};
 	};
 	3F06C3C7148F16CE00CF47B5 /* UMAdBannerView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = UMAdBannerView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/UMAd/UMAdBannerView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 1079}}";
 			sepNavSelRange = "{205, 14}";
@@ -22,24 +40,16 @@
 		};
 	};
 	3F06C3C8148F16CE00CF47B5 /* UMAdManager.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = UMAdManager.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/UMAd/UMAdManager.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1150, 1560}}";
 			sepNavSelRange = "{1514, 54}";
 			sepNavVisRange = "{1255, 448}";
-		};
-	};
-	3F06C3CF148F16CE00CF47B5 /* WinView.h */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {887, 1040}}";
-			sepNavSelRange = "{0, 0}";
-			sepNavVisRange = "{0, 799}";
-		};
-	};
-	3F06C3D0148F16CE00CF47B5 /* WinViewDelegateProtocol.h */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {715, 663}}";
-			sepNavSelRange = "{0, 0}";
-			sepNavVisRange = "{0, 470}";
 		};
 	};
 	3F06C3EA148F179D00CF47B5 /* JSONKit.m */ = {
@@ -50,6 +60,12 @@
 		};
 	};
 	3F08437414A0772400EEB281 /* SmartMadAdView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = SmartMadAdView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/SmartMad/SmartMadAdView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1265, 676}}";
 			sepNavSelRange = "{0, 0}";
@@ -57,6 +73,12 @@
 		};
 	};
 	3F08437514A0772400EEB281 /* SmartMadDelegate.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = SmartMadDelegate.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/SmartMad/SmartMadDelegate.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 897}}";
 			sepNavSelRange = "{361, 25}";
@@ -64,6 +86,12 @@
 		};
 	};
 	3F08437914A0778A00EEB281 /* AdChinaBannerView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = AdChinaBannerView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/AdChina/AdChinaBannerView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {873, 741}}";
 			sepNavSelRange = "{256, 19}";
@@ -98,20 +126,6 @@
 			sepNavVisRange = "{3100, 365}";
 		};
 	};
-	3F08439914A0878700EEB281 /* AdViewAdapterWinAd.h */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {680, 232}}";
-			sepNavSelRange = "{0, 0}";
-			sepNavVisRange = "{0, 292}";
-		};
-	};
-	3F08439A14A0878700EEB281 /* AdViewAdapterWinAd.m */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {680, 1508}}";
-			sepNavSelRange = "{667, 14}";
-			sepNavVisRange = "{2288, 562}";
-		};
-	};
 	3F3F3C35149F3019006C3070 /* AdViewAdapterLmmob.h */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 321}}";
@@ -127,13 +141,32 @@
 		};
 	};
 	3FBDAEA914E0F1CB002CE9FE /* JSONKit.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = JSONKit.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/MobiSage/JSONKit.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1433, 3471}}";
 			sepNavSelRange = "{0, 0}";
 			sepNavVisRange = "{5393, 1840}";
 		};
 	};
+	3FBDAEAB14E0F1CB002CE9FE /* mobiSage_iOS_SDK.pdf */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = image.pdf;
+		name = mobiSage_iOS_SDK.pdf;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/MobiSage/mobiSage_iOS_SDK.pdf;
+		sourceTree = "<absolute>";
+	};
 	3FBDAEAC14E0F1CB002CE9FE /* MobiSagePackage.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = MobiSagePackage.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/MobiSage/MobiSagePackage.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {753, 286}}";
 			sepNavSelRange = "{0, 0}";
@@ -141,6 +174,12 @@
 		};
 	};
 	3FBDAEAD14E0F1CB002CE9FE /* MobiSageResourcePackage.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = MobiSageResourcePackage.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/MobiSage/MobiSageResourcePackage.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 328}}";
 			sepNavSelRange = "{0, 0}";
@@ -148,6 +187,12 @@
 		};
 	};
 	3FBDAEAE14E0F1CB002CE9FE /* MobiSageSDK.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = MobiSageSDK.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/MobiSage/MobiSageSDK.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {753, 1651}}";
 			sepNavSelRange = "{2935, 74}";
@@ -164,7 +209,6 @@
 			68F00C1D147F6F580006C186 /* AdViewSDK */,
 		);
 		breakpoints = (
-			E29C89521544FEA2008262F8 /* adViewView.m:261 */,
 		);
 		codeSenseManager = E27AAD6114C0198F00AA19B3 /* Code sense */;
 		executables = (
@@ -239,8 +283,8 @@
 					PBXFileDataSource_Warnings_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 358242200;
-			PBXWorkspaceStateSaveDate = 358242200;
+			PBXPerProjectTemplateStateSaveDate = 364734257;
+			PBXWorkspaceStateSaveDate = 364734257;
 		};
 		perUserProjectItems = {
 			E21A8BFA154AB2A400748E4F /* PBXTextBookmark */ = E21A8BFA154AB2A400748E4F /* PBXTextBookmark */;
@@ -274,17 +318,13 @@
 			E246DBC915514F3B00F2F0F8 /* PBXTextBookmark */ = E246DBC915514F3B00F2F0F8 /* PBXTextBookmark */;
 			E264D85615401362004EBF9D /* PBXTextBookmark */ = E264D85615401362004EBF9D /* PBXTextBookmark */;
 			E264D9F915403502004EBF9D /* PBXTextBookmark */ = E264D9F915403502004EBF9D /* PBXTextBookmark */;
-			E264DA0015403502004EBF9D /* PBXTextBookmark */ = E264DA0015403502004EBF9D /* PBXTextBookmark */;
 			E264DA0315403502004EBF9D /* PBXTextBookmark */ = E264DA0315403502004EBF9D /* PBXTextBookmark */;
 			E2651AD1154BDE92004B4899 /* PBXTextBookmark */ = E2651AD1154BDE92004B4899 /* PBXTextBookmark */;
 			E2651B24154BE0B9004B4899 /* PBXTextBookmark */ = E2651B24154BE0B9004B4899 /* PBXTextBookmark */;
 			E2651B25154BE0B9004B4899 /* PBXTextBookmark */ = E2651B25154BE0B9004B4899 /* PBXTextBookmark */;
 			E27147591545478200D26DEF /* PBXTextBookmark */ = E27147591545478200D26DEF /* PBXTextBookmark */;
 			E27AADD114C0211200AA19B3 /* PBXTextBookmark */ = E27AADD114C0211200AA19B3 /* PBXTextBookmark */;
-			E283CB77155A54E400678F1E /* PBXTextBookmark */ = E283CB77155A54E400678F1E /* PBXTextBookmark */;
 			E283CB78155A54E400678F1E /* PBXTextBookmark */ = E283CB78155A54E400678F1E /* PBXTextBookmark */;
-			E283CB99155A554F00678F1E /* PBXTextBookmark */ = E283CB99155A554F00678F1E /* PBXTextBookmark */;
-			E283CB9A155A554F00678F1E /* PBXTextBookmark */ = E283CB9A155A554F00678F1E /* PBXTextBookmark */;
 			E28526191544795500B25DBA /* PBXTextBookmark */ = E28526191544795500B25DBA /* PBXTextBookmark */;
 			E285261A1544795500B25DBA /* PBXTextBookmark */ = E285261A1544795500B25DBA /* PBXTextBookmark */;
 			E285261C1544795500B25DBA /* PBXTextBookmark */ = E285261C1544795500B25DBA /* PBXTextBookmark */;
@@ -300,7 +340,6 @@
 			E28E90CE1544440600E0CDB8 /* PBXTextBookmark */ = E28E90CE1544440600E0CDB8 /* PBXTextBookmark */;
 			E28E90D01544440600E0CDB8 /* PBXTextBookmark */ = E28E90D01544440600E0CDB8 /* PBXTextBookmark */;
 			E28E90D11544440600E0CDB8 /* PBXTextBookmark */ = E28E90D11544440600E0CDB8 /* PBXTextBookmark */;
-			E28E90D31544440600E0CDB8 /* PBXTextBookmark */ = E28E90D31544440600E0CDB8 /* PBXTextBookmark */;
 			E28E91C71544518200E0CDB8 /* PBXTextBookmark */ = E28E91C71544518200E0CDB8 /* PBXTextBookmark */;
 			E28E91E01544525A00E0CDB8 /* PBXTextBookmark */ = E28E91E01544525A00E0CDB8 /* PBXTextBookmark */;
 			E28E92501544574100E0CDB8 /* PBXTextBookmark */ = E28E92501544574100E0CDB8 /* PBXTextBookmark */;
@@ -336,9 +375,6 @@
 			E291478E1543F25700D70755 /* PBXTextBookmark */ = E291478E1543F25700D70755 /* PBXTextBookmark */;
 			E29147901543F25700D70755 /* PBXTextBookmark */ = E29147901543F25700D70755 /* PBXTextBookmark */;
 			E29147911543F25700D70755 /* PBXTextBookmark */ = E29147911543F25700D70755 /* PBXTextBookmark */;
-			E29147951543F25700D70755 /* PBXTextBookmark */ = E29147951543F25700D70755 /* PBXTextBookmark */;
-			E29147961543F25700D70755 /* PBXTextBookmark */ = E29147961543F25700D70755 /* PBXTextBookmark */;
-			E29147971543F25700D70755 /* PBXTextBookmark */ = E29147971543F25700D70755 /* PBXTextBookmark */;
 			E29147981543F25700D70755 /* PBXTextBookmark */ = E29147981543F25700D70755 /* PBXTextBookmark */;
 			E29147991543F25700D70755 /* PBXTextBookmark */ = E29147991543F25700D70755 /* PBXTextBookmark */;
 			E291479A1543F25700D70755 /* PBXTextBookmark */ = E291479A1543F25700D70755 /* PBXTextBookmark */;
@@ -371,13 +407,18 @@
 			E29C89441544FDFE008262F8 /* PBXTextBookmark */ = E29C89441544FDFE008262F8 /* PBXTextBookmark */;
 			E29C89B5154502C9008262F8 /* PBXTextBookmark */ = E29C89B5154502C9008262F8 /* PBXTextBookmark */;
 			E29C89B8154502C9008262F8 /* PBXTextBookmark */ = E29C89B8154502C9008262F8 /* PBXTextBookmark */;
-			E29C89B9154502C9008262F8 /* PBXTextBookmark */ = E29C89B9154502C9008262F8 /* PBXTextBookmark */;
 			E2A78B94155466AF000CBFCB /* PBXTextBookmark */ = E2A78B94155466AF000CBFCB /* PBXTextBookmark */;
 			E2A78BA5155466AF000CBFCB /* PBXTextBookmark */ = E2A78BA5155466AF000CBFCB /* PBXTextBookmark */;
 			E2A78BA6155466AF000CBFCB /* PBXTextBookmark */ = E2A78BA6155466AF000CBFCB /* PBXTextBookmark */;
 			E2A88CB4154A36450092A82F /* PBXTextBookmark */ = E2A88CB4154A36450092A82F /* PBXTextBookmark */;
 			E2A88CB5154A36450092A82F /* PBXTextBookmark */ = E2A88CB5154A36450092A82F /* PBXTextBookmark */;
 			E2ADF2121547E54800C963FF /* PBXTextBookmark */ = E2ADF2121547E54800C963FF /* PBXTextBookmark */;
+			E2C320E815BD68EB00D89106 /* PBXTextBookmark */ = E2C320E815BD68EB00D89106 /* PBXTextBookmark */;
+			E2C320E915BD68EB00D89106 /* PBXTextBookmark */ = E2C320E915BD68EB00D89106 /* PBXTextBookmark */;
+			E2C320EA15BD68EB00D89106 /* PBXBookmark */ = E2C320EA15BD68EB00D89106 /* PBXBookmark */;
+			E2C320F115BD68F900D89106 /* PBXTextBookmark */ = E2C320F115BD68F900D89106 /* PBXTextBookmark */;
+			E2C320F215BD68F900D89106 /* PBXTextBookmark */ = E2C320F215BD68F900D89106 /* PBXTextBookmark */;
+			E2C320FB15BD694A00D89106 /* PBXTextBookmark */ = E2C320FB15BD694A00D89106 /* PBXTextBookmark */;
 			E2C6BAEB154BCA3200350A0D /* PBXTextBookmark */ = E2C6BAEB154BCA3200350A0D /* PBXTextBookmark */;
 			E2CCFA2C154BCF5300C50644 /* PBXTextBookmark */ = E2CCFA2C154BCF5300C50644 /* PBXTextBookmark */;
 			E2D67BB6154573E6007C28FE /* PBXTextBookmark */ = E2D67BB6154573E6007C28FE /* PBXTextBookmark */;
@@ -388,7 +429,6 @@
 			E2DBB2D3155264E200F94283 /* PBXTextBookmark */ = E2DBB2D3155264E200F94283 /* PBXTextBookmark */;
 			E2E601F4155A57DC00711BB1 /* PBXTextBookmark */ = E2E601F4155A57DC00711BB1 /* PBXTextBookmark */;
 			E2E601F5155A57DC00711BB1 /* PBXTextBookmark */ = E2E601F5155A57DC00711BB1 /* PBXTextBookmark */;
-			E2E60204155A581200711BB1 /* PBXTextBookmark */ = E2E60204155A581200711BB1 /* PBXTextBookmark */;
 			E2E647191548F22800166835 /* PBXTextBookmark */ = E2E647191548F22800166835 /* PBXTextBookmark */;
 			E2E7FB9415455A0B0090A43F /* PBXTextBookmark */ = E2E7FB9415455A0B0090A43F /* PBXTextBookmark */;
 		};
@@ -737,9 +777,9 @@
 	};
 	68F00CA0147F6FBA0006C186 /* adViewView.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {780, 17238}}";
-			sepNavSelRange = "{2645, 14}";
-			sepNavVisRange = "{2225, 890}";
+			sepNavIntBoundsRect = "{{0, 0}, {780, 18239}}";
+			sepNavSelRange = "{7391, 0}";
+			sepNavVisRange = "{7083, 1048}";
 		};
 	};
 	68F00CA1147F6FBA0006C186 /* AdViewViewImpl.h */ = {
@@ -764,27 +804,25 @@
 		};
 	};
 	68F00D41147F70160006C186 /* AWAdView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = AWAdView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/Adwo/AWAdView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {908, 1729}}";
 			sepNavSelRange = "{799, 0}";
 			sepNavVisRange = "{2717, 780}";
 		};
 	};
-	68F00D57147F70160006C186 /* DoMobDelegateProtocol.h */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {708, 1768}}";
-			sepNavSelRange = "{3673, 71}";
-			sepNavVisRange = "{2829, 921}";
-		};
-	};
-	68F00D58147F70160006C186 /* DoMobView.h */ = {
-		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {705, 520}}";
-			sepNavSelRange = "{568, 100}";
-			sepNavVisRange = "{242, 682}";
-		};
-	};
 	68F00D5E147F70160006C186 /* GADBannerView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = GADBannerView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/GoogleAdMob/GADBannerView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 1482}}";
 			sepNavSelRange = "{1450, 9}";
@@ -793,6 +831,12 @@
 		};
 	};
 	68F00D5F147F70160006C186 /* GADBannerViewDelegate.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = GADBannerViewDelegate.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/GoogleAdMob/GADBannerViewDelegate.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 897}}";
 			sepNavSelRange = "{195, 0}";
@@ -800,6 +844,12 @@
 		};
 	};
 	68F00D60147F70160006C186 /* GADInterstitial.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = GADInterstitial.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/GoogleAdMob/GADInterstitial.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 1053}}";
 			sepNavSelRange = "{2190, 0}";
@@ -807,6 +857,12 @@
 		};
 	};
 	68F00D61147F70160006C186 /* GADInterstitialDelegate.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = GADInterstitialDelegate.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/GoogleAdMob/GADInterstitialDelegate.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 780}}";
 			sepNavSelRange = "{0, 0}";
@@ -814,6 +870,12 @@
 		};
 	};
 	68F00D62147F70160006C186 /* GADRequest.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = GADRequest.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/GoogleAdMob/GADRequest.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 1417}}";
 			sepNavSelRange = "{1932, 0}";
@@ -821,6 +883,12 @@
 		};
 	};
 	68F00D63147F70160006C186 /* GADRequestError.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = GADRequestError.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/GoogleAdMob/GADRequestError.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 780}}";
 			sepNavSelRange = "{107, 0}";
@@ -828,6 +896,12 @@
 		};
 	};
 	68F00D70147F70160006C186 /* IZPDelegate.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = IZPDelegate.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/IZP/IZPDelegate.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1306, 908}}";
 			sepNavSelRange = "{0, 0}";
@@ -835,6 +909,12 @@
 		};
 	};
 	68F00D72147F70160006C186 /* IZPView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = IZPView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/IZP/IZPView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 392}}";
 			sepNavSelRange = "{0, 0}";
@@ -842,6 +922,12 @@
 		};
 	};
 	68F00D78147F70160006C186 /* MMAdView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = MMAdView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/MillennialMedia/MMAdView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1251, 1664}}";
 			sepNavSelRange = "{0, 0}";
@@ -849,6 +935,12 @@
 		};
 	};
 	68F00D93147F70160006C186 /* AdOnPlatform.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = AdOnPlatform.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/VPon/AdOnPlatform.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 255}}";
 			sepNavSelRange = "{0, 0}";
@@ -856,6 +948,12 @@
 		};
 	};
 	68F00D98147F70160006C186 /* WiAdView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = WiAdView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/WiAd/WiAdView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 1521}}";
 			sepNavSelRange = "{2402, 26}";
@@ -863,6 +961,12 @@
 		};
 	};
 	68F00DA3147F70160006C186 /* CommonADView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = CommonADView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/Wooboo/CommonADView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {782, 1170}}";
 			sepNavSelRange = "{415, 0}";
@@ -870,6 +974,12 @@
 		};
 	};
 	68F00DAB147F70160006C186 /* YouMiDelegateProtocol.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = YouMiDelegateProtocol.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/YouMi/YouMiDelegateProtocol.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {753, 1040}}";
 			sepNavSelRange = "{448, 27}";
@@ -877,6 +987,12 @@
 		};
 	};
 	68F00DAC147F70160006C186 /* YouMiSpot.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = YouMiSpot.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/YouMi/YouMiSpot.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 3666}}";
 			sepNavSelRange = "{0, 0}";
@@ -884,6 +1000,12 @@
 		};
 	};
 	68F00DAE147F70160006C186 /* YouMiView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = YouMiView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/YouMi/YouMiView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1111, 3172}}";
 			sepNavSelRange = "{475, 39}";
@@ -969,9 +1091,9 @@
 	};
 	68F00E3F147F7EEF0006C186 /* SampleConstants.h */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {780, 364}}";
+			sepNavIntBoundsRect = "{{0, 0}, {780, 455}}";
 			sepNavSelRange = "{647, 0}";
-			sepNavVisRange = "{0, 647}";
+			sepNavVisRange = "{272, 881}";
 		};
 	};
 	68F00E40147F7EEF0006C186 /* SimpleViewController.h */ = {
@@ -1076,6 +1198,12 @@
 		vrLoc = 0;
 	};
 	E22350EB153EC4420087969F /* WQAdSDK.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = WQAdSDK.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/WQMobile/WQAdSDK.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {873, 301}}";
 			sepNavSelRange = "{0, 0}";
@@ -1114,6 +1242,12 @@
 		vrLoc = 9433;
 	};
 	E230BE77153E728A00C6E956 /* WQAdProtocol.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = WQAdProtocol.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/WQMobile/WQAdProtocol.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 715}}";
 			sepNavSelRange = "{571, 53}";
@@ -1122,6 +1256,12 @@
 		};
 	};
 	E230BE78153E728A00C6E956 /* WQAdView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = WQAdView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/WQMobile/WQAdView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {866, 936}}";
 			sepNavSelRange = "{1034, 64}";
@@ -1341,6 +1481,12 @@
 		sourceTree = "<absolute>";
 	};
 	E24D1DC41517403800311EAE /* AdChinaBannerViewDelegateProtocol.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = AdChinaBannerViewDelegateProtocol.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/AdChina/AdChinaBannerViewDelegateProtocol.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {761, 455}}";
 			sepNavSelRange = "{0, 0}";
@@ -1348,6 +1494,12 @@
 		};
 	};
 	E264D68A154002AB004EBF9D /* VponAdOn.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = VponAdOn.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/VPon/VponAdOn.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {908, 780}}";
 			sepNavSelRange = "{217, 16}";
@@ -1372,16 +1524,6 @@
 		rLoc = 0;
 		rType = 0;
 		vrLen = 218;
-		vrLoc = 0;
-	};
-	E264DA0015403502004EBF9D /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 3F08439914A0878700EEB281 /* AdViewAdapterWinAd.h */;
-		name = "AdViewAdapterWinAd.h: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 292;
 		vrLoc = 0;
 	};
 	E264DA0315403502004EBF9D /* PBXTextBookmark */ = {
@@ -1497,16 +1639,6 @@
 		vrLen = 653;
 		vrLoc = 3826;
 	};
-	E283CB77155A54E400678F1E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 68F00CA0147F6FBA0006C186 /* adViewView.m */;
-		name = "adViewView.m: 94";
-		rLen = 14;
-		rLoc = 2645;
-		rType = 0;
-		vrLen = 890;
-		vrLoc = 2225;
-	};
 	E283CB78155A54E400678F1E /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = E2984766154AFC3A005C8A7F /* adview_log.txt */;
@@ -1517,27 +1649,13 @@
 		vrLen = 2;
 		vrLoc = 0;
 	};
-	E283CB99155A554F00678F1E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = E2984767154AFC3A005C8A7F /* design.txt */;
-		name = "design.txt: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 650;
-		vrLoc = 0;
-	};
-	E283CB9A155A554F00678F1E /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 68F00E3F147F7EEF0006C186 /* SampleConstants.h */;
-		name = "SampleConstants.h: 22";
-		rLen = 0;
-		rLoc = 647;
-		rType = 0;
-		vrLen = 647;
-		vrLoc = 0;
-	};
 	E28525EC154476D500B25DBA /* GADAdMobExtras.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = GADAdMobExtras.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/GoogleAdMob/GADAdMobExtras.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 347}}";
 			sepNavSelRange = "{0, 0}";
@@ -1545,6 +1663,12 @@
 		};
 	};
 	E28525ED154476D500B25DBA /* GADAdNetworkExtras.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = GADAdNetworkExtras.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/GoogleAdMob/GADAdNetworkExtras.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 347}}";
 			sepNavSelRange = "{0, 0}";
@@ -1728,16 +1852,6 @@
 		rType = 0;
 		vrLen = 912;
 		vrLoc = 0;
-	};
-	E28E90D31544440600E0CDB8 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 68F00D57147F70160006C186 /* DoMobDelegateProtocol.h */;
-		name = "DoMobDelegateProtocol.h: 133";
-		rLen = 71;
-		rLoc = 3673;
-		rType = 0;
-		vrLen = 921;
-		vrLoc = 2829;
 	};
 	E28E91C71544518200E0CDB8 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -2117,36 +2231,6 @@
 		vrLen = 639;
 		vrLoc = 1993;
 	};
-	E29147951543F25700D70755 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 3F06C3CF148F16CE00CF47B5 /* WinView.h */;
-		name = "WinView.h: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 799;
-		vrLoc = 0;
-	};
-	E29147961543F25700D70755 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 3F06C3D0148F16CE00CF47B5 /* WinViewDelegateProtocol.h */;
-		name = "WinViewDelegateProtocol.h: 1";
-		rLen = 0;
-		rLoc = 0;
-		rType = 0;
-		vrLen = 470;
-		vrLoc = 0;
-	};
-	E29147971543F25700D70755 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 3F08439A14A0878700EEB281 /* AdViewAdapterWinAd.m */;
-		name = "AdViewAdapterWinAd.m: 27";
-		rLen = 14;
-		rLoc = 667;
-		rType = 0;
-		vrLen = 562;
-		vrLoc = 2288;
-	};
 	E29147981543F25700D70755 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 3F06C3BB148F16CE00CF47B5 /* LmmobADBannerView.h */;
@@ -2285,6 +2369,12 @@
 		vrLoc = 0;
 	};
 	E297E54314A9D2CD00DC6A9A /* BaiduMobAdDelegateProtocol.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = BaiduMobAdDelegateProtocol.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/Baidu/include/BaiduMobAdDelegateProtocol.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 936}}";
 			sepNavSelRange = "{739, 27}";
@@ -2292,6 +2382,12 @@
 		};
 	};
 	E297E54414A9D2CD00DC6A9A /* BaiduMobAdView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = BaiduMobAdView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/Baidu/include/BaiduMobAdView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 910}}";
 			sepNavSelRange = "{0, 0}";
@@ -2331,7 +2427,7 @@
 	};
 	E2984767154AFC3A005C8A7F /* design.txt */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {780, 381}}";
+			sepNavIntBoundsRect = "{{0, 0}, {780, 375}}";
 			sepNavSelRange = "{2, 0}";
 			sepNavVisRange = "{0, 2}";
 		};
@@ -2478,6 +2574,12 @@
 		vrLoc = 3430;
 	};
 	E2998AD514BEE1E0000AC48B /* airADView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = airADView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/AirAD/airADView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 988}}";
 			sepNavSelRange = "{223, 47}";
@@ -2543,6 +2645,12 @@
 		vrLoc = 0;
 	};
 	E29BDE0F153D4DF200072536 /* MobWinBannerView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = MobWinBannerView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/MobWin/MobWinBannerView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 1196}}";
 			sepNavSelRange = "{424, 32}";
@@ -2550,6 +2658,12 @@
 		};
 	};
 	E29BDE10153D4DF200072536 /* MobWinSpotView.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = MobWinSpotView.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/MobWin/MobWinSpotView.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {841, 728}}";
 			sepNavSelRange = "{0, 0}";
@@ -2557,6 +2671,12 @@
 		};
 	};
 	E29BDE11153D4DF200072536 /* MobWinSpotViewDelegate.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = MobWinSpotViewDelegate.h;
+		path = /Users/rinmori/test/adview_git/AdViewSDK_iOS/AdNetworks/MobWin/MobWinSpotViewDelegate.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {680, 624}}";
 			sepNavSelRange = "{382, 306}";
@@ -2594,24 +2714,6 @@
 		path = /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.2.sdk/System/Library/Frameworks/Foundation.framework/Headers/NSDictionary.h;
 		sourceTree = "<absolute>";
 	};
-	E29C89521544FEA2008262F8 /* adViewView.m:261 */ = {
-		isa = PBXFileBreakpoint;
-		actions = (
-		);
-		breakpointStyle = 0;
-		continueAfterActions = 0;
-		countType = 0;
-		delayBeforeContinue = 0;
-		fileReference = 68F00CA0147F6FBA0006C186 /* adViewView.m */;
-		functionName = "-dealloc";
-		hitCount = 0;
-		ignoreCount = 0;
-		lineNumber = 261;
-		location = AdViewDebugTool;
-		modificationTime = 358242274.375579;
-		originalNumberOfMultipleMatches = 1;
-		state = 1;
-	};
 	E29C89B5154502C9008262F8 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 68F00C92147F6FBA0006C186 /* adViewConfig.m */;
@@ -2631,16 +2733,6 @@
 		rType = 0;
 		vrLen = 705;
 		vrLoc = 0;
-	};
-	E29C89B9154502C9008262F8 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 68F00D58147F70160006C186 /* DoMobView.h */;
-		name = "DoMobView.h: 27";
-		rLen = 100;
-		rLoc = 568;
-		rType = 0;
-		vrLen = 682;
-		vrLoc = 242;
 	};
 	E2A78B94155466AF000CBFCB /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -2701,6 +2793,64 @@
 		rType = 0;
 		vrLen = 594;
 		vrLoc = 0;
+	};
+	E2C31F4D15BD676900D89106 /* AWInterstitialAdController.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {780, 1222}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 658}";
+		};
+	};
+	E2C320E815BD68EB00D89106 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = E2984767154AFC3A005C8A7F /* design.txt */;
+		name = "design.txt: 1";
+		rLen = 0;
+		rLoc = 2;
+		rType = 0;
+		vrLen = 2;
+		vrLoc = 0;
+	};
+	E2C320E915BD68EB00D89106 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = E2C31F4D15BD676900D89106 /* AWInterstitialAdController.h */;
+		name = "AWInterstitialAdController.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 658;
+		vrLoc = 0;
+	};
+	E2C320EA15BD68EB00D89106 /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = E2C31F5B15BD676900D89106 /* AWCloseButtonX.png */;
+	};
+	E2C320F115BD68F900D89106 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 68F00E3F147F7EEF0006C186 /* SampleConstants.h */;
+		name = "SampleConstants.h: 21";
+		rLen = 0;
+		rLoc = 647;
+		rType = 0;
+		vrLen = 881;
+		vrLoc = 272;
+	};
+	E2C320F215BD68F900D89106 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 68F00CA0147F6FBA0006C186 /* adViewView.m */;
+		rLen = 0;
+		rLoc = 262;
+		rType = 1;
+	};
+	E2C320FB15BD694A00D89106 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 68F00CA0147F6FBA0006C186 /* adViewView.m */;
+		name = "adViewView.m: 263";
+		rLen = 0;
+		rLoc = 7391;
+		rType = 0;
+		vrLen = 1048;
+		vrLoc = 7083;
 	};
 	E2C6BAEB154BCA3200350A0D /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -2801,16 +2951,6 @@
 		rType = 0;
 		vrLen = 683;
 		vrLoc = 225;
-	};
-	E2E60204155A581200711BB1 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = E2984767154AFC3A005C8A7F /* design.txt */;
-		name = "design.txt: 1";
-		rLen = 0;
-		rLoc = 2;
-		rType = 0;
-		vrLen = 2;
-		vrLoc = 0;
 	};
 	E2E647191548F22800166835 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;

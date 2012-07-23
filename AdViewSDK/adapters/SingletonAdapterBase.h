@@ -20,7 +20,8 @@
 @property (nonatomic, retain) NSMutableArray			*mIdelViewArr;
 @property (nonatomic, retain) NSObject					*mLockObj;
 
-- (void)setAdapter:(AdViewAdNetworkAdapter*)adapter;
+- (void)setAdapterValue:(BOOL)bSetOrClean ByAdapter:(AdViewAdNetworkAdapter*)adapter;
+
 - (UIView*)getIdelAdView;
 - (void)addIdelAdView:(UIView*)view;
 - (BOOL)isTestMode;

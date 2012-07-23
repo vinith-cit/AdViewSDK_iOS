@@ -13,15 +13,13 @@
 
 @interface AdChinaVideoView : UIView
 
+// returns newly created video ad, you may start play later
 + (AdChinaVideoView *)requestAdWithAdSpaceId:(NSString *)theAdSpaceId delegate:(id<AdChinaVideoViewDelegate>)theDelegate shouldAutoPlay:(BOOL)shouldAutoPlay;
 
 // Set view controller for browser, default view controller is delegate
-- (void)setViewController:(UIViewController *)controller;
+- (void)setViewControllerForBrowser:(UIViewController *)controller;
 
 // If autoPlay is set to NO, use this method to start playing
 - (void)startPlaying;
-
-// Stop playing video when user goes to another view, e.g. when popViewController, call this method in viewWillDisappear
-- (void)stopPlaying;
 
 @end

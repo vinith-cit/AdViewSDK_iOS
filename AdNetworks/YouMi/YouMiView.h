@@ -35,7 +35,7 @@ typedef enum {
 // 详解:
 //      前往有米主页:http://www.youmi.net/ 注册一个开发者帐户，同时注册一个应用，获取对应应用的ID
 // 
-@property(nonatomic, copy)                      NSString    *appID;
+@property(nonatomic, copy)                      NSString    *yppID;		//appID->yppID, for adview private change.
 
 // AppSecret
 // visit YouMi website: http://www.youmi.net/, register a developer account and sign with an application, to get a corresponding ID

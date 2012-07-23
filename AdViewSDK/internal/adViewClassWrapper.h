@@ -22,10 +22,13 @@
 
 @interface AdViewClassWrapper : NSObject {
   Class theClass;
+  BOOL theEnable;
 }
 
 - (id)initWithClass:(Class)c;
 
 @property (nonatomic, readonly) Class theClass;
+@property (nonatomic, assign) BOOL	theEnable;
+@property (nonatomic, assign) BOOL	theHide;
 
 @end

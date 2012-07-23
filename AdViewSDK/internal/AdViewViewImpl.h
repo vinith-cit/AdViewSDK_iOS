@@ -94,6 +94,9 @@ didReceiveAdView:(UIView *)view;
 - (void)adapter:(AdViewAdNetworkAdapter *)adapter
 shouldAddAdView:(UIView *)view;
 
+- (void)adapter:(AdViewAdNetworkAdapter *)adapter
+   shouldReport:(UIView *)view DisplayOrClick:(BOOL)bDisplay;
+
 /**
  * Called by Adapters when ad view failed.
  */

@@ -4,13 +4,15 @@
 
 @protocol KAdViewDelegate <NSObject>
 
--(UIColor*) adTextColor;
--(UIColor*) adBackgroundColor;
--(void) didReceivedAd: (KAdView*) adView;
--(void) didFailToReceiveAd: (KAdView*) adView;
+@optional
+-(UIColor*)adTextColor;
+-(UIColor*)adBackgroundColor;
+-(void)didReceivedAd:(KAdView*)adView;
+-(void)didFailToReceiveAd:(KAdView*)adView Error:(NSError*)error;
 
 -(NSString*) kAdViewHost;
--(int)	autoRefreshInterval;
+-(int)autoRefreshInterval;
+-(int)gradientBgType;		//-1, none, 0 - fix, 1 - random
 
 @required
 

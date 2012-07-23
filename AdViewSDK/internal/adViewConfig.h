@@ -44,6 +44,12 @@ typedef enum {
   AWBannerAnimationTypeRandom         = 8,
 } AWBannerAnimationType;
 
+typedef enum {
+	FetchTypeNetwork = 1,
+	FetchTypeFile = 2,
+	FetchTypeMemory = 4,
+} FetchType;
+
 @class AdViewAdNetworkConfig;
 @class AdViewAdNetworkRegistry;
 
@@ -73,7 +79,7 @@ typedef enum {
 	
 	NSInteger langSet;
 	BOOL	 fetchBlockMode;
-	BOOL	 fetchByFile;
+	int	 fetchType;
 }
 
 - (id)initWithAppKey:(NSString *)ak delegate:(id<AdViewConfigDelegate>)delegate;
@@ -105,7 +111,7 @@ typedef enum {
 
 @property (nonatomic, assign) NSInteger langSet;
 @property (nonatomic, assign) BOOL fetchBlockMode;
-@property (nonatomic, assign) BOOL fetchByFile;
+@property (nonatomic, assign) int fetchType;
 
 + (BOOL)isDeviceForeign;
 

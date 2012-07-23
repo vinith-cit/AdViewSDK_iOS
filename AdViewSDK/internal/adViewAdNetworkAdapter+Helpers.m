@@ -110,6 +110,23 @@
 #endif
 }
 
+- (BOOL)helperIsLandscape {
+	UIDeviceOrientation orientation;
+	if ([self.adViewDelegate respondsToSelector:@selector(adViewCurrentOrientation)]) {
+		orientation = [self.adViewDelegate adViewCurrentOrientation];
+	}
+	else {
+		orientation = [UIDevice currentDevice].orientation;
+	}
+	return UIDeviceOrientationIsLandscape(orientation);
+}
+
++ (BOOL)helperIsRetina {
+	if ([UIScreen instancesRespondToSelector:@selector(currentMode)])
+		return CGSizeEqualToSize(CGSizeMake(640, 960), [[UIScreen mainScreen] currentMode].size);
+  	return NO;
+}
+
 - (BOOL)helperUseGpsMode 
 {
 	if ([adViewDelegate respondsToSelector:@selector(adGpsMode)]) {

@@ -7,8 +7,6 @@
 //
 //
 
-#import <Foundation/Foundation.h>
-
 // 插播广告状态接收代理方法
 @protocol MobWinSpotViewDelegate <NSObject>
 

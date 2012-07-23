@@ -62,7 +62,7 @@ typedef enum debugMode {
 
 //设置AppId(可从登陆www.airad.com,创建新应用程序获得).
 //一个应用程序只能设置也只会使用一个appId.
-+ (void)setAppID:(NSString *)appId;
++ (void)setAirID:(NSString *)appId;	//setAppID->setAirID, for adview private change.
 
 //你可以通过设置GPSMode来选择是否需要开启GPS模式.
 //GPS的开启会帮助我们为您的应用提供更为精确的广告,这会对提高您的收益有很大的帮助.

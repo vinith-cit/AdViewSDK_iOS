@@ -31,4 +31,10 @@
 - (void)registerClass:(Class)adapterClass;
 - (AdViewClassWrapper *)adapterClassFor:(NSInteger)adNetworkType;
 
+- (void)enableClass:(BOOL)bEnable For:(NSInteger)adNetworkType;
+- (void)listAdapterClasses;
+
+- (NSDictionary*)getClassesStatus;
+- (void)setClassesStatus:(NSDictionary*)dict;
+
 @end

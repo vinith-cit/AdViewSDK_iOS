@@ -6,7 +6,7 @@
 //  Copyright (c) 2011 Tencent. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "MobWinBannerViewDelegate.h"
 
 typedef enum {
     MobWINBannerSizeIdentifierUnknow     = 0,
@@ -17,22 +17,15 @@ typedef enum {
 } MobWinBannerSizeIdentifier;
 
 @interface MobWinBannerView : UIView
-
 // 提交给开发者代码
 
 // 应用鉴权ID
 // 详解：[必须设定]绑定应用的应用鉴权ID
-@property (nonatomic, retain) NSString *adUnitID;
+@property (nonatomic, copy) NSString *adUnitID;
 
 // 父视图
 // 详解：[必选]需设置为显示广告的UIViewController
-@property (nonatomic, retain) UIViewController *rootViewController;
-
-// 测试模式开关
-// 默认测试模式关闭 adTestMode == NO
-//
-// 详解：[可选]测试模式开关，YES为测试模式，NO为发布模式，提交应用审核时请设置此参数为NO
-@property (nonatomic, assign) bool adTestMode; 
+@property (nonatomic, assign) UIViewController *rootViewController;
 
 
 // GPS精准广告定位模式开关
@@ -42,32 +35,25 @@ typedef enum {
 @property (nonatomic, assign) bool adGpsMode; 
 
 
-// 广告播放时间
-// 默认30秒，有效范围30秒～200秒
-//
-// 详解：[可选]广告的播放时间
-@property (nonatomic, assign) int adRefreshInterval;
-
-
 // 推广标题文本颜色
 // @{255/255.0, 255/255.0, 255/255.0, 1.0}
 //
 // 详解：[可选]广告推广标题文本颜色
-@property(nonatomic, retain) UIColor *adTextColor;
+@property(nonatomic, copy) UIColor *adTextColor;
 
 
 // 推广语文本颜色
 // @{255/255.0, 255/255.0, 255/255.0, 1.0}
 //
 // 详解：[可选]广告推广语文本颜色，针对纯文字广告的小字体
-@property(nonatomic, retain) UIColor *adSubtextColor;
+@property(nonatomic, copy) UIColor *adSubtextColor;
 
 
 // 广告条背景颜色
 // @{2.0/255.0, 12.0/255.0, 15.0/255.0, 1.0}
 //
 // 详解：[可选]广告条背景颜色
-@property(nonatomic, retain) UIColor *adBackgroundColor;
+@property(nonatomic, copy) UIColor *adBackgroundColor;
 
 
 // 广告条透明度
@@ -77,8 +63,8 @@ typedef enum {
 @property(nonatomic, assign) CGFloat adAlpha; 
 
 
-#pragma mark -
-#pragma mark PreRequest
+// 委托
+@property(nonatomic, assign) id<MobWinBannerViewDelegate> delegate;
 
 // 广告条初始化请求
 // 

@@ -116,6 +116,7 @@
         credentials = [[NSDictionary alloc] initWithDictionary:cred copyItems:YES];
       }
       else if ([cred isKindOfClass:[NSString class]]) {
+		  cred = [cred stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         credentials = [[NSDictionary alloc] initWithObjectsAndKeys:
                        [NSString stringWithString:cred], kAdViewPubIdKey,
                        nil];
@@ -131,6 +132,7 @@
 			  credentials2 = [[NSDictionary alloc] initWithDictionary:cred2 copyItems:YES];
 		  }
 		  else if ([cred2 isKindOfClass:[NSString class]]) {
+			  cred2 = [cred2 stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 			  credentials2 = [[NSDictionary alloc] initWithObjectsAndKeys:
 							 [NSString stringWithString:cred2], kAdViewPubId2Key,
 							 nil];
@@ -146,6 +148,7 @@
 			  credentials3 = [[NSDictionary alloc] initWithDictionary:cred3 copyItems:YES];
 		  }
 		  else if ([cred3 isKindOfClass:[NSString class]]) {
+			  cred3 = [cred3 stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 			  credentials3 = [[NSDictionary alloc] initWithObjectsAndKeys:
 							  [NSString stringWithString:cred3], kAdViewPubId3Key,
 							  nil];

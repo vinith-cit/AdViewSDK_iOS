@@ -19,6 +19,7 @@
 
 @interface AdViewDeviceCollector : NSObject
 @property (nonatomic, assign) id<AdViewDeviceCollectorDelegate> delegate;
+@property (nonatomic, retain) NSString *uuid;
 
 + (AdViewDeviceCollector*) sharedDeviceCollector;
 - (NSString*) deviceId;
@@ -29,4 +30,7 @@
 - (NSString*) serviceProviderCode;
 - (NSString*) networkType;
 - (void) postDeviceInformation;
+
++ (NSString *)myIdentifier;
+
 @end

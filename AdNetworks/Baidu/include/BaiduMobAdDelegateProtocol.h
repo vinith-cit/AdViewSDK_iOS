@@ -6,12 +6,18 @@
 //  Copyright 2011年 Baidu. All rights reserved.
 //
 
+/**
+ *  广告banner类型
+ */
 typedef enum  {
     BaiduMobAdViewTypeText = 1,
     BaiduMobAdViewTypeImage = 2,
     
 } BaiduMobAdViewType ;
 
+/**
+ *  广告展示失败类型枚举
+ */
 typedef enum _BaiduMobFailReason
 {
     BaiduMobFailReason_NOAD = 0,
@@ -42,12 +48,6 @@ typedef enum _BaiduMobFailReason
 - (NSString*) appSpec;
 
 @optional
-
-/**
- *  设置广告轮播展示的间隔，秒为单位，必须大于等于30。
- */
--(int) displayInterval;
-
 /**
  *  启动位置信息
  */
@@ -72,6 +72,11 @@ typedef enum _BaiduMobFailReason
  *  本次广告展示被用户点击时的回调
  */
 -(void) didAdClicked;
+
+/**
+ *  在用户点击完广告条出现全屏广告页面以后，用户关闭广告时的回调
+ */
+-(void) didDismissLandingPage;
 
 
 

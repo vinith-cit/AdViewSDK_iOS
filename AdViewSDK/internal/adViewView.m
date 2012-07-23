@@ -25,10 +25,13 @@
 #import "CJSONDeserializer.h"
 #import "AdViewLog.h"
 #import "AdViewAdNetworkAdapter.h"
+#import "adViewAdNetworkAdapter+Helpers.h"
 #import "AdViewError.h"
 #import "AdViewConfigStore.h"
 #import "AWNetworkReachabilityWrapper.h"
+#import "AdViewAdNetworkRegistry.h"
 
+#if 0
 #import "AdViewAdapterAdMob.h"
 #import "AdViewAdapterMillennial.h"
 #import "AdViewAdapterDoMob.h"
@@ -41,7 +44,10 @@
 #import "AdViewAdapterVpon.h"
 #import "AdViewAdapterAdwo.h"
 #import "AdViewAdapterIZP.h"
+#endif
+
 #import "AdViewDeviceCollector.h"
+
 #define kAdViewViewAdSubViewTag   1000
 
 
@@ -89,14 +95,41 @@ NSInteger adNetworkPriorityComparer(id a, id b, void *ctx) {
 	[AdViewAdapterIZP load];
 	[AdViewAdapterBaidu load];
 #endif
+	if ([delegate respondsToSelector:@selector(adViewDisablePlatformsForIpad)]
+		&& [AdViewAdNetworkAdapter helperIsIpad]
+		) {
+		//unload some platforms.
+		NSString *adTypes = [delegate adViewDisablePlatformsForIpad];
+		
+		NSArray *listTypes = [adTypes componentsSeparatedByString:@","];
+		
+		for (int i = 0; i < [listTypes count]; i++) {
+			int iType = [[listTypes objectAtIndex:i] intValue];
+			if (iType < 1) continue;
+			
+			[[AdViewAdNetworkRegistry sharedRegistry] enableClass:NO For:iType];
+		}
+	}
+	
+	[[AdViewAdNetworkRegistry sharedRegistry] listAdapterClasses];
+	
 	bool testMode = NO;
+    bool logMode = NO;
 	if ([delegate respondsToSelector:@selector(adViewTestMode)])
 		testMode = [delegate adViewTestMode];
+    logMode = testMode;
+	if ([delegate respondsToSelector:@selector(adViewLogMode)])
+		logMode = [delegate adViewLogMode];    
 	
-	if (testMode) {
+	if (logMode) {
 		if (DEBUG_INFO) AWLogSetLogLevel(AWLogLevelDebug);
 		else AWLogSetLogLevel(AWLogLevelInfo);
 	} else AWLogSetLogLevel(AWLogLevelNone);
+	
+	if ([delegate respondsToSelector:@selector(adTimeOutInterval)]) {
+		NSTimeInterval interval = [delegate adTimeOutInterval];
+		[AdViewAdNetworkAdapter setDummyHackTimeInterval:interval];
+	}
 	
 	AdViewView *adView
     = [[[AdViewViewImpl alloc] initWithDelegate:delegate] autorelease];
@@ -162,6 +195,9 @@ static id<AdViewDelegate> classAdViewDelegateForConfig = nil;
 didReceiveAdView:(UIView *)view {}
 - (void)adapter:(AdViewAdNetworkAdapter *)adapter didFailAd:(NSError *)error {}
 - (void)adapterDidFinishAdRequest:(AdViewAdNetworkAdapter *)adapter{}
+
+- (void)adapter:(AdViewAdNetworkAdapter *)adapter
+   shouldReport:(UIView *)view DisplayOrClick:(BOOL)bDisplay {}
 
 - (void)stopAutoRefresh{}
 - (void)startAutoRefresh{}
@@ -238,6 +274,16 @@ didReceiveAdView:(UIView *)view {}
   return self;
 }
 
++ (void) cleanupDummyRetain:(NSMutableDictionary*)pendingAdapters {
+	NSArray *arrPends = [pendingAdapters allValues];
+	for (int i = 0; i < [arrPends count]; i++) {
+		AdViewAdNetworkAdapter *adapter1 = [arrPends objectAtIndex:i];
+		if (nil == adapter1 || ![adapter1 isKindOfClass:[AdViewAdNetworkAdapter class]])
+			continue;
+		[adapter1 cleanupDummyRetain];
+	}	
+}
+
 - (void)dealloc {
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	delegate = nil;
@@ -252,10 +298,13 @@ didReceiveAdView:(UIView *)view {}
   totalPercent = 0.0;
   requesting = NO;
   currAdapter.adViewDelegate = nil, currAdapter.adViewView = nil;
+	[currAdapter cleanupDummyRetain];
   [currAdapter release], currAdapter = nil;
   lastAdapter.adViewDelegate = nil, lastAdapter.adViewView = nil;
+	[lastAdapter cleanupDummyRetain];
   [lastAdapter release], lastAdapter = nil;
   [lastRequestTime release], lastRequestTime = nil;
+	[AdViewViewImpl cleanupDummyRetain:pendingAdapters];
   [pendingAdapters release], pendingAdapters = nil;
   if (refreshTimer != nil) {
     [refreshTimer invalidate];
@@ -268,6 +317,8 @@ didReceiveAdView:(UIView *)view {}
   [lastError release], lastError = nil;
 
   [super dealloc];
+	
+	AWLogInfo(@"AdViewView dealloc end.");
 }
 
 
@@ -503,6 +554,7 @@ static BOOL randSeeded = NO;
   // because of internal refreshes.
   if (self.lastAdapter.networkConfig.networkType ==
                                   self.currAdapter.networkConfig.networkType) {
+	[self.lastAdapter cleanupDummyRetain];
     [self.lastAdapter stopBeingDelegate];
   }
 
@@ -644,8 +696,8 @@ static BOOL randSeeded = NO;
            netType:(AdViewAdNetworkType)type {
   // use config.appKey not from [delegate adViewApplicationKey] as delegate
   // can be niled out at this point. Attempt at Issue #42 .
-	UIDevice *myDevice = [UIDevice currentDevice];
-	NSString *deviceID = [myDevice uniqueIdentifier];
+	//UIDevice *myDevice = [UIDevice currentDevice];
+	NSString *deviceID = [AdViewDeviceCollector myIdentifier];//[myDevice uniqueIdentifier];
 	
   NSString *query
     = [NSString stringWithFormat:
@@ -860,6 +912,7 @@ static BOOL randSeeded = NO;
   UIView *adViewToRemove = (UIView *)context;
   [adViewToRemove removeFromSuperview];
   [adViewToRemove release]; // was retained before beginAnimations
+  [lastAdapter cleanupDummyRetain];
   lastAdapter.adViewDelegate = nil, lastAdapter.adViewView = nil;
   self.lastAdapter = nil;
   if ([delegate respondsToSelector:@selector(adViewDidAnimateToNewAdIn:)]) {
@@ -935,7 +988,7 @@ static BOOL randSeeded = NO;
     AWLogInfo(@"Received didReceiveAdView from a stale adapter %@", adapter);
     return;
   }
-  AWLogInfo(@"Received ad from adapter (nid %@)", adapter.networkConfig.nid);
+  AWLogInfo(@"Received ad from adapter (%@)", NSStringFromClass([adapter class]));//adapter.networkConfig.nid);
 
   // UIView operations should be performed on main thread
 #if 1
@@ -963,7 +1016,7 @@ static BOOL randSeeded = NO;
 		AWLogInfo(@"Received didReceiveAdView from a stale adapter %@", adapter);
 		return;
 	}
-	AWLogInfo(@"Received ad from adapter (nid %@)", adapter.networkConfig.nid);
+	AWLogInfo(@"Received ad from adapter (%@)", NSStringFromClass([adapter class]));//adapter.networkConfig.nid);
 	
 	// UIView operations should be performed on main thread
 #if 1
@@ -986,8 +1039,8 @@ static BOOL randSeeded = NO;
                adapter, error);
     return;
   }
-  AWLogInfo(@"Failed to receive ad from adapter (nid %@): %@",
-             adapter.networkConfig.nid, error);
+  AWLogInfo(@"Failed to receive ad from adapter (%@): %@",
+             adapter, error);
   requesting = NO;
 
   if ([prioritizedAdNetCfgs count] == 0) {
@@ -1015,6 +1068,19 @@ static BOOL randSeeded = NO;
     return;
   }
 #endif
+}
+
+- (void)adapter:(AdViewAdNetworkAdapter *)adapter
+   shouldReport:(UIView *)view DisplayOrClick:(BOOL)bDisplay
+{
+	// report impression and notify delegate
+	if (bDisplay) {
+		[self reportExImpression:adapter.networkConfig.nid
+						 netType:adapter.networkConfig.networkType];
+	} else {
+		[self reportExClick:adapter.networkConfig.nid
+						 netType:adapter.networkConfig.networkType];
+	}
 }
 
 - (void)adapterDidFinishAdRequest:(AdViewAdNetworkAdapter *)adapter {
@@ -1124,12 +1190,20 @@ static BOOL randSeeded = NO;
               @" from unknown AdViewConfig object");
     return;
   }
+	if (nil != cfg) {
+		NSString *strType = @"";
+		if (0 != (cfg.fetchType&FetchTypeNetwork)) strType = [strType stringByAppendingString:@"network"];
+		if (0 != (cfg.fetchType&FetchTypeFile)) strType = [strType stringByAppendingString:@"file"];
+		if (0 != (cfg.fetchType&FetchTypeMemory)) strType = [strType stringByAppendingString:@"&memory"];
+		
+		AWLogInfo(@"Fetched by %@", strType);
+	}
   AWLogInfo(@"Fetched Ad network config: %@", cfg);
   if ([delegate respondsToSelector:@selector(adViewDidReceiveConfig:)]) {
     [delegate adViewDidReceiveConfig:self];
   }
   if (cfg.adsAreOff) {
-	  if (cfg.fetchByFile) {
+	  if (0 != (FetchTypeFile&cfg.fetchType)) {
 		  AWLogInfo(@"file config ads are off, should try net config");
 		  [self adViewConfigDidFail:cfg error:nil];
 	  }
@@ -1161,7 +1235,7 @@ static BOOL randSeeded = NO;
                                         repeats:YES];
   }
 	
-	if (config.fetchByFile) {
+	if (0 != (FetchTypeFile&cfg.fetchType)) {
 		self.configTimer = [NSTimer scheduledTimerWithTimeInterval:30
 															target:self
 														  selector:@selector(updateAdViewConfig)

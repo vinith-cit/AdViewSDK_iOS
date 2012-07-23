@@ -9,7 +9,14 @@
 #import <MessageUI/MessageUI.h>
 #import "AdChinaBannerViewDelegateProtocol.h"
 
-#define BannerSize		((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)? CGSizeMake(728, 90) : CGSizeMake(320, 48))
+
+#define isPhone                 (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+
+#define BannerSizeDefault		(isPhone? CGSizeMake(320, 48) : CGSizeMake(728, 90))
+#define BannerSizeShort         (isPhone? CGSizeMake(320, 48) : CGSizeMake(640, 96))     // 20:3
+#define BannerSizeSquare        (isPhone? CGSizeMake(320, 48) : CGSizeMake(360, 360))    // 1:1
+#define BannerSizeVertical      (isPhone? CGSizeMake(320, 48) : CGSizeMake(336, 480))    // 7:10
+#define BannerSizeVideo         (isPhone? CGSizeMake(320, 48) : CGSizeMake(480, 360))    // 4:3
 
 typedef enum {
     AnimationMaskRandom				= -1,
@@ -31,10 +38,10 @@ enum {
 @interface AdChinaBannerView : UIView 
 
 // Returns newly created banner ad
-+ (AdChinaBannerView *)requestAdWithAdSpaceId:(NSString *)theAdSpaceId delegate:(id<AdChinaBannerViewDelegate>)theDelegate;
++ (AdChinaBannerView *)requestAdWithAdSpaceId:(NSString *)theAdSpaceId delegate:(id<AdChinaBannerViewDelegate>)theDelegate adSize:(CGSize)size;
 
 // Set view controller for browser, default view controller is delegate
-- (void)setViewController:(UIViewController *)controller;
+- (void)setViewControllerForBrowser:(UIViewController *)controller;
 
 // Set allowed animation types, default animationMask is AnimationMaskRandom
 - (void)setAnimationMask:(AnimationMask)animationMask;

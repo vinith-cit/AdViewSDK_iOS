@@ -76,7 +76,7 @@ BOOL awDoubleVal(double *var, id val) {
 
 @synthesize langSet;
 @synthesize fetchBlockMode;
-@synthesize fetchByFile;
+@synthesize fetchType;
 
 #pragma mark -
 

@@ -23,11 +23,12 @@
 #import "SimpleViewController.h"
 #import "TableController.h"
 #import "BottomBannerController.h"
+#import "AdProviderController.h"
 #import "LocationController.h"
 #import "AdViewView.h"
 #import "SampleConstants.h"
 
-#define CONFIG_PREFETCH_ROW 4
+#define CONFIG_PREFETCH_ROW 5
 
 @implementation RootViewController
 
@@ -147,6 +148,16 @@
         //cell.text = @"Table w/ Location Info";
       }
       break;
+	case 4:
+		  if ([cell respondsToSelector:@selector(textLabel)]) {
+			  // iPhone SDK 3.0
+			  cell.textLabel.text = @"Ad Provider";
+		  }
+		  else {
+			  // iPhone SDK 2.2.1
+			  //cell.text = @"Ad Provider";
+		  }		  
+	  break;
     case CONFIG_PREFETCH_ROW:
     {
       NSString *configText;
@@ -202,6 +213,14 @@
       [loc release];
       break;
     }
+	  case 4:
+	  {
+		  LocationController *provider = [[AdProviderController alloc] initWithStyle:UITableViewStylePlain];
+		  [self.navigationController pushViewController:provider animated:YES];
+		  [provider release];
+		  break;
+	  }
+		  break;
     case CONFIG_PREFETCH_ROW:
       if (configFetched) {
 //        [AdViewView updateAdViewConfigWithDelegate:self];

@@ -34,9 +34,12 @@
 	[super dealloc];
 }
 
-- (void)setAdapter:(AdViewAdNetworkAdapter*)adapter {
+- (void)setAdapterValue:(BOOL)bSetOrClean ByAdapter:(AdViewAdNetworkAdapter*)adapter {
 	@synchronized (mLockObj) {
-		mAdapter = adapter;
+		if (bSetOrClean)
+			mAdapter = adapter;
+		else if (mAdapter == adapter)
+			mAdapter = nil;
 	}
 }
 

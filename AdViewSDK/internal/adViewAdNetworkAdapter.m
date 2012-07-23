@@ -40,6 +40,7 @@ BOOL isForeignAd(AdViewAdNetworkType type)
 	return NO;
 }
 
+static NSTimeInterval gDummyTimeInterval = 15.0f;
 
 @implementation AdViewAdNetworkAdapter
 
@@ -98,17 +99,25 @@ BOOL isForeignAd(AdViewAdNetworkType type)
 	self.rSizeAd = CGRectMake(0, 0, 320.0f, 50.0f);
 }
 
-- (void) setupDummyHackTimer
+- (void) setupDummyHackTimer:(NSTimeInterval)interval
 {
-    self.dummyHackTimer = [NSTimer scheduledTimerWithTimeInterval: 10 
+	if (interval < 5) interval = 5;
+	
+    self.dummyHackTimer = [NSTimer scheduledTimerWithTimeInterval: interval 
                                                            target:self 
 														 selector:@selector(dummyHackTimerHandler) userInfo:nil 
                                                           repeats:NO];
 }
 
+- (void) setupDefaultDummyHackTimer 
+{
+	[self setupDummyHackTimer:gDummyTimeInterval];
+}
+
 - (void) cleanupDummyHackTimer
 {
-    [self.dummyHackTimer invalidate];
+	if (nil != self.dummyHackTimer)
+		[self.dummyHackTimer invalidate];
     self.dummyHackTimer = nil;
 }
 
@@ -116,6 +125,17 @@ BOOL isForeignAd(AdViewAdNetworkType type)
 {
     self.dummyHackTimer = nil;
     [adViewView adapter:self didFailAd:nil];
+}
+
++ (void) setDummyHackTimeInterval:(int)interval 
+{
+	if (interval < 5) interval = 5;
+	
+	gDummyTimeInterval = interval;
+}
+
+- (void) cleanupDummyRetain {
+	[self cleanupDummyHackTimer];		//this timer will retain self.
 }
 
 - (void)dealloc {

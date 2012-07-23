@@ -44,6 +44,8 @@
 - (NSInteger)helperCalculateAge;
 
 + (BOOL)helperIsIpad;
+- (BOOL)helperIsLandscape;
++ (BOOL)helperIsRetina;
 - (BOOL)helperUseGpsMode;
 
 @end

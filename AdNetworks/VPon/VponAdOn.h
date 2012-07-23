@@ -10,36 +10,41 @@
 #import <Foundation/Foundation.h>
 #import "AdOnPlatform.h"
 
-#define ADON_SIZE_320x48     CGSizeMake(320,48)
+#define ADON_SIZE_320x48    CGSizeMake(320,48)
 
-#define ADON_SIZE_320x270    CGSizeMake(320,270)
+#define ADON_SIZE_480x72    CGSizeMake(480,72)
 
-#define ADON_SIZE_488x80     CGSizeMake(488,80)
+#define ADON_SIZE_640x96    CGSizeMake(640,96)
 
-#define ADON_SIZE_748x110    CGSizeMake(748,110)
+#define ADON_SIZE_700x108   CGSizeMake(700,108)
+
+#define ADON_SIZE_320X270   CGSizeMake(320,270)
 
 @protocol VponAdOnDelegate; 
 
 @interface VponAdOn : NSObject {
 
-    id<VponAdOnDelegate> adOnDelegate;
-    BOOL isVponLogo;
 }
 @property (nonatomic, retain) id<VponAdOnDelegate> adOnDelegate;
 @property (nonatomic, readwrite) BOOL isVponLogo;
 
-#pragma mark Initialization
-+ (VponAdOn *)initializationLatitude:(CGFloat)lat longtitude:(CGFloat)lon platform:(Platform)platform;
+#pragma mark 初始化
++ (VponAdOn *)initializationPlatform:(Platform)platform;
 #pragma mark Instance
 + (VponAdOn *)sharedInstance;
+#pragma mark 回傳Vpon版本
++ (NSString *)getVersionVpon;
+#pragma mark 設定Location開關
+- (void)setLocationOnOff:(BOOL)isOn;
+#pragma mark  回傳Location狀態
+- (BOOL)isUseLocation;
+#pragma mark return plat
+- (Platform)getPlatformVpon;
 #pragma mark for Vpon
 - (NSArray *)requestDelegate:(id<VponAdOnDelegate>)delegate LicenseKey:(NSArray *)arrayLicenseKey size:(CGSize)size;
 #pragma mark for adwhirl
 - (UIViewController *)adwhirlRequestDelegate:(id<VponAdOnDelegate>)delegate licenseKey:(NSString *)licenseKey size:(CGSize)size;
-#pragma mark return Vpon version
-- (NSString *)versionVpon;
-#pragma mark return plat
-- (Platform)platformVpon;
+
 @end
 
 @protocol VponAdOnDelegate <NSObject>
@@ -47,7 +52,7 @@
 @optional
 
 #pragma mark 回傳點擊點廣是否有效
-- (void)clickAd:(UIViewController *)bannerView valid:(BOOL)isValid withLicenseKey:(NSString *)adLicenseKey;
+- (void)onClickAd:(UIViewController *)bannerView withValid:(BOOL)isValid withLicenseKey:(NSString *)adLicenseKey;
 #pragma mark 回傳Vpon廣告抓取成功
 - (void)onRecevieAd:(UIViewController *)bannerView withLicenseKey:(NSString *)licenseKey;
 #pragma mark 回傳Vpon廣告抓取失敗

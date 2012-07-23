@@ -10,11 +10,6 @@
 #import <CoreLocation/CoreLocation.h>
 
 
-@protocol AWAdViewDelegate;
-@protocol AWAdBrowserControllerDelegate;
-@protocol AWMailViewControllerDelegate;
-@protocol AWMapViewControllerDelegate; 
-
 @class AWTimer;
 @class AWAdDevice;
 @interface UIDevice (Hardware)
@@ -30,11 +25,25 @@ enum ADWO_ADS_BANNER_SIZE_FOR_IPAD
     ADWO_ADS_BANNER_SIZE_FOR_IPAD_720x110 = 1 << 2
 };
 
+@class AWAdView;
 
-@interface AWAdView : UIView <UIWebViewDelegate,AWAdBrowserControllerDelegate,UIAlertViewDelegate,AWMailViewControllerDelegate,AWMapViewControllerDelegate> 
+@protocol AWAdViewDelegate <NSObject>
 
+@required
+
+- (UIViewController*)viewControllerForPresentingModalView;
+
+@optional
+
+- (void)adViewDidFailToLoadAd:(AWAdView *)view;
+- (void)adViewDidLoadAd:(AWAdView *)view;
+- (void)willPresentModalViewForAd:(AWAdView *)view;
+- (void)didDismissModalViewForAd:(AWAdView *)view;
+
+@end
+
+@interface AWAdView : UIView <UIWebViewDelegate,UIAlertViewDelegate>
 {
-    
     id <AWAdViewDelegate> _delegate;
     
     BOOL _isLoading;
@@ -103,27 +112,16 @@ enum ADWO_ADS_BANNER_SIZE_FOR_IPAD
 @property (nonatomic,assign) float adRequestTimeIntervel;//广告请求间隔时间//
 @property (nonatomic,assign) bool userGpsEnabled; // 是否允许SDK获得用户位置信息
 
-- (id)initWithAdwoPid:(NSString *)unid adIdType:(SInt8) adIdType adTestMode:(SInt8) adTestMode adSizeForPad:(SInt8)adSizeForPad;
+
+- (id)initWithAdwoPid:(NSString *)unid adIdType:(SInt8)adIdType adTestMode:(SInt8) adTestMode adSizeForPad:(SInt8)adSizeForPad;
+
 - (void)loadAd;
+
 - (void)pauseAd;
+
 - (void)resumeAd;
 
 - (void)killTimer;
 
 @end
 
-
-@protocol AWAdViewDelegate <NSObject>
-
-@required
-
-- (UIViewController *)viewControllerForPresentingModalView;
-
-@optional
-
-- (void)adViewDidFailToLoadAd:(AWAdView *)view;
-- (void)adViewDidLoadAd:(AWAdView *)view;
-- (void)willPresentModalViewForAd:(AWAdView *)view;
-- (void)didDismissModalViewForAd:(AWAdView *)view;
-
-@end

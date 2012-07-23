@@ -339,4 +339,10 @@ static NSData *kTrue = NULL;
     return(theData);
     }
 
+- (NSString *)serializeDictionary:(NSDictionary *)inDictionary;
+{
+	NSData *theData = [self serializeDictionary:inDictionary error:nil];
+	return([[[NSString alloc] initWithData:theData encoding:NSUTF8StringEncoding] autorelease]);
+}
+
 @end

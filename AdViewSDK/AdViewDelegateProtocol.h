@@ -28,6 +28,12 @@ typedef enum {
 	AdviewBannerSize_728x90 = 4,
 }AdviewBannerSize;
 
+typedef enum {
+	AdViewAppAd_BgGradient_None = -1,		//no gradient background.
+	AdViewAppAd_BgGradient_Fix = 0,			//fix gradient background color.
+	AdViewAppAd_BgGradient_Random,			//random gradient background color.	
+}AdViewAppAd_BgGradientType;
+
 @protocol AdViewDelegate<NSObject>
 
 @required
@@ -47,6 +53,12 @@ typedef enum {
  * 想要的广告条大小，adview会为对应广告平台选择最接近的大小。
  */
 - (AdviewBannerSize)PreferBannerSize;
+
+/**
+ * 因为广告平台尺寸不支持，希望Ipad不使用而iphone使用的平台。
+ * 返回值必须是@"38,35"类似，其中38表示baidu的sdk id， 35表示WQ的sdk id。
+ */
+- (NSString*)adViewDisablePlatformsForIpad;
 
 #pragma mark notifications
 
@@ -93,6 +105,16 @@ typedef enum {
 - (BOOL)adViewTestMode;
 
 /**
+ * 用户是否要求输出日志，以前是和adViewTestMode同步的，现在可单独启用
+ */
+- (BOOL)adViewLogMode;
+
+/**
+ * 获取广告时间太长，则判定为失败的超时长度，缺省15，单位s
+ */
+- (NSTimeInterval)adTimeOutInterval;
+
+/**
  * 是否打开Gps获取地理位置信息
  */
 - (BOOL)adGpsMode;
@@ -111,6 +133,11 @@ typedef enum {
 - (UIColor *)adViewAdBackgroundColor;
 - (UIColor *)adViewTextColor;
 - (UIColor *)adViewSecondaryTextColor;
+/**
+ * Default:AdViewAppAd_BgGradient_Fix
+ * 应用互推在文字和图标模式下的渐变背景类型，缺省为单一渐变，可选择关闭或基于背景颜色的随机变化
+ */
+- (AdViewAppAd_BgGradientType)adViewAppAdBackgroundGradientType;
 
 
 #pragma mark 广告ID
@@ -121,6 +148,8 @@ typedef enum {
 - (NSString *)millennialMediaApIDString;  // your ApID string from Millennial Media.
 
 - (NSString *)adChinaApIDString;  //application id for adChina
+
+- (NSString *)aderApIDString;	//application id for ader
 
 - (NSString *)caseeApIDString;  //application id for casee
 

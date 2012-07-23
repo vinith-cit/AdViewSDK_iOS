@@ -76,5 +76,6 @@ typedef enum tagConfigMethod {
 // For testing -- set mocks here.
 @property (nonatomic,retain) AWNetworkReachabilityWrapper *reachability;
 @property (nonatomic,retain) NSURLConnection *connection;
+@property (nonatomic,assign) BOOL			needParseAgain;
 
 @end

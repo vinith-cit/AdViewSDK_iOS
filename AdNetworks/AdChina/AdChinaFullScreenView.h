@@ -10,10 +10,11 @@
 
 @interface AdChinaFullScreenView : UIView
 
+// returns newly created fullscreen ad
 + (AdChinaFullScreenView *)requestAdWithAdSpaceId:(NSString *)theAdSpaceId delegate:(id<AdChinaFullScreenViewDelegate>)theDelegate;
 
 // Set view controller for browser, default view controller is delegate
-- (void)setViewController:(UIViewController *)controller;
+- (void)setViewControllerForBrowser:(UIViewController *)controller;
 
 // Set the loading view's background color, default RGBA is 0,0,0,0.3
 - (void)setBackgroundColor:(UIColor *)backgroundColor;

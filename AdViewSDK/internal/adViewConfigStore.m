@@ -30,7 +30,7 @@
 #define kAdViewConfigRegetTimeInteval		1800.		//seconds
 
 
-#define CONFIG_FILE_NAME		@"Documents/adview_config.dat"
+#define CONFIG_FILE_NAME		@"Library/adview_config.dat"
 
 
 static AdViewConfigStore *gStore = nil;
@@ -51,6 +51,7 @@ static AdViewConfigStore *gStore = nil;
 
 @synthesize reachability = reachability_;
 @synthesize connection = connection_;
+@synthesize needParseAgain;
 
 + (AdViewConfigStore *)sharedStore {
   if (gStore == nil) {
@@ -91,6 +92,21 @@ static AdViewConfigStore *gStore = nil;
 								  method:ConfigMethod_DataFile 
 								delegate:delegate];
 #endif			
+		}
+		else if (needParseAgain) {
+			AdViewConfig *config1 = [[AdViewConfig alloc] initWithAppKey:appKey
+															   delegate:delegate];
+			config1.fetchBlockMode = YES;
+			config1.fetchType = config.fetchType | FetchTypeMemory;
+			fetchingConfig_ = config1;
+			[configs_ setObject:config1 forKey:appKey];
+			[config1 release];			
+			
+			[self performSelectorOnMainThread:@selector(startParseConfig)
+								   withObject:self
+								waitUntilDone:NO];
+			self.needParseAgain = NO;
+			return config1;
 		}
 		
       if ([delegate
@@ -138,6 +154,7 @@ static AdViewConfigStore *gStore = nil;
     return nil;
   }
 
+  config.fetchType = FetchTypeNetwork;
   [configs_ setObject:config forKey:appKey];
   [config release];
   return config;
@@ -168,18 +185,20 @@ static AdViewConfigStore *gStore = nil;
 	if (cfgMethod == ConfigMethod_DataFile) {
 		filePath_in = [NSHomeDirectory()
 							 stringByAppendingPathComponent:CONFIG_FILE_NAME];
-		AWLogInfo(@"data config path:%@", filePath_in);
-		if ([self checkFileExists:filePath_in]) {
+		BOOL bExist = [self checkFileExists:filePath_in];
+		AWLogInfo(@"data config path:%@, exit:%d", filePath_in, bExist);
+		if (bExist) {
 			data = [NSData dataWithContentsOfFile:filePath_in];
 		}
 	} else if (cfgMethod = ConfigMethod_OfflineFile) {
 		NSString *offFileName = [appKey stringByAppendingString:@".txt"];
 		filePath_in = [[[NSBundle mainBundle] bundlePath]
 					   stringByAppendingPathComponent:offFileName];
-		AWLogInfo(@"offline config path:%@", filePath_in);
 		
 		NSData *fileData = nil;
-		if ([self checkFileExists:filePath_in]) {
+		BOOL bExist = [self checkFileExists:filePath_in];
+		AWLogInfo(@"offline config path:%@, exit:%d", filePath_in, bExist);
+		if (bExist) {
 			fileData = [NSData dataWithContentsOfFile:filePath_in];
 		}
 		
@@ -199,7 +218,7 @@ static AdViewConfigStore *gStore = nil;
 	[receivedData_ setLength:0];
 	[receivedData_ appendData:data];
 	
-	config.fetchByFile = YES;
+	config.fetchType = FetchTypeFile;
     [self performSelectorOnMainThread:@selector(startParseConfig)
                            withObject:self
                         waitUntilDone:NO];
@@ -212,7 +231,7 @@ static AdViewConfigStore *gStore = nil;
     [reachability_ release];
   }
   [connection_ release];
-  [receivedData_ release];
+  [receivedData_ release];	receivedData_ = nil;
   [configs_ release];
   [super dealloc];
 }
@@ -299,7 +318,7 @@ static AdViewConfigStore *gStore = nil;
 // Clean up after fetching, success or failed
 - (void)finishedFetching {
   [connection_ release], connection_ = nil;
-  [receivedData_ release], receivedData_ = nil;
+  //[receivedData_ release], receivedData_ = nil;
   fetchingConfig_ = nil;
 }
 
@@ -409,7 +428,7 @@ static AdViewConfigStore *gStore = nil;
 	
 #if 0		//modify config.txt to test adv working.	
 	NSString *filePath_in = [NSHomeDirectory()
-						  stringByAppendingPathComponent:@"config_1.dat"];
+						  stringByAppendingPathComponent:@"Documents/config_1.dat"];
 	
 	NSData *data = [NSData dataWithContentsOfFile:filePath_in];
 	[receivedData_ setLength:0];

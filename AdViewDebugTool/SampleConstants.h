@@ -18,5 +18,18 @@
  
 */
 
+//#define kSampleAppKey @"SDK20121616040605215hfjoroof0ql8"		//@死神的左手
+//#define kSampleAppKey @"SDK2012202108055350s2lp06ru215tw"
+
+//#define kSampleAppKey @"SDK20121002100543cqsnmqsrbozod81"		//adview.
+
+//#define kSampleAppKey @"SDK201117041405591begftk60epsig5"
 
 #define kSampleAppKey @"SDK20111022530129m85is43b70r4iyc"
+//#define kSampleAppKey @"SDK20112008511035ylhncq1qd1r4oq5"
+
+//#define kSampleAppKey @"SDK20111808491246d5nwkucn9f80jfo"
+//#define kSampleAppKey @"SDK20111004301104sk55wewpb31i8bv"
+//#define kSampleAppKey @"SDK2011102043122233hsbixt2eng4z7"
+
+//#define kSampleAppKey @"SDK2012171320035622ft8z08vllslpj"

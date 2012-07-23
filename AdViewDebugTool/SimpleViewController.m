@@ -360,6 +360,22 @@
   return YES;
 }
 
+- (BOOL)adViewLogMode {
+    return YES;
+}
+
+- (AdviewBannerSize)PreferBannerSize {
+	return AdviewBannerSize_Auto;
+}
+
+- (NSString*)adViewDisablePlatformsForIpad {
+	return @"";
+}
+
+- (AdViewAppAd_BgGradientType)adViewAppAdBackgroundGradientType {
+	return AdViewAppAd_BgGradient_Fix;
+}
+
 #if 0
 - (LangSetType)PreferLangSet {
 	return LangSetType_Separated;

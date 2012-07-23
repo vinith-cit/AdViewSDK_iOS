@@ -75,7 +75,7 @@ typedef enum
 }
 -(id)init;
 -(id)initWithPublisherID:(NSString *)publisherID;
--(void)setInterval:(MSAdRefreshInterval)interval;
+-(void)satInterval:(MSAdRefreshInterval)interval;		//setInterval->satInterval, for adview private change.
 -(void)setKeyword:(NSString*)keyword;
 -(void)setCustomData:(NSString*)customData;
 -(void)popADView;
@@ -88,7 +88,7 @@ typedef enum
 -(id)initWithAdSize:(NSUInteger)adSize;
 -(id)initWithAdSize:(NSUInteger)adSize PublisherID:(NSString *)publisherID;
 
--(void)setInterval:(MSAdRefreshInterval)interval;
+-(void)satInterval:(MSAdRefreshInterval)interval;		//setInterval->satInterval, for adview private change.
 -(void)setSwitchAnimeType:(MobiSageAnimeType)switchAnimeType;
 -(void)setKeyword:(NSString*)keyword;
 -(void)setCustomData:(NSString*)customData;

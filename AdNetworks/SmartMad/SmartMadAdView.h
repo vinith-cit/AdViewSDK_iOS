@@ -46,6 +46,6 @@
 -(SmartMadAdView*)initRequestAdWithParameters:(NSString*)posID  compileMode:(AdCompileMode)compileMode;
 -(SmartMadAdView*)initRequestAdWithParameters:(NSString*)posID aInterval:(NSTimeInterval)aInterval
 									adMeasure:(AdMeasureType)adMeasure adBannerAnimation:(AdBannerTransitionAnimationType)adBannerAnimation compileMode:(AdCompileMode)compileMode;
--(void)setEventDelegate:(id<SmartMadAdEventDelegate>)aEventDelegate;
+-(void)satEventDelegate:(id<SmartMadAdEventDelegate>)aEventDelegate;	//setEventDelegate->satEventDelegate, for adview private change.
 
 @end

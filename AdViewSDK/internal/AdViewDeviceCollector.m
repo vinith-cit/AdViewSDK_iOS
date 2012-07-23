@@ -13,6 +13,8 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 #import "adViewLog.h"
 
+#define ADVIEW_UUID_KEY @"Adview_Unique_Id"
+
 #define ADVIEW_DEVICE_COLLECTOR_REPORT_HOST @"report.adview.cn"
 #define ADVIEW_DEVICE_COLLECTOR_REPORT_FORMAT @"http://%@/agent/appReport.php?keyAdView=%@&keyDev=%@&typeDev=%@&osVer=%@&resolution=%@&servicePro=%@&netType=%@&channel=%@&platform=%@"
 
@@ -28,6 +30,7 @@ static AdViewDeviceCollectorStatus shared_adview_device_collector_status = kAdVi
 
 @implementation AdViewDeviceCollector
 @synthesize delegate;
+@synthesize uuid;
 
 + (AdViewDeviceCollectorStatus) deviceCollectorStatus
 {
@@ -51,6 +54,116 @@ static AdViewDeviceCollectorStatus shared_adview_device_collector_status = kAdVi
         }
     }
     return shared_adview_device_collector;
+}
+
+typedef unsigned int uint;
+typedef unsigned char BYTE;
+
+static uint CRC32(const BYTE* ptr,uint Size)
+{
+    
+	uint crcTable[256],crcTmp1;
+	
+	//动态生成CRC-32表
+	for (int i=0; i<256; i++)
+    {
+		crcTmp1 = i;
+		for (int j=8; j>0; j--)
+		{
+			if (crcTmp1&1) crcTmp1 = (crcTmp1 >> 1) ^ 0xEDB88320L;
+			else crcTmp1 >>= 1;
+		}
+		
+		crcTable[i] = crcTmp1;
+    }
+	//计算CRC32值
+	uint crcTmp2= 0xFFFFFFFF;
+	while(Size--)
+	{
+		crcTmp2 = ((crcTmp2>>8) & 0x00FFFFFF) ^ crcTable[ (crcTmp2^(*ptr)) & 0xFF ];
+		ptr++;
+	}
+	
+	return (crcTmp2^0xFFFFFFFF);
+}
+
+#define XOR_VAL		0x8254F076
+#define ADD_VAL		0x1056832D
+
++ (NSString*)encodeString:(NSString*)inStr {
+	const char *strData = [inStr UTF8String];
+	uint inLen = strlen(strData);
+	uint crc32Val = CRC32((const BYTE*)strData, inLen);
+	
+	crc32Val ^= XOR_VAL;
+	crc32Val += ADD_VAL;
+	
+	NSString *strAppend = [NSString stringWithFormat:@"%X", crc32Val];
+	return [NSString stringWithFormat:@"%@-%@", inStr, strAppend];
+}
+
++ (NSString*)decodeString:(NSString*)inStr {
+	if (nil == inStr) return nil;
+	
+	NSRange range = [inStr rangeOfString:@"-" options:NSBackwardsSearch];
+	if (range.location == NSNotFound) return nil;
+	
+	NSString *ret = [inStr substringToIndex:range.location];
+	NSString *crc32Str = [inStr substringFromIndex:range.location+1];
+#if 0
+	unsigned long crc32Long = 0;
+	sscanf([crc32Str UTF8String], "%lx", &crc32Long);
+	
+	uint crc32Val = (uint)crc32Long;
+	crc32Val -= ADD_VAL;
+	crc32Val ^= XOR_VAL;
+#endif
+	const char *strData = [ret UTF8String];
+	uint inLen = strlen(strData);
+	uint crc32Cal = CRC32((const BYTE*)strData, inLen);
+	
+	crc32Cal ^= XOR_VAL;
+	crc32Cal += ADD_VAL;
+	
+	NSString *strAppend = [NSString stringWithFormat:@"%X", crc32Cal];	
+	
+	if ([strAppend isEqualToString:crc32Str])
+		return ret;
+	
+	return nil;
+}
+
++ (NSString *)myIdentifier 
+{
+	AdViewDeviceCollector *collector = [AdViewDeviceCollector sharedDeviceCollector];
+	
+	if (nil != collector.uuid)
+		return collector.uuid;
+	
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	
+	NSString *uuidEnc = [defaults objectForKey:ADVIEW_UUID_KEY];
+
+	NSString *uuid = [AdViewDeviceCollector decodeString:uuidEnc];
+	
+	if (nil == uuid || [uuid length] > 60) {
+        CFUUIDRef uuidRef = CFUUIDCreate(NULL);  
+        CFStringRef uuidStr = CFUUIDCreateString(NULL, uuidRef);
+		
+		uuid = [NSString stringWithFormat:@"ADV-%@", uuidStr];
+		
+        CFRelease(uuidStr);
+        CFRelease(uuidRef);
+		
+		NSString *e1 = [AdViewDeviceCollector encodeString:uuid];
+		[defaults setObject:e1 forKey:ADVIEW_UUID_KEY];
+		[defaults synchronize];
+	}
+	
+	AWLogInfo(@"uuid length:%d", [uuid length]);
+	
+	collector.uuid = uuid;
+	return uuid;
 }
 
 - (NSUInteger) retainCount {
@@ -78,6 +191,9 @@ static AdViewDeviceCollectorStatus shared_adview_device_collector_status = kAdVi
 
 - (void)dealloc
 {
+	self.delegate = nil;
+	self.uuid = nil;
+	
     [super dealloc];
 }
 
@@ -138,7 +254,7 @@ static AdViewDeviceCollectorStatus shared_adview_device_collector_status = kAdVi
 
 - (NSString*) deviceId
 {
-    return [[UIDevice currentDevice] uniqueIdentifier];
+    return [AdViewDeviceCollector myIdentifier];//[[UIDevice currentDevice] uniqueIdentifier];
 }
 
 - (NSString*) deviceModel
