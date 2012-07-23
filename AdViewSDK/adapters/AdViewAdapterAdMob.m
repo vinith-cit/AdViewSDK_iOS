@@ -69,6 +69,10 @@
 
     GADBannerView *adMobView = [[adMobViewClass alloc] initWithFrame:
 								CGRectMake(0.0f, 0.0f, self.sSizeAd.width, self.sSizeAd.height)];
+	if (nil == adMobView) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}
 
     [adMobView performSelector:@selector(setAdUnitID:) withObject:networkConfig.pubId];
     AWLogInfo(@"AdMob ID:%@", adMobView.adUnitID);
@@ -99,11 +103,13 @@
 	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
 		sizeId = [adViewDelegate PreferBannerSize];
 	}
+	BOOL isLandscape = [self helperIsLandscape];	
 	
 	if (sizeId > AdviewBannerSize_Auto) {
 		switch (sizeId) {
 			case AdviewBannerSize_320x50:
-				self.sSizeAd = CGSizeMake(320, 50);
+				if (isLandscape) self.sSizeAd = CGSizeMake(480, 32);
+				else self.sSizeAd = CGSizeMake(320, 50);
 				break;
 			case AdviewBannerSize_300x250:
 				self.sSizeAd = CGSizeMake(300, 250);
@@ -112,13 +118,16 @@
 				self.sSizeAd = CGSizeMake(468, 60);
 				break;
 			case AdviewBannerSize_728x90:
-				self.sSizeAd = CGSizeMake(728, 90);
+				if (isLandscape) self.sSizeAd = CGSizeMake(1024, 90);
+				else self.sSizeAd = CGSizeMake(728, 90);
 				break;
 		}
 	} else if (isIPad) {
-		self.sSizeAd = CGSizeMake(728, 90);
+		if (isLandscape) self.sSizeAd = CGSizeMake(1024, 90);
+		else self.sSizeAd = CGSizeMake(728, 90);
 	} else {
-		self.sSizeAd = CGSizeMake(320, 50);
+		if (isLandscape) self.sSizeAd = CGSizeMake(480, 32);
+		else self.sSizeAd = CGSizeMake(320, 50);
 	}
 }
 
@@ -141,6 +150,7 @@
 
 - (void)adView:(GADBannerView *)view didFailToReceiveAdWithError:(GADRequestError *)error
 {
+	AWLogInfo(@"AdView fail from AdMob.Error:%@", [error localizedDescription]);
     [adViewView adapter:self didFailAd:nil];
 }
 

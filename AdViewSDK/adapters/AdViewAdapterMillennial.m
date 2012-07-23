@@ -100,13 +100,17 @@
 									delegate:self  // Must be set, CANNOT be nil
 									loadAd:YES   // Loads an ad immediately
 									 startTimer:NO];
+	if (nil == adView) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}	
 	
   adView.rootViewController = [adViewDelegate viewControllerForPresentingModalView];
   self.adNetworkView = adView;
 }
 
 - (void)stopBeingDelegate {
-  MMAdView *adView = (MMAdView *)adNetworkView;
+  MMAdView *adView = (MMAdView *)self.adNetworkView;
   if (adView != nil) {
 	  adView.refreshTimerEnabled = NO;
 	  adView.delegate = nil;

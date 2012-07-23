@@ -9,13 +9,21 @@
 #import "AdViewLog.h"
 #import "AdViewAdNetworkAdapter+Helpers.h"
 #import "AdViewAdNetworkRegistry.h"
-#import "DoMobView.h"
+#import "DMTools.h"
 #import "AdViewAdapterDoMob.h"
+#import "SingletonAdapterBase.h"
 
 #define TestUserSpot @"all"
 
 @interface AdViewAdapterDoMob ()
+- (NSString *)appIdForAd;
 @end
+
+@interface AdViewAdapterDomobImpl : SingletonAdapterBase <DMAdViewDelegate> 
+
+@end
+
+static AdViewAdapterDomobImpl *gDomobImpl = nil;
 
 
 @implementation AdViewAdapterDoMob
@@ -25,32 +33,60 @@
 }
 
 + (void)load {
-	if(NSClassFromString(@"DoMobView") != nil) {
+	if(NSClassFromString(@"DMAdView") != nil) {
 		[[AdViewAdNetworkRegistry sharedRegistry] registerClass:self];
 	}
 }
 
 - (void)getAd {
-	Class doMobViewClass = NSClassFromString (@"DoMobView");
+	Class dMAdViewClass = NSClassFromString (@"DMAdView");
 	
-	if (nil == doMobViewClass) {
+	if (nil == dMAdViewClass) {
+		AWLogInfo(@"no domob lib, can not create.");		
 		[adViewView adapter:self didFailAd:nil];
-		AWLogInfo(@"no domob lib, can not create.");
 		return;
 	}
 	
-	[self updateSizeParameter];
-	DoMobView* adView = [doMobViewClass requestDoMobViewWithSize:self.sSizeAd WithDelegate:self];
+	if (nil == gDomobImpl) gDomobImpl = [[AdViewAdapterDomobImpl alloc] init];
+	[gDomobImpl setAdapterValue:YES ByAdapter:self];
+	DMAdView* adView = (DMAdView*)[gDomobImpl getIdelAdView];
+	if (nil == adView) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}
 	
 	self.adNetworkView = adView;
+    [adView loadAd]; // 开始加载广告
+    
+    // 检查更新提
+#if 0
+	Class dmToolsClass = NSClassFromString (@"DMTools");
+	if (nil != dmToolsClass) {
+		DMTools *dmTools = [[DMTools alloc] initWithPublisherId:[self appIdForAd]];
+		[dmTools checkRateInfo];
+		[dmTools release];
+	}
+#endif
+    [adView release];
+    [self setupDefaultDummyHackTimer];
 }
 
 - (void)stopBeingDelegate {
-  DoMobView *adView = (DoMobView *)adNetworkView;
-	AWLogInfo(@"--stopBeingDelegate--结束--");
+  DMAdView *adView = (DMAdView *)self.adNetworkView;
+	AWLogInfo(@"--Domob stopBeingDelegate--");
+	[gDomobImpl setAdapterValue:NO ByAdapter:self];
+	[self cleanupDummyHackTimer];
+	
   if (adView != nil) {
-	  adView.doMobDelegate = nil;
+	  adView.delegate = nil;
+	  adView.rootViewController = nil;
   }
+	self.adNetworkView = nil;
+}
+
+- (void)cleanupDummyRetain {
+	[gDomobImpl setAdapterValue:NO ByAdapter:self];
+	[super cleanupDummyRetain];
 }
 
 - (void)updateSizeParameter {
@@ -64,22 +100,22 @@
 	if (sizeId > AdviewBannerSize_Auto) {
 		switch (sizeId) {
 			case AdviewBannerSize_320x50:
-				self.sSizeAd = DOMOB_SIZE_320x48;
+				self.sSizeAd = DOMOB_AD_SIZE_320x50;
 				break;
 			case AdviewBannerSize_300x250:
-				self.sSizeAd = DOMOB_SIZE_320x270;
+				self.sSizeAd = DOMOB_AD_SIZE_300x250;
 				break;
 			case AdviewBannerSize_480x60:
-				self.sSizeAd = DOMOB_SIZE_488x80;
+				self.sSizeAd = DOMOB_AD_SIZE_488x80;
 				break;
 			case AdviewBannerSize_728x90:
-				self.sSizeAd = DOMOB_SIZE_748x110;
+				self.sSizeAd = DOMOB_AD_SIZE_728x90;
 				break;
 		}
 	} else if (isIPad) {
-		self.sSizeAd = DOMOB_SIZE_748x110;
+		self.sSizeAd = DOMOB_AD_SIZE_728x90;
 	} else {
-		self.sSizeAd = DOMOB_SIZE_320x48;
+		self.sSizeAd = DOMOB_AD_SIZE_320x50;
 	}
 }
 
@@ -87,13 +123,7 @@
   [super dealloc];
 }
 
-#pragma mark DoMobDelegate methods
-- (UIViewController *)domobCurrentRootViewControllerForAd:(DoMobView *)doMobView
-{
-  return [adViewDelegate viewControllerForPresentingModalView];
-}
-
-- (NSString *)domobPublisherIdForAd:(DoMobView *)doMobView {
+- (NSString *)appIdForAd {
 	NSString *apID;
 	if ([adViewDelegate respondsToSelector:@selector(DoMobApIDString)]) {
 		apID = [adViewDelegate DoMobApIDString];
@@ -106,97 +136,76 @@
 	//return @"56OJycJIuMWsQqo0JM";
 }
 
-- (NSString *)domobSpot:(DoMobView *)doMobView;
+@end
+
+@implementation AdViewAdapterDomobImpl
+
+- (UIView*)createAdView {
+	Class dMAdViewClass = NSClassFromString (@"DMAdView");
+	
+	if (nil == dMAdViewClass) {
+		AWLogInfo(@"no domob lib, can not create.");
+		return nil;
+	}
+	
+	if (nil == mAdapter) {
+		AWLogInfo(@"have not set domob adapter.");
+		return nil;
+	}
+	
+	AdViewAdapterDoMob *adapter = (AdViewAdapterDoMob*)mAdapter;
+	
+	[adapter updateSizeParameter];
+	DMAdView* adView = [[dMAdViewClass alloc] initWithPublisherId:[adapter appIdForAd]
+															 size:adapter.sSizeAd
+													  autorefresh:NO];
+	if (nil == adView) {
+		AWLogInfo(@"did not alloc DMAdView");
+		return nil;
+	}
+	
+    adView.delegate = self; // 设置 Delegate
+    adView.rootViewController = [mAdapter.adViewDelegate viewControllerForPresentingModalView];
+	
+	return adView;
+}
+
+#pragma mark DoMobDelegate methods
+
+// 成功加载广告后，回调该方法
+- (void)dmAdViewSuccessToLoadAd:(DMAdView *)adView
 {
-	return TestUserSpot;
+    AWLogInfo(@"Domob success to load ad.");
+	
+	if (![self isAdViewValid:adView]) return;
+	
+    [mAdapter cleanupDummyHackTimer];
+	[mAdapter.adViewView adapter:mAdapter didReceiveAdView:adView];
 }
-// Sent when an ad request loaded an ad; 
-// it only send once per DoMobView
-- (void)domobDidReceiveAdRequest:(DoMobView *)doMobView
+
+// 加载广告失败后，回调该方法
+- (void)dmAdViewFailToLoadAd:(DMAdView *)adView withError:(NSError *)error
 {
-    AWLogInfo(@"did receive an ad from domob");
-    [adViewView adapter:self didReceiveAdView:doMobView];
+    AWLogInfo(@"Domob fail to load ad. %@", error);
+	
+	if (![self isAdViewValid:adView]) return;
+	
+    [mAdapter cleanupDummyHackTimer];
+	[mAdapter.adViewView adapter:mAdapter didFailAd:nil];
 }
 
-- (void)domobDidFailToReceiveAdRequest:(DoMobView *)doMobView
+// 当将要呈现出 Modal View 时，回调该方法。如打开内置浏览器。
+- (void)dmWillPresentModalViewFromAd:(DMAdView *)adView
 {
-	AWLogInfo(@"adview failed from domob");
-	[adViewView adapter:self didFailAd:nil];
+    AWLogInfo(@"Domob will present modal view.");    
+	[mAdapter helperNotifyDelegateOfFullScreenModal];
 }
-/*
- - (UIColor *)adBackgroundColorForAd:(DoMobView *)doMobView
- {
- return [UIColor blackColor];
- }*/
 
-- (void)domobWillPresentFullScreenModalFromAd:(DoMobView *)doMobView
+// 当呈现的 Modal View 被关闭后，回调该方法。如内置浏览器被关闭。
+- (void)dmDidDismissModalViewFromAd:(DMAdView *)adView
 {
-	AWLogInfo(@"The view will Full Screen");
-	[self helperNotifyDelegateOfFullScreenModal];
-}
-
-- (void)domobDidPresentFullScreenModalFromAd:(DoMobView *)doMobView
-{
-	AWLogInfo(@"The view did Full Screen");
-}
-
-- (void)domobWillDismissFullScreenModalFromAd:(DoMobView *)doMobView
-{
-	AWLogInfo(@"The view will Dismiss Full Screen");
-}
-
-- (void)domobDidDismissFullScreenModalFromAd:(DoMobView *)doMobView
-{
-	AWLogInfo(@"The view did Dismiss Full Screen");
-	[self helperNotifyDelegateOfFullScreenModalDismissal];
-}
-
-- (BOOL)domobIsTestingMode {
-	if ([adViewDelegate respondsToSelector:@selector(adViewTestMode)])
-		return [adViewDelegate adViewTestMode];
-	return NO;	
-}
-
-- (NSInteger)domobRefreshIntervalForAd:(DoMobView *)doMobView {
-	return 90;
-}
-
-// 设置是否输出调试用的log信息
-// 返回值:YES表示输出 NO表示不输出
-- (BOOL)domobIsPrintDebugLog {
-	return [self domobIsTestingMode];
-}
-
-- (UIColor *)domobAdBackgroundColorForAd:(DoMobView *)doMobView {
-	return [self helperBackgroundColorToUse];
-}
-
-// 设置广告视图中文字的显示颜色
-// doMobView:广告视图对象，用于标识哪个对象使用该函数返回值。
-// 返回值:表示颜色的UIColor对象，默认值为白色(rgba=FFFFFFFF)。
-- (UIColor *)domobPrimaryTextColorForAd:(DoMobView *)doMobView {
-	return [self helperTextColorToUse];
-}
-
-#if 0	//no data.
-
-- (double)domobLocationLongitude {
-	CLLocation *loc = [adViewDelegate locationInfo];
-	if (loc == nil) return 0.0;
-	return loc.coordinate.longitude;
-}
-
-- (double)domobLocationLatitude {
-	CLLocation *loc = [adViewDelegate locationInfo];
-	if (loc == nil) return 0.0;
-	return loc.coordinate.latitude;
-}
-
-#endif
-
-// 用于开发者设置是否由SDK自动获取地理位置信息,YES表示获取，NO表示不获取
-- (BOOL)domobIsOpenLocation {
-	return [self helperUseGpsMode];
+    AWLogInfo(@"Domob did dismiss modal view.");
+	[mAdapter helperNotifyDelegateOfFullScreenModalDismissal];
 }
 
 @end

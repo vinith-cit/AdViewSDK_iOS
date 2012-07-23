@@ -41,6 +41,10 @@
 	[self updateSizeParameter];
 	
 	KAdView *adView = [KyAdViewAdOnClass requestOfSize: self.sSizeAd withDelegate:self];
+	if (nil == adView) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}
 	
 	//[adViewView adapter:self shouldAddAdView:adView];
 	self.adNetworkView = adView;
@@ -115,7 +119,7 @@
 }
 
 -(BOOL) testMode {
-	return [self isTestMode];
+	return NO;//[self isTestMode];
 }
 
 #pragma mark Delegate
@@ -128,13 +132,21 @@
 	return [self helperBackgroundColorToUse];
 }
 
+-(int)gradientBgType {
+	if (nil != adViewDelegate
+		&& [adViewDelegate respondsToSelector:@selector(adViewAppAdBackgroundGradientType)]) {
+		return [adViewDelegate adViewAppAdBackgroundGradientType];
+	}
+	return 0;
+}
+
 -(void) didReceivedAd: (KAdView*) adView {
 	AWLogInfo(@"did receive an ad from KyAdView");
     [adViewView adapter:self didReceiveAdView:adView];	
 }
 
--(void) didFailToReceiveAd: (KAdView*) adView {
-	AWLogInfo(@"adview failed from KyAdView");
+-(void)didFailToReceiveAd:(KAdView*)adView Error:(NSError*)error {
+	AWLogInfo(@"adview failed from KyAdView:%@", [error localizedDescription]);
 	[adViewView adapter:self didFailAd:nil];		
 }
 

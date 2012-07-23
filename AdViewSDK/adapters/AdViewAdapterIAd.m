@@ -56,6 +56,11 @@ NSString * const ADBannerContentSizeIdentifier480x32_sim = @"ADBannerContentSize
 	}
 	
 	ADBannerView *iAdView = [[adBannerViewClass alloc] initWithFrame:CGRectZero];
+	if (nil == iAdView) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}	
+	
 	iAdView.requiredContentSizeIdentifiers = [NSSet setWithObjects:
                                             ADBannerContentSizeIdentifier320x50_sim,
                                             ADBannerContentSizeIdentifier480x32_sim,

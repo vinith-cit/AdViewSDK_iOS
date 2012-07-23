@@ -5,9 +5,9 @@
  */
 
 #import "AdViewAdNetworkAdapter.h"
-#import "MobWinSpotViewDelegate.h"
+#import "MobWinBannerViewDelegate.h"
 
-@interface AdViewAdapterMobWin : AdViewAdNetworkAdapter <MobWinSpotViewDelegate> {
+@interface AdViewAdapterMobWin : AdViewAdNetworkAdapter <MobWinBannerViewDelegate> {
 	
 }
 

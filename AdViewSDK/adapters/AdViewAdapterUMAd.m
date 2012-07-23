@@ -21,7 +21,7 @@
 + (void) load
 {
     if (NSClassFromString(UMADBANNERVIEW_CLASS_NAME) && NSClassFromString(UMADMANAGER_CLASS_NAME)) {
-        AWLogInfo(@"Found UMAD AdNetwork");
+        //AWLogInfo(@"Found UMAD AdNetwork");
         [[AdViewAdNetworkRegistry sharedRegistry] registerClass:self];
     }
 }
@@ -72,6 +72,19 @@
 
     Class umad_manager_class = NSClassFromString(UMADMANAGER_CLASS_NAME);
     [umad_manager_class setAppDelegate:nil];
+}
+
+- (void)cleanupDummyRetain
+{
+    UMAdBannerView* umad_view = (UMAdBannerView*)self.adNetworkView;
+	if (nil != umad_view) {
+		[umad_view setDelegate:nil];
+	}
+	
+    Class umad_manager_class = NSClassFromString(UMADMANAGER_CLASS_NAME);
+    [umad_manager_class setAppDelegate:nil];
+	
+	[super cleanupDummyRetain];
 }
 
 - (void)updateSizeParameter {

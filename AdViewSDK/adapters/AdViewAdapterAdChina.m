@@ -55,13 +55,13 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 	[mDelegate setAdapter:self];
 	
 	AdChinaBannerView *adView = [mDelegate getIdelAdChinaView:[adViewDelegate viewControllerForPresentingModalView]];
-	
 	if (nil == adView) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
 	}
+	
 	[adView setAnimationMask:AnimationMaskNone];
-	[adView setRefreshInterval:20];
+	[adView setRefreshInterval:-1];
 	
 #if ADCHINA_FRAME_AUTO
 	UIDeviceOrientation orientation;
@@ -91,17 +91,17 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 }
 
 - (void)stopBeingDelegate {
-  AdChinaBannerView *adView = (AdChinaBannerView *)adNetworkView;
+  AdChinaBannerView *adView = (AdChinaBannerView *)self.adNetworkView;
 	AWLogInfo(@"--stopBeingDelegate--结束--");
   if (adView != nil) {
-#if 1
+#if 0
 	  [mDelegate addIdelAdChinaView:adView];
 #else
 	  self.adNetworkView = nil;	//to test if can adchina view be alloced and released. fail.
 #endif
 	  [mDelegate setAdapter:nil];
 	  
-	  adNetworkView = nil;
+	  self.adNetworkView = nil;
   }
 	mDelegate = nil;
 }
@@ -120,19 +120,19 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 				self.sSizeAd = CGSizeMake(320, 48);
 				break;
 			case AdviewBannerSize_300x250:
-				self.sSizeAd = CGSizeMake(320, 48);
+				self.sSizeAd = BannerSizeSquare;
 				break;
 			case AdviewBannerSize_480x60:
-				self.sSizeAd = CGSizeMake(728, 90);
+				self.sSizeAd = BannerSizeVideo;
 				break;
 			case AdviewBannerSize_728x90:
-				self.sSizeAd = CGSizeMake(728, 90);
+				self.sSizeAd = BannerSizeDefault;
 				break;
 		}
 	} else if (isIPad) {
-		self.sSizeAd = BannerSize;
+		self.sSizeAd = BannerSizeDefault;
 	} else {
-		self.sSizeAd = BannerSize;
+		self.sSizeAd = BannerSizeDefault;
 	}
 }
 
@@ -193,8 +193,9 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 			return 0;
 		}
 		
-		ret = [adChinaViewClass requestAdWithAdSpaceId:[self adSpaceId:nil] delegate:self];
-		[ret setViewController:controller];
+		ret = [adChinaViewClass requestAdWithAdSpaceId:[self adSpaceId:nil] delegate:self
+												adSize:mAdapter.sSizeAd];
+		[ret setViewControllerForBrowser:controller];
 	}
 	return ret;
 }
@@ -214,28 +215,6 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 }
 
 #pragma mark AdChinaDelegate methods
-- (void) didGetBannerAd: (AdChinaBannerView *) adView {
-	AWLogInfo(@"AdChina: Did receive ad");
-	AdViewAdapterAdChina *adapter = mAdapter;
-	CGRect r = adView.frame;
-	AWLogInfo(@"%f,%f,%f,%f", r.origin.x, r.origin.y, r.size.width, r.size.height);
-	
-	if (![self isAdViewValid:adView]) return;
-	
-	[adapter.adViewView adapter:adapter didReceiveAdView:adView];
-}
-
-- (void) didFailedToGetBannerAd: (AdChinaBannerView*) adView {
-	AWLogInfo(@"AdChina: Failed to receive ad");
-	AdViewAdapterAdChina *adapter = mAdapter;
-	
-	if (![self isAdViewValid:adView]) return;
-	
-	[adapter.adViewView adapter:adapter didFailAd:nil];
-}
-
-
-#pragma mark MMAdDelegate methods
 
 /**
  *	Be sure to return the id you get from AdChina
@@ -258,7 +237,10 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 }
 
 - (void)didGetBanner:(AdChinaBannerView *)adView {
-	AWLogInfo(@"AdChina: Did receive ad");
+	if (nil != adView)
+		AWLogInfo(@"AdChina: Did receive ad:%dx%d", (int)adView.frame.size.width,
+				  (int)adView.frame.size.height);
+	
 	AdViewAdapterAdChina *adapter = mAdapter;
 	
 	if (![self isAdViewValid:adView]) return;
@@ -312,16 +294,4 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 	return @"";		// return user's birthday if possible
 }
 
-#pragma mark requestData optional methods
-
-// The follow is kept for gathering requestData
-
-- (BOOL)respondsToSelector:(SEL)selector {
-  return [super respondsToSelector:selector];
-}
-
-- (UIViewController*) viewControllerForBannerAd:(AdChinaBannerView *)adView
-{
-    return [mAdapter.adViewDelegate viewControllerForPresentingModalView];
-}
 @end

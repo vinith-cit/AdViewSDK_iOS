@@ -46,12 +46,21 @@ static	BOOL	hasGotBaiduAd = NO;
 		return;
 	}
 	[self updateSizeParameter];
-    BaiduMobAdView* sharedAdView = [baiduViewClass sharedAdViewWithDelegate:self];
+    BaiduMobAdView* sharedAdView = [[baiduViewClass alloc] init];
+	if (nil == sharedAdView) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}
+	
+	sharedAdView.delegate = self;
+	sharedAdView.frame = self.rSizeAd;
 //	NSString *typeStr = networkConfig.pubId3;
 //	int type = [typeStr intValue];
 //	if (2 == type) sharedAdView.AdType = BaiduMobAdViewTypeText;
 //	else 
 		sharedAdView.AdType = BaiduMobAdViewTypeImage;	//type by config.
+	
+	sharedAdView.autoplayEnabled = NO;
 	
 #if NEED_IN_REALVIEW
 	if ([adViewDelegate respondsToSelector:@selector(viewControllerForPresentingModalView)])
@@ -76,10 +85,13 @@ static	BOOL	hasGotBaiduAd = NO;
 		[adViewView adapter:self shouldAddAdView:sharedAdView]; 
 		//shouldAddAdView won't add show number.
 	}
+	
+	[sharedAdView start];
+	[sharedAdView release];
 }
 
 - (void)stopBeingDelegate {
-  BaiduMobAdView *adView = (BaiduMobAdView *)adNetworkView;
+  BaiduMobAdView *adView = (BaiduMobAdView *)self.adNetworkView;
 	AWLogInfo(@"--stopBeingDelegate--结束--");
   if (adView != nil) {
 	  if (adView.delegate == self) {
@@ -97,6 +109,8 @@ static	BOOL	hasGotBaiduAd = NO;
 	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
 		sizeId = [adViewDelegate PreferBannerSize];
 	}
+	
+	self.rSizeAd = CGRectMake(0, 0, kBaiduAdViewSizeDefaultWidth, kBaiduAdViewSizeDefaultHeight);
 	
 	if (sizeId > AdviewBannerSize_Auto) {
 		switch (sizeId) {
@@ -138,10 +152,12 @@ static	BOOL	hasGotBaiduAd = NO;
 		apID = networkConfig.pubId;
 	}
     
+#if 0
     if ([adViewDelegate respondsToSelector:@selector(adViewTestMode)]
         && [adViewDelegate adViewTestMode] == YES) {
         return @"debug";
     }
+#endif
     
 	return apID;
 	
@@ -182,7 +198,7 @@ static	BOOL	hasGotBaiduAd = NO;
 		 adview.frame = kAdViewLandscapeRect;
 	 }	*/
     //视图即将被显示。
-	if (!hasGotBaiduAd) hasGotBaiduAd = YES;
+	//if (!hasGotBaiduAd) hasGotBaiduAd = YES;
 	AWLogInfo(@"willDisplay");
 #if NEED_IN_REALVIEW
 	adview.hidden = NO;
@@ -200,6 +216,30 @@ static	BOOL	hasGotBaiduAd = NO;
 {
     AWLogInfo(@"fail, reason:%d", reason);
 	[adViewView adapter:self didFailAd:nil];
+}
+
+- (BOOL)shouldSendExMetric {
+	return NO;
+}
+
+/**
+ *  本次广告展示成功时的回调
+ */
+-(void) didAdImpressed {
+	AWLogInfo(@"baidu display report");
+	[adViewView adapter:self shouldReport:self.adNetworkView DisplayOrClick:YES];
+}
+
+/**
+ *  本次广告展示被用户点击时的回调
+ */
+-(void) didAdClicked {
+	AWLogInfo(@"baidu click report");
+	[adViewView adapter:self shouldReport:self.adNetworkView DisplayOrClick:NO];
+}
+
+-(void) didDismissLandingPage {
+	AWLogInfo(@"baidu didDismissLandingPage");
 }
 
 @end

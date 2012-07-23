@@ -42,13 +42,18 @@
 	}
 	
 	//设置AppID
-	[airADViewClass setAppID:[self appId]];
+	[airADViewClass setAirID:[self appId]];
 	//设置是否显示提示信息。方便开发调试。
 	[airADViewClass setDebugMode:[self isTestMode]?DEBUG_ON:DEBUG_OFF];
 	//设置是否需要取得GPS信息，为得到高质量的广告，建议打开。
 	[airADViewClass setGPSMode:[self helperUseGpsMode]?GPS_ON:GPS_OFF];
 	
 	airADView *airBanner = [[airADViewClass alloc] init];
+	if (nil == airBanner) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}
+	
 	[self updateSizeParameter];
 	
 	CGRect r = CGRectMake(0, 0, AD_SIZE_320x54.width, AD_SIZE_320x54.height);
@@ -64,12 +69,13 @@
 	self.adNetworkView = airBanner;
 	[airBanner refreshAd];
 	[airBanner release];
-    [self setupDummyHackTimer];
+    [self setupDefaultDummyHackTimer];
 }
 
 - (void)stopBeingDelegate {
 	airADView *airBanner = (airADView *)self.adNetworkView;
 	AWLogInfo(@"airAd stop being delegate");
+	[self cleanupDummyHackTimer];
 	if (airBanner != nil) {
 		airBanner.delegate = nil;
 	}
@@ -105,9 +111,7 @@
 	}
 }
 
-- (void)dealloc {
-    [self cleanupDummyHackTimer];
-    
+- (void)dealloc {    
 	[super dealloc];
 }
 
@@ -142,6 +146,8 @@
 }
 
 - (void)airADView:(airADView *)view didFailToReceiveAdWithError:(NSError *)error {
+	[self cleanupDummyHackTimer];
+	
 	[adViewView adapter:self didFailAd:error];
 }
 

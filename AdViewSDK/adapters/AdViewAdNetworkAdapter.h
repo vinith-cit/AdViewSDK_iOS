@@ -22,6 +22,7 @@
 #import "AdViewConfig.h"
 
 typedef enum {
+	AdViewAdNetworkTypeNone	= 0,
   AdViewAdNetworkTypeAdMob       = 1,
   AdViewAdNetworkTypeJumpTap     = 200,
   AdViewAdNetworkTypeVideoEgg    = 300,
@@ -68,6 +69,10 @@ typedef enum {
     AdViewAdNetworkTypeAdFracta = 44,
     AdViewAdNetworkTypeLmmob = 45,
 	AdViewAdNetworkTypeMobWin = 46,
+	
+	
+	AdViewAdNetworkTypeAder	= 50,
+	
 } AdViewAdNetworkType;
 
 BOOL isForeignAd(AdViewAdNetworkType type);
@@ -151,9 +156,14 @@ BOOL isForeignAd(AdViewAdNetworkType type);
  */
 - (void)updateSizeParameter;
 
-- (void) setupDummyHackTimer;
+- (void) setupDummyHackTimer:(NSTimeInterval)interval;
+- (void) setupDefaultDummyHackTimer;
 - (void) cleanupDummyHackTimer;
 - (void) dummyHackTimerHandler;
+
+- (void) cleanupDummyRetain;
+
++ (void) setDummyHackTimeInterval:(int)interval;
 
 @property (nonatomic,assign) id<AdViewDelegate> adViewDelegate;
 @property (nonatomic,assign) AdViewView *adViewView;

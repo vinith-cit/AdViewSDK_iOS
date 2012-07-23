@@ -30,7 +30,7 @@
 	}
 }
 
-- (void)getAd {
+- (void)getAd {	
 	Class awAdViewClass = NSClassFromString (@"AWAdView");
 	
 	if (nil == awAdViewClass) {
@@ -40,27 +40,33 @@
 	}
 	
 	[self updateSizeParameter];
-    AWAdView* adView = [[awAdViewClass alloc] initWithAdwoPid:[self adwoPublisherIdForAd] adIdType:0 
+    AWAdView* adView = [[awAdViewClass alloc] initWithAdwoPid:[self adwoPublisherIdForAd] adIdType:1 
 												   adTestMode: [self mode] 
 												 adSizeForPad:self.nSizeAd];
-
+	if (nil == adView) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}
+	
     adView.frame = self.rSizeAd;
     adView.delegate = self;
     
-	adView.adRequestTimeIntervel = 30;//时间不要低于30s，以免影响用户体验
+	adView.adRequestTimeIntervel = 60;//时间不要低于60s，以免影响用户体验
 	adView.userGpsEnabled = [self helperUseGpsMode];//如果客户应用不支持定位
     
-    [adView loadAd];
-	
 	self.adNetworkView = adView;
-    AWLogInfo(@"adview size: %@", NSStringFromCGRect(adView.frame));
+	[adView loadAd];
+	[adView killTimer];
+	[adView release];
 }
 
 - (void)stopBeingDelegate {
-  AWAdView *adView = (AWAdView *)adNetworkView;
-	AWLogInfo(@"--stopBeingDelegate--结束--");
+  AWAdView *adView = (AWAdView *)self.adNetworkView;
+	AWLogInfo(@"Adwo stopBeingDelegate");
   if (adView != nil) {
+	  [adView killTimer];
 	  adView.delegate = nil;
+	  self.adNetworkView = nil;
   }
 }
 
@@ -106,7 +112,7 @@
 
 #pragma mark AwAdDelegate methods
 
-- (UIViewController *)viewControllerForPresentingModalView {
+- (UIViewController*)viewControllerForPresentingModalView {
   return [adViewDelegate viewControllerForPresentingModalView];
 }
 
@@ -123,21 +129,23 @@
 	//return @"a2c491847b8e4be78b8aa223ae625e43";
 }
 
-- (void)adViewDidFailToLoadAd:(AWAdView *)view{
+- (void)adViewDidFailToLoadAd:(AWAdView *)view {
     AWLogInfo(@"adViewDidFailToLoadAd");
     [adViewView adapter:self didFailAd:nil];
 }
-- (void)adViewDidLoadAd:(AWAdView *)view{
+
+- (void)adViewDidLoadAd:(AWAdView *)view {
     AWLogInfo(@"adview size: %@", NSStringFromCGRect(view.frame));
     AWLogInfo(@"====adViewDidLoadAd====");
     [adViewView adapter:self didReceiveAdView:view];
 }
 
-- (void)willPresentModalViewForAd:(AWAdView *)view{
+- (void)willPresentModalViewForAd:(AWAdView *)view {
     AWLogInfo(@"willPresentModalViewForAd");
     [self helperNotifyDelegateOfFullScreenModal];
 }
-- (void)didDismissModalViewForAd:(AWAdView *)view{
+
+- (void)didDismissModalViewForAd:(AWAdView *)view {
     AWLogInfo(@"didDismissModalViewForAd");
     [self helperNotifyDelegateOfFullScreenModalDismissal];
 }
@@ -147,7 +155,7 @@
 	if ([adViewDelegate respondsToSelector:@selector(adViewTestMode)])
 		ret = [adViewDelegate adViewTestMode];
 
-	if ( ret == YES )
+	if ( ret )
 		return 0;
 	else
 		return 1;

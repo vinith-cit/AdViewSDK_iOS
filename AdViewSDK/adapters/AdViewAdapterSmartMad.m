@@ -23,7 +23,7 @@
 @implementation AdViewAdapterSmartMad
 
 + (AdViewAdNetworkType)networkType {
-  return AdViewAdNetworkTypeSMARTMAD;
+	return AdViewAdNetworkTypeSMARTMAD;
 }
 
 + (void)load {
@@ -61,7 +61,12 @@
 												   adBannerAnimation:BANNER_ANIMATION_TYPE_FLIPFROMLEFT 
 														 compileMode:AdDebug];
 #endif
-    [smartView setEventDelegate:self]; // set Ad Event Delegate
+	if (nil == smartView) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}	
+    //[smartView setEventDelegate:self]; // set Ad Event Delegate
+	smartView._adEventDelegate = self;
 	
 	self.adNetworkView = smartView;
 
@@ -69,17 +74,17 @@
 }
 
 - (void)stopBeingDelegate {
-  UIView *adView = adNetworkView;
-	AWLogInfo(@"--stopBeingDelegate--结束--");
-  if (adView != nil) {
-	  [adView release];
-	  adNetworkView = nil;
+  SmartMadAdView *smartView = (SmartMadAdView*)self.adNetworkView;
+	AWLogInfo(@"--SmartMad stopBeingDelegate--");
+  if (smartView != nil) {
+	  smartView._adEventDelegate = nil;
 	  self.adNetworkView = nil;
   }
 }
 
 - (void)updateSizeParameter {
 	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
+	BOOL bIsRetina = [AdViewAdNetworkAdapter helperIsRetina];
 	
 	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
 	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
@@ -89,22 +94,30 @@
 	if (sizeId > AdviewBannerSize_Auto) {
 		switch (sizeId) {
 			case AdviewBannerSize_320x50:
-				self.nSizeAd = PHONE_AD_MEASURE_320X48;
+				self.nSizeAd = bIsRetina?0:PHONE_AD_MEASURE_320X48;
+				self.sSizeAd = CGSizeMake(320, 48);
 				break;
 			case AdviewBannerSize_300x250:
 				self.nSizeAd = TABLET_AD_MEASURE_300X250;
+				self.sSizeAd = CGSizeMake(300, 250);
 				break;
 			case AdviewBannerSize_480x60:
 				self.nSizeAd = TABLET_AD_MEASURE_468X60;
+				self.sSizeAd = CGSizeMake(468, 60);
 				break;
 			case AdviewBannerSize_728x90:
 				self.nSizeAd = TABLET_AD_MEASURE_728X90;
+				self.sSizeAd = CGSizeMake(728, 90);
 				break;
+            default:
+                break;
 		}
 	} else if (isIPad) {
 		self.nSizeAd = TABLET_AD_MEASURE_728X90;
+		self.sSizeAd = CGSizeMake(728, 90);
 	} else {
-		self.nSizeAd = PHONE_AD_MEASURE_320X48;
+		self.nSizeAd = bIsRetina?0:PHONE_AD_MEASURE_320X48;
+		self.sSizeAd = CGSizeMake(320, 48);
 	}
 }
 
@@ -158,10 +171,12 @@
 	return BANNER_ANIMATION_TYPE_RANDOM;
 }
 
+#if 1
 -(AdMeasureType)adMeasure {
 	[self updateSizeParameter];
 	return self.nSizeAd;
 }
+#endif
 
 - (UIColor *)adBackgroundColor:(UIView *)adView {
 	return [self helperBackgroundColorToUse];
@@ -175,10 +190,14 @@
 
 - (void)adEvent:(SmartMadAdView*)adview  adEventCode:(AdEventCodeType)eventCode
 {
-	CGRect frm = adview.frame;
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	frm.size = isIPad?CGSizeMake(728, 90):CGSizeMake(320, 48);	//should set the size.
-	adview.frame = frm;
+    //adview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    //adview.autoresizesSubviews = YES;
+    
+	//CGRect frm = adview.frame;
+	//BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
+	//frm.size = self.sSizeAd;	//should set the size.
+	//adview.frame = frm;
+
 	if (EVENT_NEWAD == eventCode) {
 		[self didReceiveAd:adview];
 	} else if (EVENT_INVALIDAD == eventCode) {

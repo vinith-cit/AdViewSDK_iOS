@@ -1,6 +1,6 @@
 /*
 
- AdViewAdapterAdmob.h
+ AdViewAdapterYoumi.h
 
  Copyright 2009 AdMob, Inc.
  

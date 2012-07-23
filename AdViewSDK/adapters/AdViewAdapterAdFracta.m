@@ -20,7 +20,7 @@
 + (void) load
 {
     if (NSClassFromString(ADFRACTA_VIEW_CLASS_NAME)){
-        AWLogInfo(@"AdView: Found WinAd AdNetwork");
+        //AWLogInfo(@"AdView: Found Fracta AdNetwork");
         [[AdViewAdNetworkRegistry sharedRegistry] registerClass:self];
     }
 }
@@ -38,6 +38,11 @@
 	[self updateSizeParameter];
     CGRect r = CGRectMake(0.0f, 0.0f, self.sSizeAd.width, self.sSizeAd.height);
     UIView* adfracta_view = [adfracta_view_class photoAdWithFrame:r delegate:self adType: MCAD_TOP];
+	if (nil == adfracta_view) {
+		[self.adViewView adapter:self didFailAd:nil];
+		return;
+	}
+	
     [adfracta_view performSelector:@selector(setRootViewController_:) withObject: controller];
     adfracta_view.frame = r;
     self.adNetworkView = adfracta_view;

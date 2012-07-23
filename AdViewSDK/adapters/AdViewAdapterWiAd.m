@@ -45,6 +45,10 @@
 	[self updateSizeParameter];
 	//WiAdView* adView = [WiAdViewClass adViewWithResId:[self appId:nil]];//@"填入广告位id"
 	WiAdView* adView = [WiAdViewClass adViewWithResId:[self appId:nil] style: self.nSizeAd];
+	if (nil == adView) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}
 
 	adView.frame = self.rSizeAd;
 	adView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
@@ -61,7 +65,7 @@
 }
 
 - (void)stopBeingDelegate {
-  WiAdView *adView = (WiAdView *)adNetworkView;
+  WiAdView *adView = (WiAdView *)self.adNetworkView;
 	AWLogInfo(@"--stopBeingDelegate--结束--");
   if (adView != nil) {
 	  adView.delegate = nil;

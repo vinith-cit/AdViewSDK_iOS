@@ -51,15 +51,10 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 - (void)getAd {
 	if (nil == gYouMiImpl) 
 		gYouMiImpl = [[AdViewAdapterYouMiImpl alloc] init];
-	if (nil == gYouMiImpl)
-		return;
 	YouMiView *youMiView = nil;
 	//AWLogInfo(@"youmi --getAd--%@", self);
-	@synchronized (gYouMiImpl) {
-		[gYouMiImpl setAdapter:self];
-	
-		youMiView = (YouMiView*)[gYouMiImpl getIdelAdView];
-	}
+	[gYouMiImpl setAdapterValue:YES ByAdapter:self];
+	youMiView = (YouMiView*)[gYouMiImpl getIdelAdView];
 	
 	if (nil == youMiView) {
 		[adViewView adapter:self didFailAd:nil];
@@ -79,11 +74,11 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 - (void)stopBeingDelegate {
 	YouMiView *youMiView = (YouMiView *)self.adNetworkView;
 	//AWLogInfo(@"youmi --stopBeingDelegate--%@", self);
+	[gYouMiImpl setAdapterValue:NO ByAdapter:self];
 	if (youMiView != nil) {
 #if AD_VIEW_RETAIN
 		[gYouMiImpl addIdelAdView:youMiView];
 #endif
-		[gYouMiImpl setAdapter:nil];
 		self.adNetworkView = nil;
 	}
 }
@@ -139,6 +134,12 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 	
 	[mAdapter updateSizeParameter];
 	
+	if ([mAdapter.networkConfig.pubId length] < 1
+		&& [mAdapter.networkConfig.pubId2 length] < 1) {
+		AWLogWarn(@"Youmi appid and secret key is empty.");
+		return nil;
+	}
+	
 	ret = [[youmiViewClass alloc] initWithContentSizeIdentifier:mAdapter.nSizeAd delegate: self];
 	if (nil == ret)
 		return nil;
@@ -151,7 +152,7 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 	
 	mAdapter.adNetworkView = ret;
 	
-	[ret performSelector:@selector(setAppID:) withObject:mAdapter.networkConfig.pubId];
+	[ret performSelector:@selector(setYppID:) withObject:mAdapter.networkConfig.pubId];
     [ret performSelector:@selector(setAppSecret:) withObject:mAdapter.networkConfig.pubId2];
 	[ret performSelector:@selector(start)];
 	return ret;
@@ -215,8 +216,10 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 	[mAdapter.adViewView adapter:mAdapter didReceiveAdView:adView];
 }
 
-- (void)didFailToReceiveRefreshedAd:(YouMiView *)adView{
+- (void)didFailToReceiveAd:(YouMiView *)adView  error:(NSError *)error {
 	AWLogInfo(@"--Single---***-更新广告失败-***--------");	
+	if (nil != error)
+		AWLogInfo(@"%@", [error localizedDescription]);
 	if (![self isAdViewValid:adView])
 		return;
 	[mAdapter.adViewView adapter:mAdapter didFailAd:nil];

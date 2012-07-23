@@ -28,7 +28,7 @@ static AdViewAdapterLmmobImpl *gLmmobImpl = nil;
 + (void) load
 {
     if (NSClassFromString(LMMOB_VIEW_CLASS_NAME)){
-        AWLogInfo(@"AdView: Found LMMob AdNetwork");
+        //AWLogInfo(@"AdView: Found LMMob AdNetwork");
         [[AdViewAdNetworkRegistry sharedRegistry] registerClass:self];
     }
 }
@@ -45,7 +45,7 @@ static AdViewAdapterLmmobImpl *gLmmobImpl = nil;
 	if (nil == gLmmobImpl) 
 		gLmmobImpl = [[AdViewAdapterLmmobImpl alloc] init];
 	
-	[gLmmobImpl setAdapter:self];
+	[gLmmobImpl setAdapterValue:YES ByAdapter:self];
     LmmobAdBannerView* lmmob_view = (LmmobAdBannerView*)[gLmmobImpl getIdelAdView];
 	if (nil == lmmob_view) {
 		[adViewView adapter:self didFailAd:nil];
@@ -61,7 +61,7 @@ static AdViewAdapterLmmobImpl *gLmmobImpl = nil;
 {
 	AWLogInfo(@"LMMOB stopBeingDelegate");
     LmmobAdBannerView* lmmob_view = (LmmobAdBannerView*)self.adNetworkView;
-	[gLmmobImpl setAdapter:nil];
+	[gLmmobImpl setAdapterValue:NO ByAdapter:self];
 #if 0
     [lmmob_view performSelector:@selector(setDelegate:) withObject:nil];
     [lmmob_view performSelector:@selector(setRootViewController:) withObject:nil];
@@ -123,9 +123,9 @@ static AdViewAdapterLmmobImpl *gLmmobImpl = nil;
     UIViewController* controller = [mAdapter.adViewDelegate viewControllerForPresentingModalView];
     Class lmmob_view_class = NSClassFromString(LMMOB_VIEW_CLASS_NAME);
     LmmobAdBannerView* lmmob_view = [[lmmob_view_class alloc] initWithAdPosition:appIdString withAppVersion:@"1.4.4"];
-	
-	if (nil == lmmob_view)
+	if (nil == lmmob_view) {
 		return nil;
+	}
 	
 	AWLogInfo(@"lmmob view:%u", lmmob_view);
 	mAdapter.adNetworkView = lmmob_view;

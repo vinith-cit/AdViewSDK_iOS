@@ -55,7 +55,7 @@ static AdViewAdapterWQImpl *gWQImpl = nil;
 	}
 	
 	if (nil == gWQImpl) gWQImpl = [[AdViewAdapterWQImpl alloc] init];
-	[gWQImpl setAdapter:self];
+	[gWQImpl setAdapterValue:YES ByAdapter:self];
 	
 	WQAdView *wqBanner = (WQAdView*)[gWQImpl getIdelAdView];
 	if (nil == wqBanner) {
@@ -84,6 +84,7 @@ static AdViewAdapterWQImpl *gWQImpl = nil;
 - (void)stopBeingDelegate {
 	WQAdView *wqBanner = (WQAdView *)self.adNetworkView;
 	AWLogInfo(@"WQ stop being delegate");
+	[gWQImpl setAdapterValue:NO ByAdapter:self];
 	if (wqBanner != nil) {
 		[gWQImpl addIdelAdView:wqBanner];
 		self.adNetworkView = nil;
@@ -101,22 +102,22 @@ static AdViewAdapterWQImpl *gWQImpl = nil;
 	if (sizeId > AdviewBannerSize_Auto) {
 		switch (sizeId) {
 			case AdviewBannerSize_320x50:
-				self.nSizeAd = 0;
+				self.sSizeAd = WQMOB_SIZE_320x48;
 				break;
 			case AdviewBannerSize_300x250:
-				self.nSizeAd = 0;
+				self.sSizeAd = WQMOB_SIZE_320x48;
 				break;
 			case AdviewBannerSize_480x60:
-				self.nSizeAd = 0;
+				self.sSizeAd = WQMOB_SIZE_320x48;
 				break;
 			case AdviewBannerSize_728x90:
-				self.nSizeAd = 0;
+				self.sSizeAd = WQMOB_SIZE_320x48;
 				break;
 		}
 	} else if (isIPad) {
-		self.nSizeAd = 0;
+		self.sSizeAd = WQMOB_SIZE_320x48;
 	} else {
-		self.nSizeAd = 0;
+		self.sSizeAd = WQMOB_SIZE_320x48;
 	}
 }
 
@@ -222,7 +223,8 @@ static AdViewAdapterWQImpl *gWQImpl = nil;
 		[self InitSettingXML];
 	}
 	[mAdapter updateSizeParameter];
-	WQAdView *wqBanner = [[WQAdViewClass requestAdWithDelegate:self] retain];
+	CGRect rect = CGRectMake(0, 0, mAdapter.sSizeAd.width, mAdapter.sSizeAd.height);
+	WQAdView *wqBanner = [[WQAdViewClass requestAdOfRect:rect withDelegate:self] retain];
 	return wqBanner;
 }
 
@@ -235,7 +237,7 @@ static AdViewAdapterWQImpl *gWQImpl = nil;
 #endif
 	if (![self isAdViewValid:adView]) return;
 		
-	CGRect r = CGRectMake(0, 0, WQMOB_SIZE_320x48.width, WQMOB_SIZE_320x48.height);
+	CGRect r = CGRectMake(0, 0, mAdapter.sSizeAd.width, mAdapter.sSizeAd.height);
 	[adView setAdRect:r];	
 	[mAdapter.adViewView adapter:mAdapter didReceiveAdView:adView];
 }

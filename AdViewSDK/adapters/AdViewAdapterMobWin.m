@@ -13,7 +13,7 @@
 #import "AdViewAdNetworkRegistry.h"
 #import "SingletonAdapterBase.h"
 
-@interface AdViewAdapterMobWinImpl : SingletonAdapterBase <MobWinSpotViewDelegate> {
+@interface AdViewAdapterMobWinImpl : SingletonAdapterBase <MobWinBannerViewDelegate> {
 }
 
 @end
@@ -45,25 +45,30 @@ static AdViewAdapterMobWinImpl *gMobWinImpl = nil;
 	}
 	
 	if (nil == gMobWinImpl) gMobWinImpl = [[AdViewAdapterMobWinImpl alloc] init];
-	[gMobWinImpl setAdapter:self];
+	[gMobWinImpl setAdapterValue:YES ByAdapter:self];
 	
 	MobWinBannerView *adBanner = (MobWinBannerView*)[gMobWinImpl getIdelAdView];
 	if (nil == adBanner) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
-	}	
+	}
 	
 	self.adNetworkView = adBanner;
-	[adViewView adapter:self didReceiveAdView:adBanner];
+	[adBanner startRequest];
+	//[adViewView adapter:self didReceiveAdView:adBanner];
 	[adBanner release];
 }
 
 - (void)stopBeingDelegate {
 	MobWinBannerView *adBanner = (MobWinBannerView *)self.adNetworkView;
 	AWLogInfo(@"mobwin stop being delegate");
+	[gMobWinImpl setAdapterValue:NO ByAdapter:self];
 	if (adBanner != nil) {
+		[adBanner stopRequest];
+#if 0
 		[gMobWinImpl addIdelAdView:adBanner];
 		[adBanner removeFromSuperview];
+#endif
 		self.adNetworkView = nil;
 	}
 }
@@ -79,7 +84,7 @@ static AdViewAdapterMobWinImpl *gMobWinImpl = nil;
 	if (sizeId > AdviewBannerSize_Auto) {
 		switch (sizeId) {
 			case AdviewBannerSize_320x50:
-				self.nSizeAd = MobWINBannerSizeIdentifier320x50;
+				self.nSizeAd = MobWINBannerSizeIdentifierUnknow;
 				break;
 			case AdviewBannerSize_300x250:
 				self.nSizeAd = MobWINBannerSizeIdentifier300x250;
@@ -94,7 +99,7 @@ static AdViewAdapterMobWinImpl *gMobWinImpl = nil;
 	} else if (isIPad) {
 		self.nSizeAd = MobWINBannerSizeIdentifier728x90;
 	} else {
-		self.nSizeAd = MobWINBannerSizeIdentifier320x50;
+		self.nSizeAd = MobWINBannerSizeIdentifierUnknow;
 	}
 }
 
@@ -136,61 +141,48 @@ static AdViewAdapterMobWinImpl *gMobWinImpl = nil;
 	if (nil == adBanner)
 		return nil;
 	
+	adBanner.delegate = self;
 	adBanner.rootViewController = [mAdapter.adViewDelegate viewControllerForPresentingModalView];
 	adBanner.adUnitID = [self appId];
-	adBanner.adRefreshInterval = 30;
 	//
 	// 腾讯MobWIN提示：开发者可选调用
 	//
-	adBanner.adTestMode = [self isTestMode];
 	adBanner.adGpsMode = [mAdapter helperUseGpsMode];
 	
-	adBanner.adTextColor = [mAdapter helperTextColorToUse];
-	adBanner.adSubtextColor = [mAdapter helperSecondaryTextColorToUse];
-	adBanner.adBackgroundColor = [mAdapter helperBackgroundColorToUse];
+	//adBanner.adTextColor = [mAdapter helperTextColorToUse];
+	//adBanner.adSubtextColor = [mAdapter helperSecondaryTextColorToUse];
+	//adBanner.adBackgroundColor = [mAdapter helperBackgroundColorToUse];
 
 	mAdapter.adNetworkView = adBanner;
-	[adBanner startRequest];
+	//[adBanner startRequest];
 	return adBanner;
 }
 
 #pragma mark MobWinDelegate methods
 
 // 详解:请求插播广告成功时调用
-- (void)spotViewDidReceived {
-	AWLogInfo(@"mobwin spotViewDidReceived");
+- (void)bannerViewDidReceived {
+	AWLogInfo(@"mobwin bannerViewDidReceived");
 	if (nil == mAdapter) return;
 	[mAdapter.adViewView adapter:mAdapter didReceiveAdView:mAdapter.adNetworkView];
 }
  
 // 详解:请求插播广告失败时调用
-- (void)spotViewDidReceivedFailed {
-	AWLogInfo(@"mobwin spotViewDidReceivedFailed");
+- (void)bannerViewFailToReceived {
+	AWLogInfo(@"mobwin bannerViewFailToReceived");
 	if (nil == mAdapter) return;
 	[mAdapter.adViewView adapter:mAdapter didFailAd:nil];
 }
 
 // 详解:将要展示一次插播广告内容前调用
-- (void)spotViewWillPresentScreen {
-	AWLogInfo(@"mobwin spotViewWillPresentScreen");
-	if (nil == mAdapter) return;
+- (void)bannerViewDidPresentScreen {
+	AWLogInfo(@"mobwin bannerViewDidPresentScreen");
 	[mAdapter helperNotifyDelegateOfFullScreenModal];
 }
 
-// 详解:插播广告展示开始时调用
-- (void)spotViewDidPresentScreen {
-	AWLogInfo(@"mobwin spotViewDidPresentScreen");
-}
-
-// 详解:插播广告展示完成，将要结束插播广告前调用
-- (void)spotViewWillDismissScreen {
-	AWLogInfo(@"mobwin spotViewWillDismissScreen");
-}
-
 // 详解:插播广告展示完成，结束插播广告后调用
-- (void)spotViewDidDismissScreen {
-	AWLogInfo(@"mobwin spotViewDidDismissScreen");
-	if (nil == mAdapter) return;
+- (void)bannerViewDidDismissScreen {
+	AWLogInfo(@"mobwin bannerViewDidDismissScreen");
 	[mAdapter helperNotifyDelegateOfFullScreenModalDismissal];
 }
 

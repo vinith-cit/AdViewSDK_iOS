@@ -42,6 +42,11 @@
 	[self updateSizeParameter];
 
     IZPView *adView = [[izpViewClass alloc] initWithFrame:self.rSizeAd];
+	if (nil == adView) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}
+	
     adView.productID = apID;
     adView.adType = @"1";
     adView.isDev = [adViewDelegate adViewTestMode];

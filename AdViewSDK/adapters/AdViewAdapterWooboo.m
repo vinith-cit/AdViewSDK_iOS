@@ -67,6 +67,9 @@
 								  locationY:0
                                   displayType:CommonBannerScreen
                                   screenOrientation:0];
+		
+		if (nil == commonADView)
+			return nil;
 
 		[commonADView performSelector:@selector(setListenerDelegate:) withObject:self];
 		commonADView.requestADTimeIntervel = 20;		//
@@ -128,6 +131,10 @@ AdapterImp *gAdapterImp = nil;
 	
 	gAdapterImp.adapter = self;
 	CommonADView *commonADView = (CommonADView*)[gAdapterImp getAdView:apID Test:[self testMode]];
+	if (nil == commonADView) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}	
 	
 	self.adNetworkView = commonADView;
 	/*
@@ -142,12 +149,11 @@ AdapterImp *gAdapterImp = nil;
 }
 
 - (void)stopBeingDelegate {
-  CommonADView *adView = (CommonADView *)adNetworkView;
+  CommonADView *adView = (CommonADView *)self.adNetworkView;
 	if (adView != nil) {
 		gAdapterImp.adapter = nil;
 		[gAdapterImp appendAdView:adView];
 //		[adView requestADWillStop];
-		adNetworkView = nil;
 		self.adNetworkView = nil;
   }
   //  self.woobooView = nil;
@@ -198,6 +204,7 @@ AdapterImp *gAdapterImp = nil;
 
 - (void) onFailedToReceiveAD:(NSString *)error
 {
+	AWLogInfo(@"failed from wooboo, %@", error);
     [adViewView adapter:self didFailAd:nil];
 }
 

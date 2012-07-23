@@ -108,7 +108,7 @@ NotificationReceiver *gReceiver = nil;
 
 + (void)load {
 	if(NSClassFromString(@"MobiSageManager") != nil) {
-        AWLogInfo(@"AdView: Find MobiSage AdNetork");
+        //AWLogInfo(@"AdView: Find MobiSage AdNetork");
 		[[AdViewAdNetworkRegistry sharedRegistry] registerClass:self];
 	}
 }
@@ -144,6 +144,7 @@ NotificationReceiver *gReceiver = nil;
 	
 	if (nil == adView) {
 		[adViewView adapter:self didFailAd:nil];
+		[dummyView release];
 		return;
 	}
 #if 1
@@ -166,7 +167,7 @@ NotificationReceiver *gReceiver = nil;
 #endif
 	adView.frame = CGRectMake(0, 0, self.sSizeAd.width,self.sSizeAd.height);
 	[adView setSwitchAnimeType:Random];
-	[adView	setInterval:Ad_NO_Refresh];
+	[adView	satInterval:Ad_NO_Refresh];
     dummyView.backgroundColor = [UIColor clearColor];
     //[dummyView addSubview:adView];
     self.adNetworkView = dummyView;
@@ -176,12 +177,21 @@ NotificationReceiver *gReceiver = nil;
     [adView release];
     //[self.adViewView adapter:self shouldAddAdView:self.adViewInternal];
     [dummyView release];
-    [self setupDummyHackTimer];
+
+    [self setupDefaultDummyHackTimer];
 }
 
 - (void)stopBeingDelegate {
     NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
     [nc removeObserver:self];
+	
+	gReceiver.adatper = nil;
+	[self cleanupDummyHackTimer];
+}
+
+- (void)cleanupDummyRetain {
+	gReceiver.adatper = nil;
+	[super cleanupDummyRetain];
 }
 
 - (void)updateSizeParameter {

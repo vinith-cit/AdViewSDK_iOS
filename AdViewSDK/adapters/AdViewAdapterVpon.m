@@ -41,19 +41,24 @@
 	
 	[self updateSizeParameter];
 	
-	[vponAdOnClass initializationLatitude:25.058952 longtitude:121.544409 platform:CN];
-	AWLogInfo(@"Vpon version:%@",[[vponAdOnClass sharedInstance] versionVpon]);	
+	[vponAdOnClass initializationPlatform:CN];
+	AWLogInfo(@"Vpon version:%@",[vponAdOnClass getVersionVpon]);	
 	
 	if ([self isTestMode]) {
 		[[NSNotificationCenter defaultCenter] postNotificationName:@"VPON_UDID" object:nil];
 	}
     
     [[vponAdOnClass sharedInstance] setIsVponLogo:YES];
+	[[vponAdOnClass sharedInstance] setLocationOnOff:[self helperUseGpsMode]];
 
     
     UIViewController *vpon = [[vponAdOnClass sharedInstance] adwhirlRequestDelegate:self 
 																  licenseKey:[self adonLicenseKey] 
 																		size:self.sSizeAd];
+	if (nil == vpon) {
+		[adViewView adapter:self didFailAd:nil];
+		return;
+	}
 	
 	UIView *adView = vpon.view;
 	
@@ -85,17 +90,17 @@
 				self.sSizeAd = ADON_SIZE_320x48;
 				break;
 			case AdviewBannerSize_300x250:
-				self.sSizeAd = ADON_SIZE_320x270;
+				self.sSizeAd = ADON_SIZE_320X270;
 				break;
 			case AdviewBannerSize_480x60:
-				self.sSizeAd = ADON_SIZE_488x80;
+				self.sSizeAd = ADON_SIZE_480x72;
 				break;
 			case AdviewBannerSize_728x90:
-				self.sSizeAd = ADON_SIZE_748x110;
+				self.sSizeAd = ADON_SIZE_700x108;
 				break;
 		}
 	} else if (isIPad) {
-		self.sSizeAd = ADON_SIZE_748x110;
+		self.sSizeAd = ADON_SIZE_700x108;
 	} else {
 		self.sSizeAd = ADON_SIZE_320x48;
 	}
@@ -130,20 +135,24 @@
 
 #pragma mark Delegate
 
-- (void)clickAd:(UIViewController *)bannerView valid:(BOOL)isValid withLicenseKey:(NSString *)adLicenseKey
+#pragma mark 回傳點擊點廣是否有效
+- (void)onClickAd:(UIViewController *)bannerView withValid:(BOOL)isValid withLicenseKey:(NSString *)adLicenseKey
 {
 	AWLogInfo(@"vpon click:%d", isValid);
 }
 
-- (void)onRecevieAd:(UIViewController *)bannerView withLicenseKey:(NSString *)licenseKey {
+#pragma mark 回傳Vpon廣告抓取成功
+- (void)onRecevieAd:(UIViewController *)bannerView withLicenseKey:(NSString *)licenseKey
+{
 	AWLogInfo(@"did receive an ad from vpon");
-    [adViewView adapter:self didReceiveAdView:bannerView.view];
+    [adViewView adapter:self didReceiveAdView:bannerView.view];	
 }
 
-- (void)onFailedToRecevieAd:(UIViewController *)bannerView withLicenseKey:(NSString *)licenseKey 
+#pragma mark 回傳Vpon廣告抓取失敗
+- (void)onFailedToRecevieAd:(UIViewController *)bannerView withLicenseKey:(NSString *)licenseKey
 {
 	AWLogInfo(@"adview failed from vpon");
-	[adViewView adapter:self didFailAd:nil];	
+	[adViewView adapter:self didFailAd:nil];		
 }
 
 @end
