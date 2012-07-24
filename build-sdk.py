@@ -23,9 +23,9 @@ sdk_manual_file = os.path.join (sdk_srcroot_dir, 'UserManual.pdf')
 
 sdk_src_dirname = 'AdViewSDK'
 
-sdk_src_public_headers = map (lambda (x): os.path.join (sdk_srcroot_dir, sdk_src_dirname, x), ['AdViewView.h', 'AdViewDelegateProtocol.h'])
+sdk_src_public_headers = map (lambda (x): os.path.join (sdk_srcroot_dir, sdk_src_dirname, x), ['AdViewView.h', 'AdViewUtils.h', 'AdViewDelegateProtocol.h'])
 
-extra_opensource_projects = map (lambda (x): os.path.join (sdk_srcroot_dir, x), ['TouchJSON', 'SBJson', 'JSONKit', 'ASIHTTPRequest', 'LBSSDK.framework'])
+extra_opensource_projects = map (lambda (x): os.path.join (sdk_srcroot_dir, x), ['TouchJSON', 'SBJson', 'JSONKit', 'LBSSDK.framework'])
 extra_opensource_ditto_filter = ['', '.h', '.m', '.mm', '.c', '.cpp', '.hpp', '.cc', '.cxx', '.hh']
 extra_3rd_libraries = map (lambda (x): os.path.join (sdk_srcroot_dir, x), ['AdNetworks'])
 extra_3rd_ditto_filter = ['.a', '.xib', '.nib', '.png', '.plist']
@@ -38,6 +38,12 @@ sdk_build_get_version = ''
 sdk_build_target_name = 'libAdViewSDK.a'
 sdk_build_target_product = 'libAdViewSDK.a'
 
+def ditto_full (dst_dir, src_dir, filter):
+    shutil.copytree (src_dir, dst_dir, symlinks=True)
+    callStr = "find '%s' -name .svn -exec rm -Rf {} \;" % dst_dir
+    print callStr
+    os.system(callStr)
+
 def ditto_filter (dst_dir, src_dir, filter):
     for root, dirs, files in os.walk (os.path.realpath (src_dir)):
         for x in files:
@@ -48,6 +54,10 @@ def ditto_filter (dst_dir, src_dir, filter):
                 if not os.path.exists (cp_dst_dir):
                     os.makedirs (cp_dst_dir, mode = 0766)
                 shutil.copy (os.path.join (root, x), cp_dst_dir)
+
+    callStr = "find '%s' -name .svn -exec rm -Rf {} \;" % dst_dir
+    print callStr
+    os.system(callStr)
 
 def check_toolchain ():
     import re
@@ -144,7 +154,7 @@ def build_dist ():
 
     for x in extra_opensource_projects:
         basename = os.path.basename (x)
-        ditto_filter (os.path.join (package_dir, basename), x, extra_opensource_ditto_filter)
+        ditto_full (os.path.join (package_dir, basename), x, extra_opensource_ditto_filter)     #ditto_filter
 
     for x in extra_3rd_libraries:
         basename = os.path.basename (x)
