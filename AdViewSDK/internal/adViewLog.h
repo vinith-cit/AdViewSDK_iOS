@@ -2,7 +2,7 @@
 
  AdViewLog.h
 
- Copyright 2009 AdMob, Inc.
+ Copyright 2010 www.adview.cn
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -29,33 +29,33 @@ typedef enum {
   AWLogLevelDebug = 50
 } AWLogLevel;
 
-void AWLogSetLogLevel(AWLogLevel level);
+void ADVLogSetLogLevel(AWLogLevel level);
 
 // The actual function name has an underscore prefix, just so we can
 // hijack AWLog* with other functions for testing, by defining
 // preprocessor macros
-void _AWLogCrit(NSString *format, ...);
-void _AWLogError(NSString *format, ...);
-void _AWLogWarn(NSString *format, ...);
-void _AWLogInfo(NSString *format, ...);
-void _AWLogDebug(NSString *format, ...);
+void _ADVLogCrit(NSString *format, ...);
+void _ADVLogError(NSString *format, ...);
+void _ADVLogWarn(NSString *format, ...);
+void _ADVLogInfo(NSString *format, ...);
+void _ADVLogDebug(NSString *format, ...);
 
 #ifndef AWLogCrit
-#define AWLogCrit(...) _AWLogCrit(__VA_ARGS__)
+#define AWLogCrit(...) _ADVLogCrit(__VA_ARGS__)
 #endif
 
 #ifndef AWLogError
-#define AWLogError(...) _AWLogError(__VA_ARGS__)
+#define AWLogError(...) _ADVLogError(__VA_ARGS__)
 #endif
 
 #ifndef AWLogWarn
-#define AWLogWarn(...) _AWLogWarn(__VA_ARGS__)
+#define AWLogWarn(...) _ADVLogWarn(__VA_ARGS__)
 #endif
 
 #ifndef AWLogInfo
-#define AWLogInfo(...) _AWLogInfo(__VA_ARGS__)
+#define AWLogInfo(...) _ADVLogInfo(__VA_ARGS__)
 #endif
 
 #ifndef AWLogInfo
-#define AWLogDebug(...) _AWLogDebug(__VA_ARGS__)
+#define AWLogDebug(...) _ADVLogDebug(__VA_ARGS__)
 #endif

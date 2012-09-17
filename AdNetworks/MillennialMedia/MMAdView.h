@@ -18,6 +18,13 @@ typedef enum AdType {
 	MMFullScreenAdTransition = 5 //interstitial
 } MMAdType;
 
+typedef enum LogLevel {
+    LOG_LEVEL_OFF   = 0,
+    LOG_LEVEL_INFO  = 1 << 0,
+    LOG_LEVEL_DEBUG = 1 << 1,
+    LOG_LEVEL_ERROR = 1 << 2,
+    LOG_LEVEL_FATAL = 1 << 3
+} MMLogLevel;
 
 @interface MMAdView : UIView {
 	id<MMAdDelegate> delegate;
@@ -25,6 +32,7 @@ typedef enum AdType {
 	NSTimeInterval adRequestTimeoutInterval;
 	
 }
+
 @property(nonatomic,assign) id<MMAdDelegate> delegate;
 @property(nonatomic) BOOL refreshTimerEnabled;
 @property(nonatomic) NSTimeInterval adRequestTimeoutInterval;
@@ -59,6 +67,12 @@ typedef enum AdType {
  * Updates the location used for ad requests
  */
 + (void) updateLocation: (CLLocation *) currentLocation;
+
+
+/**
+ * Sets log levels
+ */
++ (void)setLogLevel:(MMLogLevel)level;
 
 /**
  * Will load a new ad. 

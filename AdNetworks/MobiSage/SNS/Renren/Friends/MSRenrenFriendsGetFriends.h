@@ -3,7 +3,7 @@
 //  MobiSageSDK
 //
 //  Created by Ryou Zhang on 11/11/11.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2011 www.adview.cn. All rights reserved.
 //
 
 #import "../MSRenrenPackage.h"

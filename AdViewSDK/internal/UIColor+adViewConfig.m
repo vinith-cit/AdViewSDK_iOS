@@ -2,7 +2,7 @@
 
  UIColor+AdViewConfig.m
 
- Copyright 2010 Google Inc.
+  Copyright 2010 www.adview.cn
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -46,17 +46,17 @@
   }
 
   NSInteger temp;
-  if (!awIntVal(&temp, red)) {
+  if (!advIntVal(&temp, red)) {
     [ret release];
     return nil;
   }
   r = (CGFloat)temp/255.0;
-  if (!awIntVal(&temp, green)) {
+  if (!advIntVal(&temp, green)) {
     [ret release];
     return nil;
   }
   g = (CGFloat)temp/255.0;
-  if (!awIntVal(&temp, blue)) {
+  if (!advIntVal(&temp, blue)) {
     [ret release];
     return nil;
   }
@@ -65,7 +65,7 @@
   a = 1.0; // default 1.0
   alpha = [dict objectForKey:@"alpha"];
   CGFloat temp_f;
-  if (alpha != nil && awFloatVal(&temp_f, alpha)) {
+  if (alpha != nil && advFloatVal(&temp_f, alpha)) {
     a = (CGFloat)temp_f;
   }
 

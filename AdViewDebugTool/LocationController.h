@@ -2,8 +2,7 @@
 //  LocationController.h
 //  AdViewSDK_Sample
 //
-//  Created by Nigel Choi on 2/8/10.
-//  Copyright 2010 Admob. Inc.. All rights reserved.
+//  Copyright 2010 www.adview.cn. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

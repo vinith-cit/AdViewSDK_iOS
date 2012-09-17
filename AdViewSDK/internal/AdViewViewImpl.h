@@ -3,7 +3,7 @@
  *  AdViewSDK_Sample
  *
  *  Created by laizhiwen on 10-12-24.
- *  Copyright 2010 __MyCompanyName__. All rights reserved.
+ *  Copyright 2010 www.adview.cn. All rights reserved.
  *
  */
 
@@ -26,7 +26,7 @@
 
 #else
 
-#define kAdViewDefaultConfigURL				@"http://www.adview.cn/agent/agent1.php"
+#define kAdViewDefaultConfigURL				@"http://config.adview.cn/agent/agent1.php"
 #define kAdViewDefaultImpMetricURL			@"http://www.adview.cn/agent/agent2.php"
 #define kAdViewDefaultClickMetricURL		@"http://www.adview.cn/agent/agent3.php"
 #define kAdViewDefaultCustomAdURL			@"http://www.adview.cn/agent/custom.php"
@@ -134,13 +134,16 @@ shouldAddAdView:(UIView *)view;
 	
 	// remember which adapter we last sent click stats for so we don't send twice
 	id lastNotifyAdapter;
+								
+	id lastNotifyGotAdapter;
+	id lastNotifyGotAdView;	//the adNetworkView
+	NSTimeInterval lastNotifyGotTime;
 	
 	AdViewConfigStore *configStore;
 	
 	AWNetworkReachabilityWrapper *rollOverReachability;
 	
 	NSUInteger configFetchAttempts;
-
 }
 
 /**

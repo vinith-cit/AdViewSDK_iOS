@@ -2,7 +2,7 @@
 
  AdViewSDK_SampleAppDelegate.m
  
- Copyright 2009 AdMob, Inc.
+ Copyright 2010 www.adview.cn
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
 #ifdef ADWHIRL_DEBUG
-  AWLogSetLogLevel(AWLogLevelDebug);
+  ADVLogSetLogLevel(AWLogLevelDebug);
 #endif
 	[window addSubview:[navigationController view]];
   [window makeKeyAndVisible];

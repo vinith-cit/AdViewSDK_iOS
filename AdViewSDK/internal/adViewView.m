@@ -2,7 +2,7 @@
 
  AdViewView.m
 
- Copyright 2009 AdMob, Inc.
+ Copyright 2010 www.adview.cn
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
 #import "AdViewConfigStore.h"
 #import "AWNetworkReachabilityWrapper.h"
 #import "AdViewAdNetworkRegistry.h"
+#import "AdViewExtraManager.h"
 
 #if 0
 #import "AdViewAdapterAdMob.h"
@@ -122,13 +123,22 @@ NSInteger adNetworkPriorityComparer(id a, id b, void *ctx) {
 		logMode = [delegate adViewLogMode];    
 	
 	if (logMode) {
-		if (DEBUG_INFO) AWLogSetLogLevel(AWLogLevelDebug);
-		else AWLogSetLogLevel(AWLogLevelInfo);
-	} else AWLogSetLogLevel(AWLogLevelNone);
+		if (DEBUG_INFO) ADVLogSetLogLevel(AWLogLevelDebug);
+		else ADVLogSetLogLevel(AWLogLevelInfo);
+	} else ADVLogSetLogLevel(AWLogLevelNone);
 	
 	if ([delegate respondsToSelector:@selector(adTimeOutInterval)]) {
 		NSTimeInterval interval = [delegate adTimeOutInterval];
 		[AdViewAdNetworkAdapter setDummyHackTimeInterval:interval];
+	}
+	
+	BOOL	useGps = NO;
+	if ([delegate respondsToSelector:@selector(adGpsMode)]) {
+		useGps = [delegate adGpsMode];
+	}
+	
+	if (useGps) {
+		[[AdViewExtraManager createManager] findLocation];
 	}
 	
 	AdViewView *adView
@@ -389,11 +399,20 @@ didReceiveAdView:(UIView *)view {}
 */
   // Request new config
   AWLogInfo(@"======== Updating config ========");
+	
+  NSTimeInterval nowTi = [[NSDate date] timeIntervalSince1970];
+  NSNumber *numLastTime = (NSNumber*)[[AdViewExtraManager createManager] 
+									  objectStoredForKey:LAST_NET_CONFIG_TIME];
+  if (nil != numLastTime && (nowTi - [numLastTime doubleValue]) < 300.0f) {
+	  AWLogInfo(@"last got config is in 5 minutes, won't update now.");
+	  return;
+  }
+	
   configFetchAttempts = 0;
   //[self attemptFetchConfig:[NSNumber numberWithBool:NO]];
-    [self performSelectorOnMainThread:@selector(attemptFetchConfig:)
-                           withObject:[NSNumber numberWithBool:NO]
-                        waitUntilDone:YES];	
+  [self performSelectorOnMainThread:@selector(attemptFetchConfig:)
+						 withObject:[NSNumber numberWithBool:NO]
+					  waitUntilDone:YES];	
 }
 
 #pragma mark Ads management private methods
@@ -701,13 +720,14 @@ static BOOL randSeeded = NO;
 	
   NSString *query
     = [NSString stringWithFormat:
-       @"?appid=%@&nid=%@&type=%d&uuid=%@&country_code=%@&appver=%d&client=1",
+       @"?appid=%@&nid=%@&type=%d&uuid=%@&country_code=%@&appver=%d&client=1&keydev=%@",
        config.appKey,
        nid,
        type,
 	   deviceID,
        [[NSLocale currentLocale] localeIdentifier],
-       KADVIEW_APP_VERSION];
+       KADVIEW_APP_VERSION,
+	   [[AdViewExtraManager createManager] getMacAddress]];
   NSURL *metURL = [NSURL URLWithString:query
                          relativeToURL:endPointBaseURL];
   AWLogInfo(@"Sending metric ping to %@", metURL);
@@ -740,6 +760,10 @@ static BOOL randSeeded = NO;
     baseURL = [NSURL URLWithString:[self adViewClickMetricBaseURLString]];
   }
   [self metricPing:baseURL nid:nid netType:type];
+	
+  if ([delegate respondsToSelector:@selector(adViewDidClickAd:)]) {
+	  [delegate adViewDidClickAd:self];
+  }	
 }
 
 
@@ -770,9 +794,15 @@ static BOOL randSeeded = NO;
   if (currAdView) {
     // swap
     currAdView.tag = 0;
+	  
+	AWBannerAnimationType compAnimType = config.bannerAnimationType;
+	if (AWBannerAnimationTypeNone == compAnimType		//now(2012.08.29), not used in config
+		&& [delegate respondsToSelector:@selector(adViewBannerAnimationType)]) {
+		compAnimType = [delegate adViewBannerAnimationType];
+	}
 
     AWBannerAnimationType animType;
-    if (config.bannerAnimationType == AWBannerAnimationTypeRandom) {
+    if (compAnimType == AWBannerAnimationTypeRandom) {
       if (!randSeeded) {
         srandom(CFAbsoluteTimeGetCurrent());
       }
@@ -781,7 +811,7 @@ static BOOL randSeeded = NO;
       AWLogInfo(@"Animation type chosen by random is %d", animType);
     }
     else {
-      animType = config.bannerAnimationType;
+      animType = compAnimType;
     }
     if (![currAdapter isBannerAnimationOK:animType]) {
       animType = AWBannerAnimationTypeNone;
@@ -937,7 +967,7 @@ static BOOL randSeeded = NO;
       && [currAdapter shouldSendExMetric]) {
     lastNotifyAdapter = currAdapter;
     [self reportExClick:currAdapter.networkConfig.nid
-                netType:currAdapter.networkConfig.networkType];
+                netType:currAdapter.networkConfig.networkType];	  
   }
   return itsInside;
 }
@@ -994,14 +1024,30 @@ static BOOL randSeeded = NO;
 #if 1
   [self performSelectorOnMainThread:@selector(transitionToView:)
                          withObject:view
-                      waitUntilDone:NO];
+                      waitUntilDone:YES];
 #else
     [self performSelector:@selector(transitionToView:) withObject:view];
 #endif
   requesting = NO;
+	
+  BOOL bShouldReportImp = [adapter shouldSendExMetric];
+	
+  if (bShouldReportImp) {
+	  if (lastNotifyGotAdapter == currAdapter
+		  && lastNotifyGotAdView == currAdapter.adNetworkView)
+	  {
+		  NSTimeInterval now_1 = [[NSDate date] timeIntervalSince1970];
+		  if (abs(now_1 - lastNotifyGotTime) < 5.0)	//if the time interval is little.
+			  bShouldReportImp = NO;
+	  }
+  }
 
   // report impression and notify delegate
-  if ([adapter shouldSendExMetric]) {
+  if (bShouldReportImp) {
+	lastNotifyGotTime = [[NSDate date] timeIntervalSince1970];
+	lastNotifyGotAdapter = currAdapter;
+	lastNotifyGotAdView = currAdapter.adNetworkView;  
+	  
     [self reportExImpression:adapter.networkConfig.nid
                      netType:adapter.networkConfig.networkType];
   }
@@ -1333,7 +1379,6 @@ static BOOL randSeeded = NO;
   AWLogInfo(@"App become active, AdViewView will resume requesting ads");
   appInactive = NO;
 }
-
 
 #pragma mark AdViewDelegate helper methods
 

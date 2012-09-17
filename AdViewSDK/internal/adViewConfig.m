@@ -2,7 +2,7 @@
 
  AdViewConfig.m
 
- Copyright 2009 AdMob, Inc.
+ Copyright 2010 www.adview.cn
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 #import "UIColor+AdViewConfig.h"
 #import "AWNetworkReachabilityWrapper.h"
 
-BOOL awIntVal(NSInteger *var, id val) {
+BOOL advIntVal(NSInteger *var, id val) {
   if ([val isKindOfClass:[NSNumber class]] || [val isKindOfClass:[NSString class]]) {
     *var = [val integerValue];
     return YES;
@@ -38,7 +38,7 @@ BOOL awIntVal(NSInteger *var, id val) {
   return NO;
 }
 
-BOOL awFloatVal(CGFloat *var, id val) {
+BOOL advFloatVal(CGFloat *var, id val) {
   if ([val isKindOfClass:[NSNumber class]] || [val isKindOfClass:[NSString class]]) {
     *var = [val floatValue];
     return YES;
@@ -46,7 +46,7 @@ BOOL awFloatVal(CGFloat *var, id val) {
   return NO;
 }
 
-BOOL awDoubleVal(double *var, id val) {
+BOOL advDoubleVal(double *var, id val) {
   if ([val isKindOfClass:[NSNumber class]] || [val isKindOfClass:[NSString class]]) {
     *var = [val doubleValue];
     return YES;
@@ -218,14 +218,14 @@ BOOL awDoubleVal(double *var, id val) {
   if (tempVal == nil)
     tempVal = [configDict objectForKey:@"cycle_time"];
   NSInteger tempInt;
-  if (tempVal && awIntVal(&tempInt, tempVal)) {
+  if (tempVal && advIntVal(&tempInt, tempVal)) {
     refreshInterval = (NSTimeInterval)tempInt;
     if (refreshInterval >= 30000.0) {
       // effectively forever, set to 0
       refreshInterval = 0.0;
     }
   }
-  if (awIntVal(&tempInt, [configDict objectForKey:@"location_on"])) {
+  if (advIntVal(&tempInt, [configDict objectForKey:@"location_on"])) {
     locationOn = (tempInt == 0)? NO : YES;
     // check user preference. user preference of NO trumps all
 	  
@@ -235,9 +235,10 @@ BOOL awDoubleVal(double *var, id val) {
       bLocationServiceEnabled = [CLLocationManager locationServicesEnabled];
     }
     else {
-      CLLocationManager* locMan = [[CLLocationManager alloc] init];
-      bLocationServiceEnabled = locMan.locationServicesEnabled;
-      [locMan release], locMan = nil;
+      //CLLocationManager* locMan = [[CLLocationManager alloc] init];
+      //bLocationServiceEnabled = locMan.locationServicesEnabled;
+      //[locMan release], locMan = nil;
+		bLocationServiceEnabled = [CLLocationManager locationServicesEnabled];
     }
 
     if (locationOn == YES && bLocationServiceEnabled == NO) {
@@ -248,7 +249,7 @@ BOOL awDoubleVal(double *var, id val) {
   tempVal = [configDict objectForKey:@"transition"];
   if (tempVal == nil)
     tempVal = [configDict objectForKey:@"banner_animation_type"];
-  if (tempVal && awIntVal(&tempInt, tempVal)) {
+  if (tempVal && advIntVal(&tempInt, tempVal)) {
     switch (tempInt) {
       case 0: bannerAnimationType = AWBannerAnimationTypeNone; break;
       case 1: bannerAnimationType = AWBannerAnimationTypeFlipFromLeft; break;
@@ -261,10 +262,10 @@ BOOL awDoubleVal(double *var, id val) {
       case 8: bannerAnimationType = AWBannerAnimationTypeRandom; break;
     }
   }
-  if (awIntVal(&tempInt, [configDict objectForKey:@"fullscreen_wait_interval"])) {
+  if (advIntVal(&tempInt, [configDict objectForKey:@"fullscreen_wait_interval"])) {
     fullscreenWaitInterval = tempInt;
   }
-  if (awIntVal(&tempInt, [configDict objectForKey:@"fullscreen_max_ads"])) {
+  if (advIntVal(&tempInt, [configDict objectForKey:@"fullscreen_max_ads"])) {
     fullscreenMaxAds = tempInt;
   }
 	tempVal = [configDict objectForKey:@"report"];
@@ -300,7 +301,7 @@ BOOL awDoubleVal(double *var, id val) {
           NSString *strKey = (NSString *)key;
           if ([strKey compare:@"empty_ration"] == NSOrderedSame) {
             NSInteger empty_ration;
-            if (awIntVal(&empty_ration, [configDict objectForKey:key]) && empty_ration == 100) {
+            if (advIntVal(&empty_ration, [configDict objectForKey:key]) && empty_ration == 100) {
               adsAreOff = YES;
               [adNetConfigDicts release];
               return YES;

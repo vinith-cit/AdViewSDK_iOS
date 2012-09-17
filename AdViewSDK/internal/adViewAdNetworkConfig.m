@@ -2,7 +2,7 @@
 
  AdNetwork.m
 
- Copyright 2009 AdMob, Inc.
+ Copyright 2010 www.adview.cn
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@
       return nil;
     }
 
-    if (awIntVal(&temp, ntype)) {
+    if (advIntVal(&temp, ntype)) {
       networkType = temp;
     }
     if ([netId isKindOfClass:[NSString class]]) {
@@ -83,11 +83,11 @@
     if (weight == nil) {
       trafficPercentage = 0.0;
     }
-    else if (awDoubleVal(&tempDouble, weight)) {
+    else if (advDoubleVal(&tempDouble, weight)) {
       trafficPercentage = tempDouble;
     }
 
-    if (awIntVal(&temp, pri)) {
+    if (advIntVal(&temp, pri)) {
       priority = temp;
     }
 

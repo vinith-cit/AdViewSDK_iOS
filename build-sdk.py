@@ -25,10 +25,16 @@ sdk_src_dirname = 'AdViewSDK'
 
 sdk_src_public_headers = map (lambda (x): os.path.join (sdk_srcroot_dir, sdk_src_dirname, x), ['AdViewView.h', 'AdViewUtils.h', 'AdViewDelegateProtocol.h'])
 
-extra_opensource_projects = map (lambda (x): os.path.join (sdk_srcroot_dir, x), ['TouchJSON', 'SBJson', 'JSONKit', 'LBSSDK.framework'])
+extra_opensource_projects = map (lambda (x): os.path.join (sdk_srcroot_dir, x), ['TouchJSON', 'SBJson', 'JSONKit'])
 extra_opensource_ditto_filter = ['', '.h', '.m', '.mm', '.c', '.cpp', '.hpp', '.cc', '.cxx', '.hh']
 extra_3rd_libraries = map (lambda (x): os.path.join (sdk_srcroot_dir, x), ['AdNetworks'])
 extra_3rd_ditto_filter = ['.a', '.xib', '.nib', '.png', '.plist']
+
+extra_adapter_inc = ['AWNetworkReachabilityDelegate.h', 'AdViewViewImpl.h', 'adViewAdNetworkRegistry.h',
+    'AWNetworkReachabilityWrapper.h', 'AdviewObjCollector.h', 'adViewConfig.h', 
+    'AdViewAdNetworkAdapter.h', 'SingletonAdapterBase.h', 'adViewLog.h',
+    'AdViewDeviceCollector.h', 'adViewAdNetworkAdapter+Helpers.h',
+    'AdViewExtraManager.h', 'adViewAdNetworkConfig.h']
 
 sdk_build_xcode_max_version = '4.2'
 sdk_build_test_macros = ['USER_TEST_SERVER', 'DEBUG_INFO']
@@ -43,6 +49,15 @@ def ditto_full (dst_dir, src_dir, filter):
     callStr = "find '%s' -name .svn -exec rm -Rf {} \;" % dst_dir
     print callStr
     os.system(callStr)
+    
+def ditto_filter_files (dst_dir, src_dir, filter):
+    for root, dirs, files in os.walk (os.path.realpath (src_dir)):
+        for x in files:
+            if x in filter:
+                cp_dst_dir = dst_dir
+                if not os.path.exists (cp_dst_dir):
+                    os.makedirs (cp_dst_dir, mode = 0766)
+                shutil.copy (os.path.join (root, x), cp_dst_dir)
 
 def ditto_filter (dst_dir, src_dir, filter):
     for root, dirs, files in os.walk (os.path.realpath (src_dir)):
@@ -158,10 +173,12 @@ def build_dist ():
 
     for x in extra_3rd_libraries:
         basename = os.path.basename (x)
-        ditto_filter (os.path.join (package_dir, basename), x, extra_3rd_ditto_filter)
+        ditto_full (os.path.join (package_dir, basename), x, extra_3rd_ditto_filter)			#ditto_filter
 
     for x in [sdk_version_file, sdk_readme_file, sdk_changelog_file, sdk_manual_file]:
         shutil.copy (x, package_dir)
+        
+    ditto_filter_files(os.path.join (package_dir, "AdNetWorks/_adview_inc"), os.path.join (sdk_srcroot_dir, sdk_src_dirname), extra_adapter_inc)
 
 def build_ziparchive ():
     pass

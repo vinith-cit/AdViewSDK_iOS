@@ -3,7 +3,7 @@
 //  AdViewSDK
 //
 //  Created by zhiwen on 12-1-13.
-//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//  Copyright 2012 www.adview.cn. All rights reserved.
 //
 
 #import "SingletonAdapterBase.h"
@@ -82,11 +82,11 @@
 	return NO;
 }
 
-- (BOOL) isAdViewValid:(UIView*)adView {
+- (BOOL)isAdViewValid:(UIView*)adView {
 	@synchronized (mLockObj) {
 		if (nil == mAdapter 
 			|| (nil != mAdapter.adNetworkView && mAdapter.adNetworkView != adView)) {
-				AWLogInfo(@"--Singleton Adapater stale delegate call--------");	
+				AWLogInfo(@"--Singleton %@ stale delegate call --------", NSStringFromClass([self class]));
 				return NO;
 		}
 	}

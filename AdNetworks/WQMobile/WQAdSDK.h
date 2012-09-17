@@ -3,7 +3,7 @@
 //  WQMobileDemo
 //
 //  Created by Topsun on 3/8/12.
-//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//  Copyright 2012 www.adview.cn. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

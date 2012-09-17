@@ -17,13 +17,28 @@
     id _storage;
 }
 @property (nonatomic, assign) id <UMAdADBannerViewDelegate> delegate;
+
 /** 
  
- 获取banner的长和宽
- @return CGSize 当前广告Banner的长宽
+ 根据设备自动获取BannerSize,iPhone 320x50 iPad 480x75
+ @return CGSize 当前设备应该返回广告Banner的长宽
  
  */
 + (CGSize)sizeOfBannerContentSize;
+/** 
+ 
+ 自主请求banner的Size尺寸，320x50为iphone版本
+ @return CGSize 
+ 
+ */
++ (CGSize)bannerSizeofSize320x50;
+/** 
+ 
+ 获取banner的size尺寸支持，480x75为ipad版本
+ @return CGSize 
+ 
+ */
++ (CGSize)bannerSizeofSize480x75;
 /** 
  
  设置banner的广告属性，绑定相关参数

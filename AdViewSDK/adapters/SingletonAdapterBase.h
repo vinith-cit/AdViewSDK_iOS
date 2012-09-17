@@ -3,7 +3,7 @@
 //  AdViewSDK
 //
 //  Created by zhiwen on 12-1-13.
-//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//  Copyright 2012 www.adview.cn. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -30,6 +30,6 @@
 
 
 - (void)updateAdFrame:(UIView*)view;
-- (BOOL) isAdViewValid:(UIView*)adView;
+- (BOOL)isAdViewValid:(UIView*)adView;
 
 @end

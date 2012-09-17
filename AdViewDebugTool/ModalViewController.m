@@ -2,8 +2,7 @@
 //  ModalViewController.m
 //  AdViewSDK_Sample
 //
-//  Created by Nigel Choi on 3/11/10.
-//  Copyright 2010 Admob. Inc. All rights reserved.
+//  Copyright 2010 www.adview.cn All rights reserved.
 //
 
 #import "ModalViewController.h"

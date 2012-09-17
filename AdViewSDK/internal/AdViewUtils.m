@@ -3,7 +3,7 @@
 //  AdViewSDK
 //
 //  Created by zhiwen on 12-7-5.
-//  Copyright 2012 __MyCompanyName__. All rights reserved.
+//  Copyright 2012 www.adview.cn. All rights reserved.
 //
 
 #import "AdViewUtils.h"

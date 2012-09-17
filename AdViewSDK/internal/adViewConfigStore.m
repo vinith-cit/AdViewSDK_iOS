@@ -2,7 +2,7 @@
 
  AdViewConfigStore.m
 
- Copyright 2010 Google Inc.
+  Copyright 2010 www.adview.cn
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #import "AdViewViewImpl.h"
 
 #import "CJSONSerializer.h"
+#import "AdViewExtraManager.h"
 
 #define kAdViewConfigRegetTimeInteval		1800.		//seconds
 
@@ -425,6 +426,10 @@ static AdViewConfigStore *gStore = nil;
 	NSString *filePath = [NSHomeDirectory()
 						  stringByAppendingPathComponent:CONFIG_FILE_NAME];
 	[receivedData_ writeToFile:filePath atomically:YES];
+	
+	NSTimeInterval nowTi = [[NSDate date] timeIntervalSince1970];
+	[[AdViewExtraManager createManager] storeObject:[NSNumber numberWithDouble:nowTi]
+											 forKey:LAST_NET_CONFIG_TIME];
 	
 #if 0		//modify config.txt to test adv working.	
 	NSString *filePath_in = [NSHomeDirectory()

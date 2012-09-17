@@ -35,7 +35,7 @@
 /**
  *  委托对象
  */
-@property (nonatomic ,retain) id<BaiduMobAdViewDelegate>  delegate;
+@property (nonatomic ,assign) id<BaiduMobAdViewDelegate>  delegate;
 
 /**
  *  设置／获取当前广告（文字）的文本颜色
@@ -44,6 +44,7 @@
 
 /**
  *  设置／获取需要展示的广告类型
+ *  @warning *重要:* 在SDK2.1中，该接口已无实现，接口保留，将在3.0中移除。
  */
 @property (nonatomic) BaiduMobAdViewType AdType;
 

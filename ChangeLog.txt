@@ -1,8 +1,45 @@
+1.5.6 -- 20120910
+1. 更新力美SDK至2.2版。
+2. 加入随踪广告平台，基于AdView开放API广告SDK（开放API，指server api开放；目前支持AdView应用互推和随踪）。
+3. 更新AdView应用互推，基于AdView开放API广告SDK。
+
+1.5.5 -- 20120828
+1. 更新百度SDK至2.1版。
+2. 新增cocos2d-x游戏引擎的例子。
+3. 新增unity3d集成说明（例子太大,不提供）。
+4. 更新应用互推SDK，改变打包方式，独立放置为AdNetworks目录下的KAdView目录。
+5. 增加一个可选接口：
+- (AdViewBannerAnimationType)adViewBannerAnimationType;
+
+1.5.4 -- 20120817
+1. 更新多盟SDK至3.0.3版。
+2. 更新亿动SDK至2.0.4版。
+3. 更新易传媒SDK至2.5.2版。
+4. 更新Millennial Media SDK至4.6.0版。
+5. 更新Ader SDK至1.0.4版。
+6. 更新Admob SDK至6.1.4版。
+
+1.5.3 -- 20120810
+1. 更新Wooboo SDK至2.3版。
+2. 更新聚赢SDK至1.3.1版。
+3. 更新友盟SDK至1.2.1版。
+4. 更新微云SDK至4.0版。
+5. 增加二个可选接口:
+- (BOOL)adViewLandscapeMode;
+- (void)adViewDidClickAd:(AdViewView *)adViewView;
+6. 对重复计算展示次数做了过滤处理。
+7. 改变打包方式，开放了广告平台的接口源代码文件。这样提交AppStore时，如果某个广告平台有疑似私有函数的API，可以完全去除。
+8. 新建Flash Air在IOS平台的扩展SDK，IOS的Flash应用可以使用AdView了。
+
 1.5.2 -- 20120723
 1. 更新多盟SDK至3.0.2版。
 2. 更新VPON SDK至3.2.5版。
-3. 改变亿动SDK的类名，并重新打包以规避和多盟SDK的冲突。
-4. 配置备份文件存储位置改到Library目录下。
+3. 更新飞云 SDK至3.0版。
+4. 增加架势无线 SDK3.0版。
+4. 改变亿动SDK的类名，并重新打包以规避和多盟SDK的冲突。
+5. 通过修改相关平台SDK的类名或者函数名、变量名规避SDK间冲突。
+6. 通过修改相关平台SDK的函数名、变量名规避AppStore上传报的私有函数问题。
+7. 配置备份文件存储位置改到Library目录下。
 
 1.5.1 -- 20120716
 1. 更新安沃SDK至2.5.3版。

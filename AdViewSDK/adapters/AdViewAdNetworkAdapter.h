@@ -2,7 +2,7 @@
 
  AdViewAdNetworkAdapter.h
 
- Copyright 2009 AdMob, Inc.
+ Copyright 2010 www.adview.cn
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -67,8 +67,9 @@ typedef enum {
     AdViewAdNetworkTypeAdSage = 42,
     AdViewAdNetworkTypeUMAd = 43,
     AdViewAdNetworkTypeAdFracta = 44,
-    AdViewAdNetworkTypeLmmob = 45,
+    AdViewAdNetworkTypeImmob = 45,
 	AdViewAdNetworkTypeMobWin = 46,
+	AdViewAdNetworkTypeSuiZong = 47,
 	
 	
 	AdViewAdNetworkTypeAder	= 50,
@@ -170,6 +171,8 @@ BOOL isForeignAd(AdViewAdNetworkType type);
 @property (nonatomic,retain) AdViewConfig *adViewConfig;
 @property (nonatomic,retain) AdViewAdNetworkConfig *networkConfig;
 @property (nonatomic,retain) UIView *adNetworkView;
+
+@property (nonatomic,assign) BOOL		bWaitAd;
 
 @property (nonatomic,assign) int		nSizeAd;
 @property (nonatomic,assign) CGRect		rSizeAd;

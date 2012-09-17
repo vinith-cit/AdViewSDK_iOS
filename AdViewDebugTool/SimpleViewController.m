@@ -2,7 +2,7 @@
 
  SimpleViewController.m
 
- Copyright 2009 AdMob, Inc.
+ Copyright 2010 www.adview.cn
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -46,7 +46,9 @@
 @synthesize adView;
 
 - (id)init {
-  if (self = [super initWithNibName:@"SimpleViewController" bundle:nil]) {
+  BOOL isIpad = (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad);
+	if (self = [super initWithNibName:isIpad?@"SimpleViewController_iPad":@"SimpleViewController" 
+							 bundle:nil]) {
     currLayoutOrientation = UIInterfaceOrientationPortrait; // nib file defines a portrait view
     self.title = @"Simple View";
   }
@@ -179,9 +181,16 @@
 }
 
 - (void)adjustAdSize {
+  CGSize adSize = [adView actualAdSize];
+	
+  if (adSize.width <= 0 || adSize.height <= 0) {
+	  if ([self respondsToSelector:@selector(adViewBannerAnimationType)]
+		  && AdViewBannerAnimationTypeNone != [self adViewBannerAnimationType])
+		return;
+  }
+	
   [UIView beginAnimations:@"AdResize" context:nil];
   [UIView setAnimationDuration:0.7];
-  CGSize adSize = [adView actualAdSize];
   CGRect newFrame = adView.frame;
   newFrame.size.height = adSize.height;
   newFrame.size.width = adSize.width;
@@ -207,6 +216,8 @@
 }
 
 - (void)dealloc {
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+
   self.adView.delegate = nil;
   self.adView = nil;
   [super dealloc];
@@ -312,6 +323,13 @@
   [self adjustAdSize];
 }
 
+- (void)adViewDidClickAd:(AdViewView *)adViewView {
+	self.label.text = [NSString stringWithFormat:
+					   @"Click ad of %@, size %@",
+					   [adViewView mostRecentNetworkName],
+					   NSStringFromCGSize([adViewView actualAdSize])];
+}
+
 - (void)adViewStartGetAd:(AdViewView *)adViewView {
 	self.label.text = [NSString stringWithFormat:
 					   @"Go to ad %@, size %@",
@@ -357,7 +375,7 @@
 }
 
 - (BOOL)adViewTestMode {
-  return YES;
+  return NO;
 }
 
 - (BOOL)adViewLogMode {
@@ -374,6 +392,10 @@
 
 - (AdViewAppAd_BgGradientType)adViewAppAdBackgroundGradientType {
 	return AdViewAppAd_BgGradient_Fix;
+}
+
+- (AdViewBannerAnimationType)adViewBannerAnimationType {
+	return AdViewBannerAnimationTypeRandom;
 }
 
 #if 0

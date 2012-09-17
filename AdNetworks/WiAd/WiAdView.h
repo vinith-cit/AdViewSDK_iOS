@@ -29,12 +29,6 @@
 
 @class WiAdCommonView, WiAdShiningLabel;
 
-//广告类型
-#define	TEST_WIAD_TYPE_TEXT               1
-#define	TEST_WIAD_TYPE_BANNER	          2
-#define	TEST_WIAD_TYPE_BANNER_IMAGE	      3
-#define	TEST_WIAD_TYPE_FULL_SCREEN	      4
-
 @class WiAdView;
 
 /**
@@ -44,24 +38,23 @@
 
 @optional
 
-//告诉WiAdView是否使用测试模式
-- (BOOL)WiAdUseTestMode:(WiAdView*)adView;
-
-//告诉WiAdView使用哪种测试广告类型
-- (int)WiAdTestAdType:(WiAdView*)adView;
-
 //广告加载成功时调用
 - (void)WiAdDidLoad:(WiAdView*)adView;
 
 //广告加载失败时调用
 - (void)WiAdDidFailLoad:(WiAdView*)adView;
 
-//全屏广告关闭按钮点击时调用
-- (void)WiAdFullScreenAdSkipped:(WiAdView*)adView;
+@end
 
-//全屏广告被点击后调用
-- (void)WiAdFullScreenAdClicked:(WiAdView*)adView;
-
+/**
+ * WiSpotAdView Delegate 协议
+ */
+@protocol WiSpotAdViewListener
+- (void)wiSpotAdExited;
+@optional
+- (void)wiSpotAdDidShow;
+- (void)wiSpotAdDidClicked;
+- (void)wiSpotAdReplayed;
 @end
 
 typedef enum _WiAdViewStyle{
@@ -116,6 +109,10 @@ typedef enum _WiAdViewStyle{
 // 创建广告视图对象
 + (WiAdView*)adViewWithResId:(NSString*)resId style:(WiAdViewStyle)style;
 
+//请求插播广告
++ (void)requestSpotAd:(NSString*)resId;
+//显示插播广告，如果有缓存则显示，否则返回False
++ (BOOL)showSpotAd:(NSString*)resId listener:(id<WiSpotAdViewListener>)listener;
 
 // 开始请求广告
 - (void)requestAd;

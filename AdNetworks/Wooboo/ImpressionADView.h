@@ -45,7 +45,6 @@ typedef enum{
 
 /*映像式广告初始化方法*/
 -(id) initWithPID:(NSString *)pid 
-           status:(BOOL)testing 
         locationX:(int)x 
         locationY:(int)y 
       displayType:(int)type 
@@ -54,7 +53,6 @@ screenOrientation:(int)orientation;
 /*映像式广告初始化方法*/
 -(id) initWithPID:(NSString*)pid
          iTunesId:(NSString*)iid
-           status:(BOOL)testing 
         locationX:(int)x 
         locationY:(int)y 
       displayType:(int)type 
@@ -83,6 +81,9 @@ screenOrientation:(int)orientation;
 @protocol ADListenerDelegate<NSObject>
 
 @optional
+
+/* 收到广告时调用 */
+- (void)didReceivedAD;
 
 /* 获取广告失败的时候调用 */
 - (void)onFailedToReceiveAD:(NSString*)error;

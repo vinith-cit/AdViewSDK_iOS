@@ -1,27 +1,24 @@
 //
 //  SmartMadDelegate.h
-//  SmartMad2Beta
+//  delegate for SmartMad
 //
-//  Created by MadClient on 4/22/11.
+//  Created by MadClient on 7/25/12.
 //  Copyright 2011 Madhouse Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
+// ad measure
 typedef enum
 {
-	PHONE_AD_MEASURE_176X27=1,
-	PHONE_AD_MEASURE_240X36=2,
-	PHONE_AD_MEASURE_320X48=3,
-	PHONE_AD_MEASURE_360X54=4,
-	PHONE_AD_MEASURE_480X72=5,
-	PHONE_AD_MEASURE_640X96=6,
+    AD_MEASURE_DEFAULT=0,
 	TABLET_AD_MEASURE_300X250=7,
 	TABLET_AD_MEASURE_468X60=8,
 	TABLET_AD_MEASURE_728X90=9,
 	
 } AdMeasureType; 
 
+// banner transform animation
 typedef enum
 {
 	BANNER_ANIMATION_TYPE_NONE = 0,
@@ -36,6 +33,7 @@ typedef enum
 	
 } AdBannerTransitionAnimationType;
 
+// user gender
 typedef enum
 {
 	UFemale=1,
@@ -43,6 +41,7 @@ typedef enum
 	
 } AdUserGen;
 
+// SmartMad release mode
 typedef enum
 {
 	AdRelease=0,   
@@ -50,6 +49,7 @@ typedef enum
 	
 } AdCompileMode;
 
+// ad evnet code
 typedef enum
 {
 	EVENT_NEWAD = 1,
@@ -62,11 +62,11 @@ typedef enum
 
 #pragma mark required
 @required
-
+// required parameters settings
 -(NSString*)adPositionId;
 
 @optional
-
+// optional parameters settings
 -(NSTimeInterval)adInterval;
 -(AdMeasureType)adMeasure;
 -(AdBannerTransitionAnimationType)adBannerAnimation;

@@ -34,6 +34,18 @@ typedef enum {
 	AdViewAppAd_BgGradient_Random,			//random gradient background color.	
 }AdViewAppAd_BgGradientType;
 
+typedef enum {
+	AdViewBannerAnimationTypeNone           = 0,
+	AdViewBannerAnimationTypeFlipFromLeft   = 1,
+	AdViewBannerAnimationTypeFlipFromRight  = 2,
+	AdViewBannerAnimationTypeCurlUp         = 3,
+	AdViewBannerAnimationTypeCurlDown       = 4,
+	AdViewBannerAnimationTypeSlideFromLeft  = 5,
+	AdViewBannerAnimationTypeSlideFromRight = 6,
+	AdViewBannerAnimationTypeFadeIn         = 7,
+	AdViewBannerAnimationTypeRandom         = 8,
+} AdViewBannerAnimationType;
+
 @protocol AdViewDelegate<NSObject>
 
 @required
@@ -42,11 +54,15 @@ typedef enum {
 
 /**
  * 窗体控制对象
-   请确认返回根窗体控制对象(例如是UINavigationController, 而不是UIViewController)
+ * 最好返回根窗体控制对象(例如是UINavigationController, 也可以返回子控制对象UIViewController，
+ * 但必须保证它的生存周期覆盖了AdViewView的生存周期)
  */
 - (UIViewController *)viewControllerForPresentingModalView;
 
 @optional
+/**
+ * 应用的发布渠道，比如AppStore, 91，等
+ */
 - (NSString *)adViewApplicationPublishChannel;
 
 /**
@@ -67,6 +83,9 @@ typedef enum {
  */
 - (void)adViewDidReceiveAd:(AdViewView *)adViewView;
 - (void)adViewDidFailToReceiveAd:(AdViewView *)adViewView usingBackup:(BOOL)yesOrNo;
+
+// 用户点击广告的回调函数，一次展示仅会计入一次，即一次展示第一次点击时才会调用本方法。
+- (void)adViewDidClickAd:(AdViewView *)adViewView;
 
 - (void)adViewStartGetAd:(AdViewView *)adViewView;	//notify start to get next ad
 
@@ -126,6 +145,14 @@ typedef enum {
  */
 - (UIDeviceOrientation)adViewCurrentOrientation;
 
+/**
+ * Return the value should adview support landscape mode. Only iad and admob support landscape mode,
+ * that is, show 480x32 size ad.
+ * Default: YES
+ * 返回是否支持横屏广告，目前只有iad和admob支持横屏尺寸，即480x32尺寸广告。
+ */
+- (BOOL)adViewLandscapeMode;
+
 #pragma mark 附加设置
 - (LangSetType)PreferLangSet;
 
@@ -138,6 +165,12 @@ typedef enum {
  * 应用互推在文字和图标模式下的渐变背景类型，缺省为单一渐变，可选择关闭或基于背景颜色的随机变化
  */
 - (AdViewAppAd_BgGradientType)adViewAppAdBackgroundGradientType;
+
+/**
+ * Default:AdViewBannerAnimationTypeNone
+ * 广告切换时的动画效果。注意调试，以免和改变尺寸的动画效果冲突导致动画效果不佳。
+ */
+- (AdViewBannerAnimationType)adViewBannerAnimationType;
 
 
 #pragma mark 广告ID
@@ -178,6 +211,8 @@ typedef enum {
 - (NSString*)greystripeApIDString;
 - (NSString*)inmobiApIDString;
 - (NSString*)izpApIDString;
+
+- (NSString *)suiZongApIDString; //application id for suizong
 
 #pragma mark 有米
 - (NSString *)youMiApSecretString; //application secret for youmi

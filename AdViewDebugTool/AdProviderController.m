@@ -130,7 +130,7 @@
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
     }
     
     // Configure the cell...
@@ -140,6 +140,7 @@
     
     NSArray *strItems = [strVal componentsSeparatedByString:@","];
     cell.textLabel.text = [strItems objectAtIndex:0];
+	cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", row];
     
     return cell;
 }

@@ -2,7 +2,7 @@
  
  AdViewLog.m
  
- Copyright 2009 AdMob, Inc.
+ Copyright 2010 www.adview.cn
  
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@
 static AWLogLevel g_AWLogLevel = AWLogLevelInfo;
 #define ADVIEW_LOG_PREFIX		@"AdView:"
 
-void AWLogSetLogLevel(AWLogLevel level) {
+void ADVLogSetLogLevel(AWLogLevel level) {
 	g_AWLogLevel = level;
 }
 
-void _AWLogCrit(NSString *format, ...) {
+void _ADVLogCrit(NSString *format, ...) {
 	if (g_AWLogLevel < AWLogLevelCrit) return;
 	va_list ap;
 	NSString *fmt_real = [ADVIEW_LOG_PREFIX stringByAppendingString:format];
@@ -36,7 +36,7 @@ void _AWLogCrit(NSString *format, ...) {
 	va_end(ap);
 }
 
-void _AWLogError(NSString *format, ...) {
+void _ADVLogError(NSString *format, ...) {
 	if (g_AWLogLevel < AWLogLevelError) return;
 	va_list ap;
 	NSString *fmt_real = [ADVIEW_LOG_PREFIX stringByAppendingString:format];
@@ -45,7 +45,7 @@ void _AWLogError(NSString *format, ...) {
 	va_end(ap);
 }
 
-void _AWLogWarn(NSString *format, ...) {
+void _ADVLogWarn(NSString *format, ...) {
 	if (g_AWLogLevel < AWLogLevelWarn) return;
 	va_list ap;
 	NSString *fmt_real = [ADVIEW_LOG_PREFIX stringByAppendingString:format];
@@ -54,7 +54,7 @@ void _AWLogWarn(NSString *format, ...) {
 	va_end(ap);
 }
 
-void _AWLogInfo(NSString *format, ...) {
+void _ADVLogInfo(NSString *format, ...) {
 	if (g_AWLogLevel < AWLogLevelInfo) return;
 	va_list ap;
 	NSString *fmt_real = [ADVIEW_LOG_PREFIX stringByAppendingString:format];
@@ -63,7 +63,7 @@ void _AWLogInfo(NSString *format, ...) {
 	va_end(ap);
 }
 
-void _AWLogDebug(NSString *format, ...) {
+void _ADVLogDebug(NSString *format, ...) {
 	if (g_AWLogLevel < AWLogLevelDebug) return;
 	va_list ap;
 	NSString *fmt_real = [ADVIEW_LOG_PREFIX stringByAppendingString:format];

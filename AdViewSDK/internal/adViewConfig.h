@@ -2,7 +2,7 @@
 
  AdViewConfig.h
 
- Copyright 2009 AdMob, Inc.
+ Copyright 2010 www.adview.cn
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -121,6 +121,6 @@ typedef enum {
 // Convenience conversion functions, converts val into native types var.
 // val can be NSNumber or NSString, all else will cause function to fail
 // On failure, return NO.
-BOOL awIntVal(NSInteger *var, id val);
-BOOL awFloatVal(CGFloat *var, id val);
-BOOL awDoubleVal(double *var, id val);
+BOOL advIntVal(NSInteger *var, id val);
+BOOL advFloatVal(CGFloat *var, id val);
+BOOL advDoubleVal(double *var, id val);

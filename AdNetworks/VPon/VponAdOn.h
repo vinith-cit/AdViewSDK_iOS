@@ -3,7 +3,7 @@
 //  AdOn
 //
 //  Created by Shark on 2010/6/2.
-//  Copyright 2010 __MyCompanyName__. All rights reserved.
+//  Copyright 2010 www.adview.cn. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

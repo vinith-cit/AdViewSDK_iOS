@@ -2,7 +2,7 @@
 
  AdViewAdNetworkAdapter+Helpers.m
  
- Copyright 2009 AdMob, Inc.
+ Copyright 2010 www.adview.cn
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -111,6 +111,9 @@
 }
 
 - (BOOL)helperIsLandscape {
+	if (![self helperUseLandscapeMode])
+		return NO;
+	
 	UIDeviceOrientation orientation;
 	if ([self.adViewDelegate respondsToSelector:@selector(adViewCurrentOrientation)]) {
 		orientation = [self.adViewDelegate adViewCurrentOrientation];
@@ -133,6 +136,14 @@
 		return [adViewDelegate adGpsMode];
 	}
 	return NO;
+}
+
+- (BOOL)helperUseLandscapeMode
+{
+	if ([adViewDelegate respondsToSelector:@selector(adViewLandscapeMode)]) {
+		return [adViewDelegate adViewLandscapeMode];
+	}
+	return YES;
 }
 
 @end

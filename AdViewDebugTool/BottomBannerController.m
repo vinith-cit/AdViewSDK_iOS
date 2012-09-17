@@ -2,8 +2,7 @@
 //  BottomBannerController.m
 //  AdViewSDK_Sample
 //
-//  Created by Nigel Choi on 1/26/10.
-//  Copyright 2010 Admob. Inc.. All rights reserved.
+//  Copyright 2010 www.adview.cn. All rights reserved.
 //
 
 #import "BottomBannerController.h"
