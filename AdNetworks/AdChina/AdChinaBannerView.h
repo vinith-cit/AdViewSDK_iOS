@@ -13,7 +13,6 @@
 #define isPhone                 (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
 
 #define BannerSizeDefault		(isPhone? CGSizeMake(320, 48) : CGSizeMake(728, 90))
-#define BannerSizeShort         (isPhone? CGSizeMake(320, 48) : CGSizeMake(640, 96))     // 20:3
 #define BannerSizeSquare        (isPhone? CGSizeMake(320, 48) : CGSizeMake(360, 360))    // 1:1
 #define BannerSizeVertical      (isPhone? CGSizeMake(320, 48) : CGSizeMake(336, 480))    // 7:10
 #define BannerSizeVideo         (isPhone? CGSizeMake(320, 48) : CGSizeMake(480, 360))    // 4:3
@@ -39,6 +38,9 @@ enum {
 
 // Returns newly created banner ad
 + (AdChinaBannerView *)requestAdWithAdSpaceId:(NSString *)theAdSpaceId delegate:(id<AdChinaBannerViewDelegate>)theDelegate adSize:(CGSize)size;
+
+// Set banner frame to CGRectMake(origin.x, origin.y, size.width, size.height)
+- (void)setOrigin:(CGPoint)origin;
 
 // Set view controller for browser, default view controller is delegate
 - (void)setViewControllerForBrowser:(UIViewController *)controller;
