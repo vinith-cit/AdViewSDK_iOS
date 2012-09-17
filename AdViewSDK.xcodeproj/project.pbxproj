@@ -98,6 +98,8 @@
 		68F00E7A147F7F960006C186 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 68F00E68147F7F950006C186 /* SystemConfiguration.framework */; };
 		68F00E7C147F7FAF0006C186 /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 68F00E7B147F7FAF0006C186 /* libsqlite3.dylib */; };
 		68F00E8D147F84610006C186 /* libAdViewSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 68F00C1E147F6F580006C186 /* libAdViewSDK.a */; };
+		E21AD6261606C64200E3EA9E /* libKOpenAPIAdView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E21BECD516008A97005E5BAC /* libKOpenAPIAdView.a */; };
+		E21AD6271606C64300E3EA9E /* readme.txt in Resources */ = {isa = PBXBuildFile; fileRef = E21BECD616008A97005E5BAC /* readme.txt */; };
 		E21BEE1B16008A97005E5BAC /* AdViewAdapterAdChina.m in Sources */ = {isa = PBXBuildFile; fileRef = E21BECDA16008A97005E5BAC /* AdViewAdapterAdChina.m */; };
 		E21BEE1C16008A97005E5BAC /* adchina_back.png in Resources */ = {isa = PBXBuildFile; fileRef = E21BECDB16008A97005E5BAC /* adchina_back.png */; };
 		E21BEE1D16008A97005E5BAC /* adchina_back@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = E21BECDC16008A97005E5BAC /* adchina_back@2x.png */; };
@@ -204,13 +206,6 @@
 		E21BEF2A16008C3F005E5BAC /* AdViewAdapterImmob.m in Sources */ = {isa = PBXBuildFile; fileRef = E21BEF2816008C3F005E5BAC /* AdViewAdapterImmob.m */; };
 		E21BEF2B16008C3F005E5BAC /* immobSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E21BEF2916008C3F005E5BAC /* immobSDK.framework */; };
 		E22D6EE515F5B29D00B56494 /* EventKitUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E22D6EE415F5B29D00B56494 /* EventKitUI.framework */; };
-		E22F8D4F15FD8D2D00D142D4 /* KOpenAPIAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E698EB15EF4F1000B81ADC /* KOpenAPIAdapter.m */; };
-		E22F8D5015FD8D2E00D142D4 /* KOpenAPIAdapterSuiZong.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E69A1415EF64A600B81ADC /* KOpenAPIAdapterSuiZong.m */; };
-		E22F8D5115FD8D2F00D142D4 /* KOpenAPIAdConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E697FA15EF442200B81ADC /* KOpenAPIAdConnection.m */; };
-		E22F8D5215FD8D3000D142D4 /* KOpenAPIAdView.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E697FC15EF442200B81ADC /* KOpenAPIAdView.m */; };
-		E22F8D5315FD8D3100D142D4 /* KOpenAPIAdViewExtTool.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E697FE15EF442200B81ADC /* KOpenAPIAdViewExtTool.m */; };
-		E22F8D5415FD8D3200D142D4 /* KOpenAPIWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E2EFA31215F459D60045ADF7 /* KOpenAPIWebViewController.m */; };
-		E22F8D5515FD8D3300D142D4 /* SCGIFImageView_KOpenAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = E2E6980015EF442200B81ADC /* SCGIFImageView_KOpenAPI.m */; };
 		E232B3A815A5A3D200F6AFA9 /* AdViewUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = E232B3A615A5A3D200F6AFA9 /* AdViewUtils.m */; };
 		E232B3C715A5A4EE00F6AFA9 /* AdViewUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = E232B3C615A5A4EE00F6AFA9 /* AdViewUtils.h */; };
 		E25CFDBF1548F70200CECB6C /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E25CFDBE1548F70200CECB6C /* libstdc++.dylib */; };
@@ -660,21 +655,7 @@
 		E299DE8314C04C9900CE5EC8 /* SingletonAdapterBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SingletonAdapterBase.m; sourceTree = "<group>"; };
 		E2E62E2215CB7208000025C6 /* SimpleViewController_iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SimpleViewController_iPad.xib; sourceTree = "<group>"; };
 		E2E62E7715CB74C1000025C6 /* MainWindow_iPad.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainWindow_iPad.xib; sourceTree = "<group>"; };
-		E2E697F915EF442200B81ADC /* KOpenAPIAdConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KOpenAPIAdConnection.h; sourceTree = "<group>"; };
-		E2E697FA15EF442200B81ADC /* KOpenAPIAdConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KOpenAPIAdConnection.m; sourceTree = "<group>"; };
-		E2E697FB15EF442200B81ADC /* KOpenAPIAdView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KOpenAPIAdView.h; sourceTree = "<group>"; };
-		E2E697FC15EF442200B81ADC /* KOpenAPIAdView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KOpenAPIAdView.m; sourceTree = "<group>"; };
-		E2E697FD15EF442200B81ADC /* KOpenAPIAdViewExtTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KOpenAPIAdViewExtTool.h; sourceTree = "<group>"; };
-		E2E697FE15EF442200B81ADC /* KOpenAPIAdViewExtTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KOpenAPIAdViewExtTool.m; sourceTree = "<group>"; };
-		E2E697FF15EF442200B81ADC /* SCGIFImageView_KOpenAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCGIFImageView_KOpenAPI.h; sourceTree = "<group>"; };
-		E2E6980015EF442200B81ADC /* SCGIFImageView_KOpenAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SCGIFImageView_KOpenAPI.m; sourceTree = "<group>"; };
-		E2E698EA15EF4F1000B81ADC /* KOpenAPIAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KOpenAPIAdapter.h; sourceTree = "<group>"; };
-		E2E698EB15EF4F1000B81ADC /* KOpenAPIAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KOpenAPIAdapter.m; sourceTree = "<group>"; };
-		E2E69A1315EF64A600B81ADC /* KOpenAPIAdapterSuiZong.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KOpenAPIAdapterSuiZong.h; sourceTree = "<group>"; };
-		E2E69A1415EF64A600B81ADC /* KOpenAPIAdapterSuiZong.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KOpenAPIAdapterSuiZong.m; sourceTree = "<group>"; };
 		E2E95D3A15414BA80034EB50 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
-		E2EFA31115F459D60045ADF7 /* KOpenAPIWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KOpenAPIWebViewController.h; sourceTree = "<group>"; };
-		E2EFA31215F459D60045ADF7 /* KOpenAPIWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KOpenAPIWebViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -743,6 +724,7 @@
 				E21BEE8216008A97005E5BAC /* libWQMobile.a in Frameworks */,
 				E21BEE8516008A97005E5BAC /* libYouMi.a in Frameworks */,
 				E21BEF2B16008C3F005E5BAC /* immobSDK.framework in Frameworks */,
+				E21AD6261606C64200E3EA9E /* libKOpenAPIAdView.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -827,8 +809,6 @@
 		68F00C23147F6F580006C186 /* AdViewSDK */ = {
 			isa = PBXGroup;
 			children = (
-				E2E697F815EF442200B81ADC /* OpenAPIAd */,
-				E2984765154AFC3A005C8A7F /* KAdView */,
 				68F00C7F147F6FBA0006C186 /* AdViewDelegateProtocol.h */,
 				68F00C80147F6FBA0006C186 /* AdViewView.h */,
 				E232B3C615A5A4EE00F6AFA9 /* AdViewUtils.h */,
@@ -1936,34 +1916,6 @@
 			path = OfflineConfig;
 			sourceTree = "<group>";
 		};
-		E2984765154AFC3A005C8A7F /* KAdView */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = KAdView;
-			sourceTree = "<group>";
-		};
-		E2E697F815EF442200B81ADC /* OpenAPIAd */ = {
-			isa = PBXGroup;
-			children = (
-				E2EFA31115F459D60045ADF7 /* KOpenAPIWebViewController.h */,
-				E2EFA31215F459D60045ADF7 /* KOpenAPIWebViewController.m */,
-				E2E697F915EF442200B81ADC /* KOpenAPIAdConnection.h */,
-				E2E697FA15EF442200B81ADC /* KOpenAPIAdConnection.m */,
-				E2E697FB15EF442200B81ADC /* KOpenAPIAdView.h */,
-				E2E697FC15EF442200B81ADC /* KOpenAPIAdView.m */,
-				E2E697FD15EF442200B81ADC /* KOpenAPIAdViewExtTool.h */,
-				E2E697FE15EF442200B81ADC /* KOpenAPIAdViewExtTool.m */,
-				E2E697FF15EF442200B81ADC /* SCGIFImageView_KOpenAPI.h */,
-				E2E6980015EF442200B81ADC /* SCGIFImageView_KOpenAPI.m */,
-				E2E698EA15EF4F1000B81ADC /* KOpenAPIAdapter.h */,
-				E2E698EB15EF4F1000B81ADC /* KOpenAPIAdapter.m */,
-				E2E69A1315EF64A600B81ADC /* KOpenAPIAdapterSuiZong.h */,
-				E2E69A1415EF64A600B81ADC /* KOpenAPIAdapterSuiZong.m */,
-			);
-			path = OpenAPIAd;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -2140,6 +2092,7 @@
 				E21BEE7D16008A97005E5BAC /* WiAd.bundle in Resources */,
 				E21BEE8016008A97005E5BAC /* WoobooResources.bundle in Resources */,
 				E21BEE8316008A97005E5BAC /* WQBundle.bundle in Resources */,
+				E21AD6271606C64300E3EA9E /* readme.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2210,13 +2163,6 @@
 				E2E62FB715CB843C000025C6 /* SBJsonTokeniser.m in Sources */,
 				E2E62FB815CB843E000025C6 /* SBJsonUTF8Stream.m in Sources */,
 				E2E62FB915CB843E000025C6 /* SBJsonWriter.m in Sources */,
-				E22F8D4F15FD8D2D00D142D4 /* KOpenAPIAdapter.m in Sources */,
-				E22F8D5015FD8D2E00D142D4 /* KOpenAPIAdapterSuiZong.m in Sources */,
-				E22F8D5115FD8D2F00D142D4 /* KOpenAPIAdConnection.m in Sources */,
-				E22F8D5215FD8D3000D142D4 /* KOpenAPIAdView.m in Sources */,
-				E22F8D5315FD8D3100D142D4 /* KOpenAPIAdViewExtTool.m in Sources */,
-				E22F8D5415FD8D3200D142D4 /* KOpenAPIWebViewController.m in Sources */,
-				E22F8D5515FD8D3300D142D4 /* SCGIFImageView_KOpenAPI.m in Sources */,
 				E21BEE1B16008A97005E5BAC /* AdViewAdapterAdChina.m in Sources */,
 				E21BEE2916008A97005E5BAC /* AdViewAdapterAder.m in Sources */,
 				E21BEE2B16008A97005E5BAC /* AdViewAdapterAdFracta.m in Sources */,

@@ -140,7 +140,7 @@
     
     NSArray *strItems = [strVal componentsSeparatedByString:@","];
     cell.textLabel.text = [strItems objectAtIndex:0];
-	cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", row];
+	cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", row+1];
     
     return cell;
 }
