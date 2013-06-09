@@ -13,8 +13,17 @@ sdk_xcode_build_dir = os.path.join (sdk_srcroot_dir, 'build')
 
 sdk_dist_package_path= os.path.join(sdk_dist_dir, 'AdViewSDK')
 
+tool_xcodebuild_sdk4='/Developer/usr/bin/xcodebuild'
+tool_xcodebuild_sdk6='xcodebuild'
+
 sdk_dist_deploy_framework_name = 'AdView'
-sdk_dist_universal_arch = ['armv6', 'armv7', 'i386']
+sdk_dist_universal_arch = ['armv7s', 'armv7', 'i386']
+
+sdk_dist_universal_tool = [tool_xcodebuild_sdk6, tool_xcodebuild_sdk6]
+sdk_dist_universal_sdk = ['iphoneos', 'iphonesimulator']
+sdk_dist_universal_arm = ['s/armv6/armv7s/g', 's/armv6/armv7s/g']
+sdk_dist_universal_ret = [False, True]		#check result.
+
 
 sdk_version_file = os.path.join (sdk_srcroot_dir, 'VERSIONS')
 sdk_readme_file = os.path.join (sdk_srcroot_dir, 'README.txt')
@@ -25,7 +34,7 @@ sdk_src_dirname = 'AdViewSDK'
 
 sdk_src_public_headers = map (lambda (x): os.path.join (sdk_srcroot_dir, sdk_src_dirname, x), ['AdViewView.h', 'AdViewUtils.h', 'AdViewDelegateProtocol.h'])
 
-extra_opensource_projects = map (lambda (x): os.path.join (sdk_srcroot_dir, x), ['TouchJSON', 'SBJson', 'JSONKit'])
+extra_opensource_projects = map (lambda (x): os.path.join (sdk_srcroot_dir, x), ['TouchJSON', 'SBJson', 'JSONKit', 'Reachability'])
 extra_opensource_ditto_filter = ['', '.h', '.m', '.mm', '.c', '.cpp', '.hpp', '.cc', '.cxx', '.hh']
 extra_3rd_libraries = map (lambda (x): os.path.join (sdk_srcroot_dir, x), ['AdNetworks'])
 extra_3rd_ditto_filter = ['.a', '.xib', '.nib', '.png', '.plist']
@@ -36,7 +45,7 @@ extra_adapter_inc = ['AWNetworkReachabilityDelegate.h', 'AdViewViewImpl.h', 'adV
     'AdViewDeviceCollector.h', 'adViewAdNetworkAdapter+Helpers.h',
     'AdViewExtraManager.h', 'adViewAdNetworkConfig.h']
 
-sdk_build_xcode_max_version = '4.2'
+sdk_build_xcode_max_version = '4.8'
 sdk_build_test_macros = ['USER_TEST_SERVER', 'DEBUG_INFO']
 sdk_build_check_debug_file = os.path.join (sdk_srcroot_dir, sdk_src_dirname, 'internal/AdViewViewImpl.h')
 sdk_build_get_version = ''
@@ -76,9 +85,10 @@ def ditto_filter (dst_dir, src_dir, filter):
 
 def check_toolchain ():
     import re
-    p = subprocess.Popen ('xcodebuild -version', stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+    p = subprocess.Popen (('%s -version' % tool_xcodebuild_sdk6), stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
     out = p.stdout.readlines ()
     pattern = re.compile (r'Xcode\s*([\d\.]+)')
+    print out
     m = pattern.match (out[0])
     if m is not None:
         return m.group (1) < sdk_build_xcode_max_version
@@ -120,19 +130,31 @@ def build_universal ():
     config = 'Release'
     current_dirname = os.getcwd ()
     os.chdir (sdk_srcroot_dir)
+    '''
     tasks = [
             {'target' : 'AdViewSDK', 'config' : config, 'sdk' : 'iphoneos'},
             {'target' : 'AdViewSDK', 'config' : config, 'sdk' : 'iphonesimulator'},
             ]
+    '''
+    tasks = []
+    for i in range(0, len(sdk_dist_universal_tool)):
+    	task = {'tool':sdk_dist_universal_tool[i], 'target' : 'AdViewSDK', 'config' : config,\
+    		'sdk' : sdk_dist_universal_sdk[i], 'ret':sdk_dist_universal_ret[i], 'arm':sdk_dist_universal_arm[i]}
+    	tasks.append(task)
+    	
     for t in tasks:
-        retval = subprocess.call (['xcodebuild', '-target', t['target'], '-configuration', t['config'], '-sdk', t['sdk']])
-        if retval != 0:
+    	os.system("perl -pi -e %s ./AdViewSDK.xcodeproj/project.pbxproj" % t['arm'])
+    
+        retval = subprocess.call ([t['tool'], '-target', t['target'], '-configuration', t['config'], '-sdk', t['sdk']])
+        if retval != 0 and t['ret']:
             print >> sys.stderr, '=' * 30
             print >> sys.stderr, 'Build!!!!!!'
             print >> sys.stderr, '=' * 30
             sys.exit (1)
     adview_libraries = map (lambda (x): os.path.join (sdk_xcode_build_dir, x, sdk_build_target_name),
             ['%s-iphoneos' % config, '%s-iphonesimulator' % config])
+            
+    print adview_libraries
     framework_dir = os.path.join ( '%s-%s' % (sdk_dist_package_path,  sdk_version()), sdk_dist_deploy_framework_name)
     universal_target = os.path.join (framework_dir, sdk_build_target_product)
     if not os.path.exists (framework_dir):
@@ -149,12 +171,15 @@ def build_universal ():
     os.chdir (current_dirname)
 
     cmd_list = ['lipo', '-info', universal_target]
+    cmdStr = 'lipo -info "%s"' % universal_target
+    print cmdStr
 
-    p = subprocess.Popen ('lipo -info %s' % universal_target, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
+    p = subprocess.Popen (cmdStr, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, shell = True)
     out = p.stdout.readlines ()
+    print out
     output_infomation = out[0]
     for x in sdk_dist_universal_arch:
-        if x not in output_infomation:
+        if x not in output_infomation and x != 'armv7s':
             print >> sys.stderr, '%s is not containts %s code!!!!' % (universal_target, x)
             sys.exit (1)
 
