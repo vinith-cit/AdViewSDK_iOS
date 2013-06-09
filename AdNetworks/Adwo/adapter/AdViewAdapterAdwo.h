@@ -12,7 +12,6 @@
 /*架势无线*/
 
 @interface AdViewAdapterAdwo : AdViewAdNetworkAdapter <AWAdViewDelegate> {
-
 }
 
 + (AdViewAdNetworkType)networkType;

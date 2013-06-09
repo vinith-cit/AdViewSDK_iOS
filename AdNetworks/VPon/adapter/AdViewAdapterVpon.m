@@ -16,7 +16,6 @@
 
 @interface AdViewAdapterVpon ()
 - (NSString *) adonLicenseKey;
-- (BOOL)isTestMode;
 @end
 
 
@@ -65,8 +64,6 @@
 	UIView *adView = vpon.view;
 	
 	adView.backgroundColor = [self helperBackgroundColorToUse];
-	
-	//[adViewView adapter:self shouldAddAdView:adView];
 	self.adNetworkView = adView;
 }
 
@@ -79,47 +76,20 @@
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.sSizeAd = ADON_SIZE_320x48;
-				break;
-			case AdviewBannerSize_300x250:
-				self.sSizeAd = ADON_SIZE_320X270;
-				break;
-			case AdviewBannerSize_480x60:
-				self.sSizeAd = ADON_SIZE_480x72;
-				break;
-			case AdviewBannerSize_728x90:
-				self.sSizeAd = ADON_SIZE_700x108;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.sSizeAd = ADON_SIZE_700x108;
-	} else {
-		self.sSizeAd = ADON_SIZE_320x48;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    CGSize sizeArr[] = {ADON_SIZE_320x48,ADON_SIZE_700x105,
+        ADON_SIZE_320x48,ADON_SIZE_320X270,
+        ADON_SIZE_480x72,ADON_SIZE_700x105};
+    
+    [self setSizeParameter:nil size:sizeArr];
 }
 
 - (void)dealloc {
   [super dealloc];
-}
-
-- (BOOL)isTestMode {
-	if (nil != adViewDelegate
-		&& [adViewDelegate respondsToSelector:@selector(adViewTestMode)]) {
-		return [adViewDelegate adViewTestMode];
-	}
-	return NO;
 }
 
 //return your adon Licenese Key
@@ -148,7 +118,8 @@
 #pragma mark 回傳Vpon廣告抓取成功
 - (void)onRecevieAd:(UIViewController *)bannerView withLicenseKey:(NSString *)licenseKey
 {
-	AWLogInfo(@"did receive an ad from vpon");
+	AWLogInfo(@"did receive an ad from vpon, %@", bannerView);
+    [bannerView.view setAutoresizingMask:UIViewAutoresizingNone];
     [adViewView adapter:self didReceiveAdView:bannerView.view];	
 }
 

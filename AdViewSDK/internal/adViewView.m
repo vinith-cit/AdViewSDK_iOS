@@ -31,6 +31,8 @@
 #import "AWNetworkReachabilityWrapper.h"
 #import "AdViewAdNetworkRegistry.h"
 #import "AdViewExtraManager.h"
+#import "AdViewReachability.h"
+#import "AdviewObjCollector.h"
 
 #if 0
 #import "AdViewAdapterAdMob.h"
@@ -61,6 +63,22 @@ NSInteger adNetworkPriorityComparer(id a, id b, void *ctx) {
   else
     return NSOrderedSame;
 }
+
+@implementation AdViewViewConst
+
++ (NSString*)sdkName {
+    return @"AdView";
+}
+
++ (NSString*)sdkVersion {
+    return @"1.6.7";
+}
+
++ (NSString*)wqTag {
+    return @"adviewc633659b4fda54";
+}
+
+@end
 
 @implementation AdViewView
 
@@ -215,6 +233,8 @@ didReceiveAdView:(UIView *)view {}
 	return false;
 }
 
+- (void)clearAdsAndStopAutoRefresh {}
+
 - (void)setInShowingModalView:(BOOL)bModal{}
 
 @end
@@ -280,6 +300,11 @@ didReceiveAdView:(UIView *)view {}
     // remember pending ad requests, so we don't make more than one
     // request per ad network at a time
     pendingAdapters = [[NSMutableDictionary alloc] initWithCapacity:30];
+      
+    [[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(reachabilityChanged:) name: kReachabilityChangedNotification object: nil];      
+      internetReach = [[AdViewReachability reachabilityForInternetConnection] retain];
+      [internetReach startNotifier];
+      bNetReachable = ([internetReach currentReachabilityStatus] != AdViewNotReachable);
   }
   return self;
 }
@@ -295,8 +320,11 @@ didReceiveAdView:(UIView *)view {}
 }
 
 - (void)dealloc {
+    [[AdviewObjCollector sharedCollector] setAdapterAdViewViewNil:self];    
 	[[NSNotificationCenter defaultCenter] removeObserver:self];
 	delegate = nil;
+    
+    [internetReach release]; internetReach = nil;
 	
 	[config removeDelegate:self];
 	[config release], config = nil;
@@ -372,7 +400,7 @@ didReceiveAdView:(UIView *)view {}
 											  method:ConfigMethod_DataFile
 											delegate:(id<AdViewConfigDelegate>)self];
 	if (cfg != nil) {
-		if (blocking)
+		if ([blocking boolValue])
 			self.config = cfg;
 		else self.config_noblocking = cfg;
 	}
@@ -399,10 +427,17 @@ didReceiveAdView:(UIView *)view {}
 */
   // Request new config
   AWLogInfo(@"======== Updating config ========");
+    
+  if (nil == delegate) {
+    AWLogInfo(@"delegate is nil, won't update.");
+    return;
+  }
 	
   NSTimeInterval nowTi = [[NSDate date] timeIntervalSince1970];
+  NSString *last_Key = [NSString stringWithFormat:@"%@%@", LAST_NET_CONFIG_TIME,
+                          [self.delegate adViewApplicationKey]];
   NSNumber *numLastTime = (NSNumber*)[[AdViewExtraManager createManager] 
-									  objectStoredForKey:LAST_NET_CONFIG_TIME];
+									  objectStoredForKey:last_Key];
   if (nil != numLastTime && (nowTi - [numLastTime doubleValue]) < 300.0f) {
 	  AWLogInfo(@"last got config is in 5 minutes, won't update now.");
 	  return;
@@ -525,8 +560,14 @@ static BOOL randSeeded = NO;
   requesting = YES;
 
   AdViewAdNetworkConfig *nextAdNetCfg = nil;
+    
+  BOOL bPercentage = YES;
+    
+  if ([delegate respondsToSelector:@selector(adViewRequestMethod)]
+      && AdViewRequestMethod_Default != [delegate adViewRequestMethod])
+      bPercentage = NO;
 
-  if (isFirstRequest && totalPercent > 0.0) {
+  if (bPercentage && isFirstRequest && totalPercent > 0.0) {
     nextAdNetCfg = [self nextNetworkCfgByPercent];
   }
   else {
@@ -571,10 +612,11 @@ static BOOL randSeeded = NO;
   // if the last ad request finished, i.e. called back to its adapters. There
   // are cases, e.g. iAd, when the ad network may call back multiple times,
   // because of internal refreshes.
+  [self.lastAdapter cleanupDummyRetain];
   if (self.lastAdapter.networkConfig.networkType ==
                                   self.currAdapter.networkConfig.networkType) {
-	[self.lastAdapter cleanupDummyRetain];
-    [self.lastAdapter stopBeingDelegate];
+    if (![self.lastAdapter canMultiBeingDelegate])
+        [self.lastAdapter stopBeingDelegate];
   }
 
 	if ([delegate respondsToSelector:@selector(adViewStartGetAd:)]) {
@@ -598,6 +640,14 @@ static BOOL randSeeded = NO;
   if (![self canRefresh]) {
     AWLogInfo(@"Not going to refresh due to flags, app not active or modal");
     return;
+  }
+  if (!bNetReachable) {
+      AWLogInfo(@"Not going to refresh due to network not reachable");
+      return;
+  }
+  if (nil == delegate) {
+      AWLogInfo(@"Not going to refresh due to delegate is nil");
+      return;
   }
   if (lastRequestTime != nil) {
     NSTimeInterval sinceLast = -[lastRequestTime timeIntervalSinceNow];
@@ -660,7 +710,7 @@ static BOOL randSeeded = NO;
 }
 
 - (void)rollOver {
-  if (ignoreNewAdRequests) {
+  if (ignoreNewAdRequests || showingModalView) {
     return;
   }
   // only make request in main thread
@@ -685,6 +735,44 @@ static BOOL randSeeded = NO;
 
 - (void)stopAutoRefresh {
   ignoreAutoRefreshTimer = YES;
+}
+
+- (void)clearAdsAndStopAutoRefresh {
+  if (showingModalView) {
+      AWLogInfo(@"In showing modal, can not clear ad now.");
+      return;
+  }
+    
+  AWLogInfo(@"clearAdsAndStopAutoRefresh");
+    
+  [self stopAutoRefresh];
+    
+  for (UIView *view1 in [self subviews]) {
+    [view1 removeFromSuperview];
+  }
+
+  [prioritizedAdNetCfgs release], prioritizedAdNetCfgs = nil;
+  totalPercent = 0.0;
+  requesting = NO;
+  [currAdapter cleanupDummyRetain];
+  if ([currAdapter canClearDelegate]) {
+    currAdapter.adViewDelegate = nil, currAdapter.adViewView = nil;
+  }
+  [currAdapter release], currAdapter = nil;
+    
+  [lastAdapter cleanupDummyRetain];
+  if ([currAdapter canClearDelegate]) {
+    lastAdapter.adViewDelegate = nil, lastAdapter.adViewView = nil;
+  }
+  [lastAdapter release], lastAdapter = nil;
+  [AdViewViewImpl cleanupDummyRetain:pendingAdapters];
+  [pendingAdapters removeAllObjects];
+    
+  [self setInShowingModalView:NO];
+    
+  CGRect frm = self.frame;
+  frm.size = CGSizeMake(0, 0);
+  self.frame = frm;
 }
 
 - (void)startAutoRefresh {
@@ -943,7 +1031,9 @@ static BOOL randSeeded = NO;
   [adViewToRemove removeFromSuperview];
   [adViewToRemove release]; // was retained before beginAnimations
   [lastAdapter cleanupDummyRetain];
-  lastAdapter.adViewDelegate = nil, lastAdapter.adViewView = nil;
+  if ([lastAdapter canClearDelegate]) {
+    lastAdapter.adViewDelegate = nil, lastAdapter.adViewView = nil;
+  }
   self.lastAdapter = nil;
   if ([delegate respondsToSelector:@selector(adViewDidAnimateToNewAdIn:)]) {
     [delegate adViewDidAnimateToNewAdIn:self];
@@ -964,6 +1054,7 @@ static BOOL randSeeded = NO;
   BOOL itsInside = [super pointInside:point withEvent:event];
   if (itsInside && currAdapter != nil && lastNotifyAdapter != currAdapter
       && [self _isEventATouch30:event]
+      && currAdapter.bGotView               //20121017, got the view.
       && [currAdapter shouldSendExMetric]) {
     lastNotifyAdapter = currAdapter;
     [self reportExClick:currAdapter.networkConfig.nid
@@ -1018,6 +1109,7 @@ static BOOL randSeeded = NO;
     AWLogInfo(@"Received didReceiveAdView from a stale adapter %@", adapter);
     return;
   }
+  adapter.bGotView = YES;
   AWLogInfo(@"Received ad from adapter (%@)", NSStringFromClass([adapter class]));//adapter.networkConfig.nid);
 
   // UIView operations should be performed on main thread
@@ -1057,7 +1149,7 @@ static BOOL randSeeded = NO;
 }
 
 - (void)adapter:(AdViewAdNetworkAdapter *)adapter shouldAddAdView:(UIView *)view {
-	[self adRequestReturnsForAdapter:adapter];
+	//[self adRequestReturnsForAdapter:adapter];    //need wait response too.
 	if (adapter != currAdapter) {
 		AWLogInfo(@"Received didReceiveAdView from a stale adapter %@", adapter);
 		return;
@@ -1085,6 +1177,15 @@ static BOOL randSeeded = NO;
                adapter, error);
     return;
   }
+  if ([delegate respondsToSelector:@selector(adViewFailRequestAd:error:)]) {
+    // to prevent self being freed before this returns, in case the
+    // delegate decides to release this
+    [self retain];
+    [delegate adViewFailRequestAd:self error:error];
+    [self autorelease];
+  }
+    
+  adapter.bGotView = NO;
   AWLogInfo(@"Failed to receive ad from adapter (%@): %@",
              adapter, error);
   requesting = NO;
@@ -1174,6 +1275,23 @@ static BOOL randSeeded = NO;
   }
   AWLogWarn(@"Unrecognized reachability called reachable %s:%d",
             __FILE__, __LINE__);
+}
+
+//Called by Reachability whenever status changes.
+- (void) reachabilityChanged: (NSNotification* )note
+{
+	AdViewReachability* curReach = [note object];
+	if (![curReach isKindOfClass: [AdViewReachability class]]) return;
+    
+    if (curReach == internetReach) {    //internetReach of self
+        AdViewNetworkStatus netStatus = [curReach currentReachabilityStatus];
+        bNetReachable = (netStatus != AdViewNotReachable);
+        AWLogInfo(@"internet reachability changed to %d", bNetReachable);
+        
+        if ([delegate respondsToSelector:@selector(adViewDidReceiveInternet:reachability:)]) {
+            [delegate adViewDidReceiveInternet:self reachability:bNetReachable];
+        }
+    }
 }
 
 
@@ -1266,10 +1384,13 @@ static BOOL randSeeded = NO;
 
   // Perform ad network data structure build and request in main thread
   // to avoid contention
-  [self performSelectorOnMainThread:
-                            @selector(buildPrioritizedAdNetCfgsAndMakeRequest)
-                         withObject:nil
-                      waitUntilDone:NO];
+  if (bNetReachable && [self canRefresh]) {
+    [self performSelectorOnMainThread:@selector(buildPrioritizedAdNetCfgsAndMakeRequest)
+                           withObject:nil
+                        waitUntilDone:NO];
+  } else {
+    AWLogInfo(@"Not going to make request due to network not reachable or disabled to refresh.");
+  }
 
   // Setup recurring timer for ad refreshes, if required
   if (config.refreshInterval > kAWMinimumTimeBetweenFreshAdRequests) {
@@ -1282,7 +1403,7 @@ static BOOL randSeeded = NO;
   }
 	
 	if (0 != (FetchTypeFile&cfg.fetchType)) {
-		self.configTimer = [NSTimer scheduledTimerWithTimeInterval:30
+		self.configTimer = [NSTimer scheduledTimerWithTimeInterval:22
 															target:self
 														  selector:@selector(updateAdViewConfig)
 														  userInfo:nil
@@ -1317,8 +1438,10 @@ static BOOL randSeeded = NO;
 		else if (configFetchAttempts < 5) selAttmpt = @selector(attemptFetchConfig:);
 	} else {
 		if (configFetchAttempts < 3) selAttmpt = @selector(attemptFetchConfig:);
+#if 0   //if nonblocking, should not fetch by file, because already load config in block mode.
 		else if (configFetchAttempts < 4) selAttmpt = @selector(attemptFetchFileConfig:);
 		else if (configFetchAttempts < 5) selAttmpt = @selector(attemptFetchOfflineConfig:);
+#endif
 	}
 	
   if (nil != selAttmpt) {

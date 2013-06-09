@@ -1,7 +1,6 @@
 //
 //  AdViewDeviceCollector.m
 //  AdViewDeviceCollector
-//
 //  Created by Zhang Kerberos on 11-9-9.
 //  Copyright 2011年 Access China. All rights reserved.
 //
@@ -12,6 +11,7 @@
 #import <CoreTelephony/CTCarrier.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 #import "adViewLog.h"
+#import "AdViewExtraManager.h"
 
 #define ADVIEW_UUID_KEY @"Adview_Unique_Id"
 
@@ -139,7 +139,11 @@ static uint CRC32(const BYTE* ptr,uint Size)
 	
 	if (nil != collector.uuid)
 		return collector.uuid;
-	
+    
+#if 1
+    collector.uuid = [[AdViewExtraManager createManager] getMacAddress];
+    return collector.uuid;
+#else
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	
 	NSString *uuidEnc = [defaults objectForKey:ADVIEW_UUID_KEY];
@@ -164,6 +168,7 @@ static uint CRC32(const BYTE* ptr,uint Size)
 	
 	collector.uuid = uuid;
 	return uuid;
+#endif
 }
 
 - (NSUInteger) retainCount {
@@ -304,6 +309,7 @@ static uint CRC32(const BYTE* ptr,uint Size)
     } else {
         serviceProviderCode = [NSString stringWithFormat:@"%@%@", carrierCountryCode, carrierNetworkCode];
     }
+    [netinfo release];
     return serviceProviderCode;
 }
 

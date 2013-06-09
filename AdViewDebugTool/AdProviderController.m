@@ -77,13 +77,6 @@
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
-- (void)viewDidUnload
-{
-    [super viewDidUnload];
-    // Release any retained subviews of the main view.
-    // e.g. self.myOutlet = nil;
-}
-
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
@@ -107,7 +100,7 @@
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     // Return YES for supported orientations
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    return YES;
 }
 
 #pragma mark - Table view data source
@@ -140,7 +133,7 @@
     
     NSArray *strItems = [strVal componentsSeparatedByString:@","];
     cell.textLabel.text = [strItems objectAtIndex:0];
-	cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", row+1];
+	cell.detailTextLabel.text = [NSString stringWithFormat:@"%d", row];
     
     return cell;
 }

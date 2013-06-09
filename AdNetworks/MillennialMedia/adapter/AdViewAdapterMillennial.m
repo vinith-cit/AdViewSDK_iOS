@@ -17,19 +17,11 @@
 #import "AdviewObjCollector.h"
 
 #define kMillennialAdFrame_Iphone (CGRectMake(0, 0, 320, 53))
+#define kMillennialAdFrame_Ipad300x250 (CGRectMake(0, 0, 300, 250))     //not support now.
+#define kMillennialAdFrame_Ipad480x60 (CGRectMake(0, 0, 480, 60))       //not support now.
 #define kMillennialAdFrame_Ipad (CGRectMake(0, 0, 768, 90))
 
 @interface AdViewAdapterMillennial ()
-
-- (CLLocationDegrees)latitude;
-
-- (CLLocationDegrees)longitude;
-
-- (NSInteger)age;
-
-- (NSString *)zipCode;
-
-- (NSString *)sex;
 
 @end
 
@@ -37,7 +29,7 @@
 @implementation AdViewAdapterMillennial
 
 + (AdViewAdNetworkType)networkType {
-  return AdViewAdNetworkTypeMillennial;
+    return AdViewAdNetworkTypeMillennial;
 }
 
 + (void)load {
@@ -47,34 +39,22 @@
 }
 
 - (void)getAd {
-  NSString *apID;
-  if ([adViewDelegate respondsToSelector:@selector(millennialMediaApIDString)]) {
-    apID = [adViewDelegate millennialMediaApIDString];
-  }
-  else {
-    apID = networkConfig.pubId;
-  }
-
-  requestData = [[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                 @"adview", @"vendor",
-                 nil];
-  if ([self respondsToSelector:@selector(zipCode)]) {
-    [requestData setValue:[self zipCode] forKey:@"zip"];
-  }
-  if ([self respondsToSelector:@selector(age)]) {
-    [requestData setValue:[NSString stringWithFormat:@"%d",[self age]] forKey:@"age"];
-  }
-  if ([self respondsToSelector:@selector(sex)]) {
-    [requestData setValue:[self sex] forKey:@"sex"];
-  }
-  if ([self respondsToSelector:@selector(latitude)]) {
-    [requestData setValue:[NSString stringWithFormat:@"%lf",[self latitude]] forKey:@"lat"];
-  }
-  if ([self respondsToSelector:@selector(longitude)]) {
-    [requestData setValue:[NSString stringWithFormat:@"%lf",[self longitude]] forKey:@"long"];
-  }
-  MMAdType adType = MMBannerAdTop;
+    NSString *apID;
+    if ([adViewDelegate respondsToSelector:@selector(millennialMediaApIDString)]) {
+        apID = [adViewDelegate millennialMediaApIDString];
+    }
+    else {
+        apID = networkConfig.pubId;
+    }
+    
 	Class mmAdViewClass = NSClassFromString (@"MMAdView");
+    Class MMRequestClass = NSClassFromString (@"MMRequest");
+    Class MMSDKClass = NSClassFromString(@"MMSDK");
+    
+    int logLevel = [self isTestMode]?MMLOG_LEVEL_DEBUG:MMLOG_LEVEL_OFF;
+    [MMSDKClass setLogLevel:logLevel];
+    
+    MMRequest *request = nil;
 	
 	if (nil == mmAdViewClass) {
 		[adViewView adapter:self didFailAd:nil];
@@ -83,156 +63,88 @@
 	}
 	if ([self helperUseGpsMode] && nil != [AdViewExtraManager sharedManager]) {
 		CLLocation *loc = [[AdViewExtraManager sharedManager] getLocation];
-		if (nil != loc) [mmAdViewClass updateLocation:loc];
+		if (nil != loc) {
+            request = [MMRequestClass requestWithLocation:loc];
+        }
 	}
+    if (nil == request) request = [MMRequestClass request];
 	
-  [self updateSizeParameter];
-  MMAdView *adView = [mmAdViewClass adWithFrame:self.rSizeAd
-                                      type:adType
-                                      apid:apID
-									delegate:self  // Must be set, CANNOT be nil
-									loadAd:YES   // Loads an ad immediately
-									 startTimer:NO];
+    [self updateSizeParameter];
+    MMAdView *adView = [[mmAdViewClass alloc] initWithFrame:self.rSizeAd apid:apID rootViewController:[adViewDelegate viewControllerForPresentingModalView]];
 	if (nil == adView) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
-	}	
+	}
+    
+    // Notification will fire when an ad modal will appear.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(adModalWillAppear:)
+                                                 name:MillennialMediaAdModalWillAppear
+                                               object:nil];
+    
+    // Notification will fire when an ad modal did dismiss.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(adModalDidDismiss:)
+                                                 name:MillennialMediaAdModalDidDismiss
+                                               object:nil];
 	
-  adView.rootViewController = [adViewDelegate viewControllerForPresentingModalView];
-  self.adNetworkView = adView;
-  self.bWaitAd = YES;
+    self.adNetworkView = adView;
+    self.bWaitAd = YES;
+    [adView getAdWithRequest:request onCompletion:^(BOOL success, NSError *error) {
+        if (success) {
+            [adViewView adapter:self didReceiveAdView:self.adNetworkView];
+        }
+        else {
+            [adViewView adapter:self didFailAd:nil];
+        }
+        self.bWaitAd = NO;
+    }];
+    [adView release];
 }
 
 - (void)stopBeingDelegate {
-  MMAdView *adView = (MMAdView *)self.adNetworkView;
+    MMAdView *adView = (MMAdView *)self.adNetworkView;
     AWLogInfo(@"--MillennialMedia stopBeingDelegate--");
-  if (adView != nil) {
-	  adView.refreshTimerEnabled = NO;
-	  adView.delegate = nil;
-  }
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    if (adView != nil) {
+        self.adNetworkView = nil;
+    }
 }
 
 - (void)cleanupDummyRetain {
     [super cleanupDummyRetain];
     
-    self.adViewView = nil;
-	if (self.bWaitAd)
+	if (self.bWaitAd) {
+        self.adViewView = nil;
 		[[AdviewObjCollector sharedCollector] addObj:self];
+    }
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.rSizeAd = kMillennialAdFrame_Iphone;
-				break;
-			case AdviewBannerSize_300x250:
-				self.rSizeAd = kMillennialAdFrame_Iphone;
-				break;
-			case AdviewBannerSize_480x60:
-				self.rSizeAd = kMillennialAdFrame_Iphone;
-				break;
-			case AdviewBannerSize_728x90:
-				self.rSizeAd = kMillennialAdFrame_Ipad;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.rSizeAd = kMillennialAdFrame_Ipad;
-	} else {
-		self.rSizeAd = kMillennialAdFrame_Iphone;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    CGRect rectArr[] = {kMillennialAdFrame_Iphone,kMillennialAdFrame_Ipad,
+        kMillennialAdFrame_Iphone,kMillennialAdFrame_Iphone,
+        kMillennialAdFrame_Iphone,kMillennialAdFrame_Ipad};
+    
+    [self setSizeParameter:nil rect:rectArr];
 }
 
 - (void)dealloc {
-  [requestData release];
-  [super dealloc];
+    [super dealloc];
 }
 
 #pragma mark MMAdDelegate methods
 
-- (NSDictionary *)requestData {
-  AWLogInfo(@"Sending requestData to MM: %@", requestData);
-  return requestData;
+- (void)adModalWillAppear:(NSNotification *)notification {
+    [self helperNotifyDelegateOfFullScreenModal];
 }
 
-- (BOOL)testMode {
-  if ([adViewDelegate respondsToSelector:@selector(adViewTestMode)])
-    return [adViewDelegate adViewTestMode];
-  return NO;
+- (void)adModalDidDismiss:(NSNotification *)notification {
+    [self helperNotifyDelegateOfFullScreenModalDismissal];
 }
-
-- (void)adRequestSucceeded:(MMAdView *)adView {
-  // millennial ads are slightly taller than default frame, at 53 pixels.
-  AWLogInfo(@"adRequestSucceeded from millennial");
-  [adViewView adapter:self didReceiveAdView:adNetworkView];
-  self.bWaitAd = NO;
-}
-
-- (void)adRequestFailed:(MMAdView *)adView {
-  AWLogInfo(@"adRequestFailed from millennial");
-  [adViewView adapter:self didFailAd:nil];
-  self.bWaitAd = NO;
-}
-
-- (void)adModalWillAppear {
-  [self helperNotifyDelegateOfFullScreenModal];
-}
-
-- (void)adModalWasDismissed {
-  [self helperNotifyDelegateOfFullScreenModalDismissal];
-}
-
-#pragma mark requestData optional methods
-
-- (CLLocationDegrees)latitude {
-	if ([self helperUseGpsMode] && nil != [AdViewExtraManager sharedManager]) {
-		CLLocation *loc = [[AdViewExtraManager sharedManager] getLocation];
-		if (nil != loc) return loc.coordinate.latitude;
-	}
-	return 0.0;
-}
-
-- (CLLocationDegrees)longitude {
-	if ([self helperUseGpsMode] && nil != [AdViewExtraManager sharedManager]) {
-		CLLocation *loc = [[AdViewExtraManager sharedManager] getLocation];
-		if (nil != loc) return loc.coordinate.longitude;
-	}	
-	return 0.0;
-}
-
-- (NSInteger)age {
-	return -1;
-}
-
-- (NSString *)zipCode {
-	return @"";
-}
-
-- (NSString *)sex {
-	return @"";
-}
-
-/*
-- (NSInteger)householdIncome {
-  return (NSInteger)[adViewDelegate incomeLevel];
-}
-
-- (MMEducation)educationLevel {
-  return [adViewDelegate millennialMediaEducationLevel];
-}
-
-- (MMEthnicity)ethnicity {
-  return [adViewDelegate millennialMediaEthnicity];
-}
-*/
 
 @end

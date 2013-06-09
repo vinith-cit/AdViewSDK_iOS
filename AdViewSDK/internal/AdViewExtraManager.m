@@ -91,25 +91,31 @@ static AdViewExtraManager *gAdViewExtraManager = nil;
 	mib[1] = AF_ROUTE; 
 	mib[2] = 0; 
 	mib[3] = AF_LINK; 
-	mib[4] = NET_RT_IFLIST; 
+	mib[4] = NET_RT_IFLIST;
+    
+    int     idx1, idx2;
+    idx1 = if_nametoindex("en0");
+    idx2 = if_nametoindex("en1");
+	mib[5] = (0!=idx1)?idx1:idx2;
 	
-	if ((mib[5] = if_nametoindex("en0")) == 0) { 
-		NSLog(@"Error: if_nametoindex error\n"); 
+	if (mib[5] == 0) {
+		AWLogInfo(@"Error: if_nametoindex error\n");
 		return NULL; 
 	} 
 	
 	if (sysctl(mib, 6, NULL, &len, NULL, 0) < 0) { 
-		NSLog(@"Error: sysctl, take 1\n"); 
+		AWLogInfo(@"Error: sysctl, take 1\n"); 
 		return NULL; 
 	} 
 	
 	if ((buf = malloc(len)) == NULL) { 
-		NSLog(@"Could not allocate memory. error!\n"); 
+		AWLogInfo(@"Could not allocate memory. error!\n"); 
 		return NULL; 
 	} 
 	
 	if (sysctl(mib, 6, buf, &len, NULL, 0) < 0) { 
-		NSLog(@"Error: sysctl, take 2"); 
+		AWLogInfo(@"Error: sysctl, take 2");
+        free(buf);
 		return NULL; 
 	} 
 	
@@ -127,7 +133,7 @@ static AdViewExtraManager *gAdViewExtraManager = nil;
 	if (nil == self.macAddr || [self.macAddr length] < 1)
 		self.macAddr = [AdViewExtraManager actGetMacAddress];
 	
-	if (nil == self.macAddr) self.macAddr = @""; 
+	if (nil == self.macAddr) self.macAddr = @"000000000000";
 	return self.macAddr;
 }
 

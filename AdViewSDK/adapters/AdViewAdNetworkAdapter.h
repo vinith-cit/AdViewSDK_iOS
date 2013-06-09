@@ -29,7 +29,7 @@ typedef enum {
   AdViewAdNetworkTypeMedialets   = 4,
   AdViewAdNetworkTypeLiveRail    = 5,
   AdViewAdNetworkTypeMillennial  = 6,
-  AdViewAdNetworkTypeGreyStripe  = 7,
+  AdViewAdNetworkTypeGreyStripe  = 2,
   AdViewAdNetworkTypeQuattro     = 8,
   AdViewAdNetworkTypeCustom      = 9,
   AdViewAdNetworkTypeAdView10   = 10,
@@ -70,11 +70,30 @@ typedef enum {
     AdViewAdNetworkTypeImmob = 45,
 	AdViewAdNetworkTypeMobWin = 46,
 	AdViewAdNetworkTypeSuiZong = 47,
+    AdViewAdNetworkTypeAduu = 48,
 	
 	
 	AdViewAdNetworkTypeAder	= 50,
+    
+	AdViewAdNetworkTypeDoubleClick = 51,
+    AdViewAdNetworkTypeYunyun = 53,
+    
+	AdViewAdNetworkTypeUserDefined = 999,
 	
 } AdViewAdNetworkType;
+
+
+typedef enum {
+    AdViewAdNetworkWaitFlag_None = 0,
+    AdViewAdNetworkWaitFlag_BannerAd = 0x01,
+    AdViewAdNetworkWaitFlag_PresentScreen = 0x02,
+} AdViewAdNetworkWaitFlag;
+
+typedef enum {
+    AdViewAdNetworkBlockFlag_None = 0,
+    AdViewAdNetworkBlockFlag_BannerAd = 0x01,
+    AdViewAdNetworkBlockFlag_PresentScreen = 0x02,      //For Present, should not dealloc
+} AdViewAdNetworkBlockFlag;
 
 BOOL isForeignAd(AdViewAdNetworkType type);
 
@@ -88,8 +107,12 @@ BOOL isForeignAd(AdViewAdNetworkType type);
   AdViewConfig *adViewConfig;
   AdViewAdNetworkConfig *networkConfig;
   UIView *adNetworkView;
+    UIView *actAdView;
     
-        NSTimer* dummyHackTimer;
+    NSTimer* dummyHackTimer;
+    
+    int        nAdWaitFlag;
+    int        nAdBlockFlag;
 }
 
 /**
@@ -156,6 +179,12 @@ BOOL isForeignAd(AdViewAdNetworkType type);
  * Update size paramter of ad banner.
  */
 - (void)updateSizeParameter;
+//array: auto for iphone, auto for ipad, 320x50, 300x250, 480x60, 728x90
+- (void)setSizeParameter:(int*)flags size:(CGSize*)sizes;
+//array: auto for iphone, auto for ipad, 320x50, 300x250, 480x60, 728x90
+- (void)setSizeParameter:(int*)flags rect:(CGRect*)rects;
+//get index of size in size parameter array.
+- (int)getSizeIndex;
 
 - (void) setupDummyHackTimer:(NSTimeInterval)interval;
 - (void) setupDefaultDummyHackTimer;
@@ -164,15 +193,34 @@ BOOL isForeignAd(AdViewAdNetworkType type);
 
 - (void) cleanupDummyRetain;
 
+- (BOOL) canClearDelegate;                  //can set adViewView and adViewDelegate as nil.
+- (BOOL) canMultiBeingDelegate;             //can being delegate even more than one instances being delegate.
+
 + (void) setDummyHackTimeInterval:(int)interval;
+
+/**
+ * Get image of act ad view, add to show, and remove act ad view.
+ */
+- (void)getImageOfActAdViewForRemove;
+
+/**
+ * Added act ad view by a contain view as adNetWorkView.
+ */
+- (void)addActAdViewInContain:(UIView*)actView rect:(CGRect)rect;
 
 @property (nonatomic,assign) id<AdViewDelegate> adViewDelegate;
 @property (nonatomic,assign) AdViewView *adViewView;
 @property (nonatomic,retain) AdViewConfig *adViewConfig;
 @property (nonatomic,retain) AdViewAdNetworkConfig *networkConfig;
 @property (nonatomic,retain) UIView *adNetworkView;
+@property (retain) UIView *actAdView;
 
 @property (nonatomic,assign) BOOL		bWaitAd;
+
+@property (nonatomic,assign) int        nAdWaitFlag;
+@property (nonatomic,assign) int        nAdBlockFlag;
+
+@property (nonatomic,assign) BOOL		bGotView;       //got view and added to AdViewView.
 
 @property (nonatomic,assign) int		nSizeAd;
 @property (nonatomic,assign) CGRect		rSizeAd;

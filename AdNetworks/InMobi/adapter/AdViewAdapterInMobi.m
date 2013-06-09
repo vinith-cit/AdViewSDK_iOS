@@ -1,32 +1,26 @@
 /*
- 
- Copyright 2010 www.adview.cn. All rights reserved.
- 
+ adview openapi ad-InMobi.
  */
 
-#import "AdViewAdapterInMobi.h"
-#import "AdViewAdNetworkConfig.h"
 #import "AdViewViewImpl.h"
-#import "IMAdView.h"
+#import "AdViewConfig.h"
+#import "AdViewAdNetworkConfig.h"
+#import "AdViewDelegateProtocol.h"
 #import "AdViewLog.h"
 #import "AdViewAdNetworkAdapter+Helpers.h"
 #import "AdViewAdNetworkRegistry.h"
-
-#import "SingletonAdapterBase.h"
+#import "AdViewAdapterInMobi.h"
 #import "AdViewExtraManager.h"
+#import "IMCommonUtil.h"
 
-@interface AdViewAdapterInMobiImpl : SingletonAdapterBase <IMAdDelegate> 
-
-- (NSString *)appId;
-
+@interface AdViewAdapterInMobi ()
 @end
 
-static AdViewAdapterInMobiImpl *gAdInMobiImpl = nil;
 
 @implementation AdViewAdapterInMobi
 
 + (AdViewAdNetworkType)networkType {
-	return AdViewAdNetworkTypeInMobi;
+    return AdViewAdNetworkTypeInMobi;
 }
 
 + (void)load {
@@ -35,170 +29,119 @@ static AdViewAdapterInMobiImpl *gAdInMobiImpl = nil;
 	}
 }
 
-- (void)getAd {	
+- (void)getAd {
 	Class IMAdViewClass = NSClassFromString (@"IMAdView");
-	Class IMAdRequestClass = NSClassFromString (@"IMAdRequest");	
-	if (nil == IMAdViewClass || nil == IMAdRequestClass) {
+	
+	if (nil == IMAdViewClass) {
 		[adViewView adapter:self didFailAd:nil];
 		AWLogInfo(@"no inmobi lib, can not create.");
 		return;
 	}
-	
-	if (nil == gAdInMobiImpl) gAdInMobiImpl = [[AdViewAdapterInMobiImpl alloc] init];
-	[gAdInMobiImpl setAdapterValue:YES ByAdapter:self];
-	IMAdView *inmobiAdView = (IMAdView*)[gAdInMobiImpl getIdelAdView];
+    Class IMAdRequestClass = NSClassFromString(@"IMAdRequest");
+    if (IMAdRequestClass == nil) {
+        [adViewView adapter:self didFailAd:nil];
+        AWLogInfo(@"no inmobi lib, can't create");
+        return;
+    }
+    
+    Class IMCommonUtilClass = NSClassFromString(@"IMCommonUtil");
+    [IMCommonUtilClass setDeviceIdMask:(IMDevice_ExcludeUDID)];
+    
+	[self updateSizeParameter];
+        
+	IMAdView *inmobiAdView = [[IMAdViewClass alloc]
+                              initWithFrame:self.rSizeAd
+                              imAppId:[self appId]
+                              imAdSize:self.nSizeAd
+                              rootViewController:[adViewDelegate viewControllerForPresentingModalView]];
+    inmobiAdView.delegate = self;
 	if (nil == inmobiAdView) {
 		[adViewView adapter:self didFailAd:nil];
-		AWLogInfo(@"fail to getAd of InMobi");
 		return;
 	}
-	
+    
     IMAdRequest *request = [IMAdRequestClass request];
-	inmobiAdView.refreshInterval = REFRESH_INTERVAL_OFF;
-	
-    // additional targeting parameters. these are optional
-#if 0
-    request.gender = G_M;
-    request.education = Edu_BachelorsDegree;
-    request.interests = @"sports,cars,bikes";
-    request.postalCode = @"12345";
-    request.location = [[[CLLocation alloc] initWithLatitude:12.88 longitude:12.11] autorelease];
-#endif
-	
-	if ([AdViewExtraManager sharedManager]) {
-		request.location = [[AdViewExtraManager sharedManager] getLocation];
-	}
-	
-    //Make sure to set testMode to NO before submitting to App Store.
-    request.testMode = [gAdInMobiImpl isTestMode];
-	request.paramsDictionary = [NSDictionary dictionaryWithObjectsAndKeys:@"c_adview", @"tp", nil];
+    /**
+     * additional targeting parameters. these are optional
+     */
+    //request.gender = kIMGenderMale;
+    //request.education = kIMEducationBachelorsDegree;
+    // etc ..
+    
+    /**
+     * Make sure to set testMode to NO before submitting to App Store.
+     */
+    request.testMode = [self isTestMode];
     inmobiAdView.imAdRequest = request;
-	self.adNetworkView = inmobiAdView;
-	[inmobiAdView loadIMAdRequest:request];
-	[inmobiAdView release];
-	
-	[self setupDummyHackTimer:28];
+    [inmobiAdView setRefTag:@"adsAdview" forKey:@"ref-tag"];
+    [inmobiAdView loadIMAdRequest];
+    self.adNetworkView = inmobiAdView;
+    [inmobiAdView release];
 }
 
 - (void)stopBeingDelegate {
-	IMAdView *adView = (IMAdView*)self.adNetworkView;
-	AWLogInfo(@"--InMobi stopBeingDelegate--");
-	[self cleanupDummyHackTimer];	
-	if (nil != adView) {
-		[gAdInMobiImpl setAdapterValue:NO ByAdapter:self];
-		adView.delegate = nil;
-		self.adNetworkView = nil;
-	}
+    IMAdView *inmobiAdView = (IMAdView *)self.adNetworkView;
+    if (inmobiAdView != nil) {
+        [inmobiAdView performSelector:@selector(setDelegate:) withObject:nil];
+        [inmobiAdView performSelector:@selector(setRootViewController:) withObject:nil];
+        self.adNetworkView = nil;
+    }
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = IM_UNIT_320x50;
-				self.rSizeAd = CGRectMake(0, 0, 320, 50);
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = IM_UNIT_300x250;
-				self.rSizeAd = CGRectMake(0, 0, 300, 250);
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = IM_UNIT_468x60;
-				self.rSizeAd = CGRectMake(0, 0, 468, 60);
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = IM_UNIT_728x90;
-				self.rSizeAd = CGRectMake(0, 0, 728, 90);
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = IM_UNIT_728x90;
-		self.rSizeAd = CGRectMake(0, 0, 728, 90);
-	} else {
-		self.nSizeAd = IM_UNIT_320x50;
-		self.rSizeAd = CGRectMake(0, 0, 320, 50);
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    int flagArr[] = {IM_UNIT_320x50,IM_UNIT_728x90,
+        IM_UNIT_320x50,IM_UNIT_300x250,
+        IM_UNIT_468x60,IM_UNIT_728x90};
+    CGSize sizeArr[] = {CGSizeMake(320, 50),CGSizeMake(728, 90),
+        CGSizeMake(320, 50),CGSizeMake(300, 250),
+        CGSizeMake(468, 60),CGSizeMake(728, 90)};
+    
+    [self setSizeParameter:flagArr size:sizeArr];
 }
 
-- (void)dealloc {
-	[super dealloc];
-}
-
-@end
-
-@implementation AdViewAdapterInMobiImpl
-
-- (UIView*)createAdView {
-	Class IMAdViewClass = NSClassFromString (@"IMAdView");	
-	if (nil == IMAdViewClass) {
-		return nil;
+- (NSString *) appId {
+	NSString *apID;
+	if ([adViewDelegate respondsToSelector:@selector(inmobiApIDString)]) {
+		apID = [adViewDelegate inmobiApIDString];
+	}
+	else {
+		apID = networkConfig.pubId;
 	}
 	
-	[mAdapter updateSizeParameter];
-	IMAdView *inmobiAdView = [[IMAdViewClass alloc] initWithFrame:mAdapter.rSizeAd
-														  imAppId:[self appId]
-														 imAdUnit:mAdapter.nSizeAd 
-											   rootViewController:[mAdapter.adViewDelegate viewControllerForPresentingModalView]];
-    inmobiAdView.delegate = self;
-	return inmobiAdView;
+	return apID;
+	
+#if 0
+	return @"4f0acf110cf2f1e96d8eb7ea";		//4f0acf110cf2f1e96d8eb7ea
+#endif
 }
 
-#pragma mark InMobiAdDelegate methods
+#pragma mark delegate 
 
-- (NSString *)appId {
-	if ([mAdapter.adViewDelegate respondsToSelector:@selector(inmobiApIDString)]) {
-		return [mAdapter.adViewDelegate inmobiApIDString];
-	}
-	return mAdapter.networkConfig.pubId;
-	//@"4028cbff379738bf01383102f0e8220c"
-}
-
-- (void)adViewDidFinishRequest:(IMAdView *)view {
-	AWLogInfo(@"<<<<<ad request completed>>>>>");
-	if (![self isAdViewValid:view]) return;
-	
-	if (nil == mAdapter) return;
-	
-	[mAdapter cleanupDummyHackTimer];
-	[mAdapter.adViewView adapter:mAdapter didReceiveAdView:view];
+- (void)adViewDidFinishRequest:(IMAdView *)adView {
+     [adViewView adapter:self didReceiveAdView:adView];
 }
 
 - (void)adView:(IMAdView *)view didFailRequestWithError:(IMAdError *)error {
-	AWLogInfo(@"<<<< ad request failed.>>>, error=%@",[error localizedDescription]);
-	AWLogInfo(@"error code=%d",[error code]);
-	if (![self isAdViewValid:view]) return;
-	
-	if (nil == mAdapter) return;
-	
-	[mAdapter cleanupDummyHackTimer];
-	[mAdapter.adViewView adapter:mAdapter didFailAd:nil];
+    [adViewView adapter:self didFailAd:error];
 }
 
 - (void)adViewDidDismissScreen:(IMAdView *)adView {
-    AWLogInfo(@"adViewDidDismissScreen");
-	[mAdapter helperNotifyDelegateOfFullScreenModalDismissal];
+    [self helperNotifyDelegateOfFullScreenModalDismissal];
 }
 
 - (void)adViewWillDismissScreen:(IMAdView *)adView {
-    AWLogInfo(@"adViewWillDismissScreen");
 }
 
 - (void)adViewWillPresentScreen:(IMAdView *)adView {
-    AWLogInfo(@"adViewWillPresentScreen");
-	[mAdapter helperNotifyDelegateOfFullScreenModal];
+    [self helperNotifyDelegateOfFullScreenModal];
 }
 
 - (void)adViewWillLeaveApplication:(IMAdView *)adView {
-    AWLogInfo(@"adViewWillLeaveApplication");
 }
 
 @end

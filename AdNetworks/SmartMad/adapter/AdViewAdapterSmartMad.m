@@ -12,6 +12,7 @@
 #import "AdViewAdNetworkAdapter+Helpers.h"
 #import "AdViewAdNetworkRegistry.h"
 #import "AdViewAdapterSmartMad.h"
+#import "SMAdManager.h"
 
 @interface AdViewAdapterSmartMad ()
 - (void)didReceiveAd:(UIView *)adView;
@@ -29,13 +30,13 @@
 }
 
 + (void)load {
-	if(NSClassFromString(@"SmartMadAdView") != nil) {
+	if(NSClassFromString(@"SMAdBannerView") != nil) {
 		[[AdViewAdNetworkRegistry sharedRegistry] registerClass:self];
 	}
 }
 
 - (void)getAd {
-	Class smartMadAdViewClass = NSClassFromString (@"SmartMadAdView");
+	Class smartMadAdViewClass = NSClassFromString (@"SMAdBannerView");
 	
 	if (nil == smartMadAdViewClass) {
 		[adViewView adapter:self didFailAd:nil];
@@ -43,7 +44,11 @@
 		return;
 	}
 	
-	[smartMadAdViewClass setApplicationId:[self appIdForAd:nil]];
+    Class smadManagerClass = NSClassFromString (@"SMAdManager");
+    
+	[smadManagerClass setApplicationId:[self appIdForAd:nil]];
+    [smadManagerClass setDebugMode:[self isTestMode]];
+    [smadManagerClass setAdRefreshInterval:600];
  
 	//    [smartMadAdViewClass setUserAge:20];
 	//    [smartMadAdViewClass setUserGender:UFemale];
@@ -54,21 +59,16 @@
 	//    [smartMadAdViewClass setWork:@"it"];
 	//    [smartMadAdViewClass setKeyWord:@"smartmad"];	
 	
-#if 1
-	SmartMadAdView *smartView = [[smartMadAdViewClass alloc] initRequestAdWithDelegate:self];
-#else
-	SmartMadAdView *smartView = [[smartMadAdViewClass alloc] initRequestAdWithParameters:[self appIdForAd:nil]
-														   aInterval:600.0
-														   adMeasure:0
-												   adBannerAnimation:BANNER_ANIMATION_TYPE_FLIPFROMLEFT 
-														 compileMode:AdDebug];
-#endif
+	SMAdBannerView *smartView = [[smartMadAdViewClass alloc]
+                                 initWithAdSpaceId:[self adPositionId]
+                                 smAdSize:self.nSizeAd];
+
 	if (nil == smartView) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
 	}	
     //[smartView setEventDelegate:self]; // set Ad Event Delegate
-	smartView._adEventDelegate = self;
+	smartView.delegate = self;
 	
 	self.adNetworkView = smartView;
 
@@ -76,51 +76,28 @@
 }
 
 - (void)stopBeingDelegate {
-  SmartMadAdView *smartView = (SmartMadAdView*)self.adNetworkView;
+  SMAdBannerView *smartView = (SMAdBannerView*)self.adNetworkView;
 	AWLogInfo(@"--SmartMad stopBeingDelegate--");
   if (smartView != nil) {
-	  smartView._adEventDelegate = nil;
+	  smartView.delegate = nil;
 	  self.adNetworkView = nil;
   }
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	//BOOL bIsRetina = [AdViewAdNetworkAdapter helperIsRetina];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = AD_MEASURE_DEFAULT;
-				self.sSizeAd = CGSizeMake(320, 48);
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = TABLET_AD_MEASURE_300X250;
-				self.sSizeAd = CGSizeMake(300, 250);
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = TABLET_AD_MEASURE_468X60;
-				self.sSizeAd = CGSizeMake(468, 60);
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = TABLET_AD_MEASURE_728X90;
-				self.sSizeAd = CGSizeMake(728, 90);
-				break;
-            default:
-                break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = TABLET_AD_MEASURE_728X90;
-		self.sSizeAd = CGSizeMake(728, 90);
-	} else {
-		self.nSizeAd = AD_MEASURE_DEFAULT;
-		self.sSizeAd = CGSizeMake(320, 48);
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    int flagArr[] = {PHONE_AD_BANNER_MEASURE_AUTO,TABLET_AD_BANNER_MEASURE_728X90,
+        PHONE_AD_BANNER_MEASURE_AUTO,TABLET_AD_BANNER_MEASURE_300X250,
+        TABLET_AD_BANNER_MEASURE_468X60,TABLET_AD_BANNER_MEASURE_728X90};
+    CGSize sizeArr[] = {CGSizeMake(320, 48),CGSizeMake(728, 90),
+        CGSizeMake(320, 48),CGSizeMake(300, 250),
+        CGSizeMake(468, 60),CGSizeMake(728, 90)};
+    
+    [self setSizeParameter:flagArr size:sizeArr];
 }
 
 - (void)dealloc {
@@ -158,28 +135,6 @@
 	//return @"90002436";
 }
 
-- (AdCompileMode)compileMode {
-	if ([adViewDelegate respondsToSelector:@selector(adViewTestMode)])
-		return [adViewDelegate adViewTestMode]?AdDebug:AdRelease;
-	return AdRelease;	
-}
-
-
--(NSTimeInterval)adInterval {
-	return 600.;
-}
-
--(AdBannerTransitionAnimationType)adBannerAnimation {
-	return BANNER_ANIMATION_TYPE_RANDOM;
-}
-
-#if 1
--(AdMeasureType)adMeasure {
-	[self updateSizeParameter];
-	return self.nSizeAd;
-}
-#endif
-
 - (UIColor *)adBackgroundColor:(UIView *)adView {
 	return [self helperBackgroundColorToUse];
 }
@@ -190,36 +145,24 @@
 
 #pragma mark SmartMad delegate methods
 
-- (void)adEvent:(SmartMadAdView*)adview  adEventCode:(AdEventCodeType)eventCode
+- (void)adBannerViewDidReceiveAd:(SMAdBannerView*)adView
 {
-    //adview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    //adview.autoresizesSubviews = YES;
-    
-	//CGRect frm = adview.frame;
-	//BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	//frm.size = self.sSizeAd;	//should set the size.
-	//adview.frame = frm;
-
-	if (EVENT_NEWAD == eventCode) {
-		[self didReceiveAd:adview];
-	} else if (EVENT_INVALIDAD == eventCode) {
-		[adViewView adapter:self didFailAd:nil];
-	}
+    [self didReceiveAd:adView];
 }
 
-// callback current ad fullscreen status
-- (void)adFullScreenStatus:(BOOL)isFullScreen
+- (void)adBannerView:(SMAdBannerView*)adView didFailToReceiveAdWithError:(SMAdEventCode*)errorCode
 {
-    if (isFullScreen) [self helperNotifyDelegateOfFullScreenModal];
-	else [self helperNotifyDelegateOfFullScreenModalDismissal];
+    [adViewView adapter:self didFailAd:errorCode];
 }
 
-#pragma mark requestData optional methods
+- (void)adWillExpandAd:(SMAdBannerView *)adView
+{
+    [self helperNotifyDelegateOfFullScreenModal];
+}
 
-// The follow is kept for gathering requestData
-
-- (BOOL)respondsToSelector:(SEL)selector {
-  return [super respondsToSelector:selector];
+- (void)adDidCloseExpand:(SMAdBannerView*)adView
+{
+    [self helperNotifyDelegateOfFullScreenModalDismissal];
 }
 
 @end

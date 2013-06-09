@@ -3,7 +3,7 @@
 //  FtadSdkIosDemo
 //
 //  Created by Verna on 11-9-9.
-//  Copyright 2011年 www.adview.cn. All rights reserved.
+//  Copyright 2011年 __MyCompanyName__. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

@@ -13,87 +13,49 @@
 #import "AdViewAdNetworkAdapter+Helpers.h"
 #import "AdViewAdNetworkRegistry.h"
 #import "CommonADView.h"
+#import "SingletonAdapterBase.h"
 
 @interface AdViewAdapterWooboo (PRIVATE)
-
-//@property (nonatomic, retain) UIView* woobooView;
-
-- (BOOL) testMode;
+- (void)didReceivedAD;
+- (void)onFailedToReceiveAD:(NSString*)error;
+- (NSString*)appID;
 @end
 
-@interface AdapterImp : NSObject<ADCommonListenerDelegate>
-{
-	NSMutableArray *arrViews;
-	NSObject		*lockObj;
-}
-
-@property (nonatomic, assign) AdViewAdapterWooboo *adapter;
+@interface AdapterImp : SingletonAdapterBase<ADCommonListenerDelegate>
 
 @end
 
 @implementation AdapterImp
 
-@synthesize adapter;
-
--(id)init {
-	self = [super init];
-	if (nil != self) {
-		arrViews = [[NSMutableArray alloc] initWithCapacity:5];
-		lockObj = [[NSObject alloc] init];
-	}
-	return self;
-}
-
-- (void)dealloc {
-	[arrViews release];
-	[lockObj release];
-	[super dealloc];
-}
-
--(UIView*)getAdView:(NSString *)apID Test:(BOOL)testMode {
-	@synchronized(lockObj) {
-	if ([arrViews count] > 0) {
-		UIView *view = [[arrViews objectAtIndex:0] retain];
-		[arrViews removeObjectAtIndex:0];
-		return view;
-	} else {
-		Class woobooViewClass = NSClassFromString (@"CommonADView");
-		if (nil == woobooViewClass) return nil;
-		
-		CommonADView *commonADView = [[woobooViewClass alloc]
-								  initWithPID:apID
-								  locationX:0 
+- (UIView*)makeAdView {
+    Class woobooViewClass = NSClassFromString (@"CommonADView");
+    if (nil == woobooViewClass) return nil;
+    
+    CommonADView *commonADView = [[woobooViewClass alloc]
+								  initWithPID:[mAdapter performSelector:@selector(appID)]
+								  locationX:0
 								  locationY:0
                                   displayType:CommonBannerScreen
                                   screenOrientation:0];
-		
-		if (nil == commonADView)
-			return nil;
-
-		[commonADView performSelector:@selector(setListenerDelegate:) withObject:self];
-		commonADView.requestADTimeIntervel = 20;		//
-		[commonADView startADRequest];
-		return commonADView;
-	}
-	}
-}
-
--(void)appendAdView:(UIView *)view {
-	@synchronized(lockObj) {
-		[arrViews addObject:view];
-	}
+    
+    if (nil == commonADView)
+        return nil;
+    
+    [commonADView performSelector:@selector(setListenerDelegate:) withObject:self];
+    commonADView.requestADTimeIntervel = 20;		//
+    [commonADView startADRequest];
+    return [commonADView autorelease];
 }
 
 - (void)didReceivedAD
 {
-	if (nil != self.adapter)
-		[self.adapter didReceivedAD];
+	[mAdapter performSelector:@selector(didReceivedAD)];
 }
 
 - (void) onFailedToReceiveAD:(NSString *)error
 {
-	if (nil != self.adapter)
-		[self.adapter onFailedToReceiveAD:error];
+	[mAdapter performSelector:@selector(onFailedToReceiveAD:)
+                       withObject:error];
 }
 
 @end
@@ -102,10 +64,9 @@
 AdapterImp *gAdapterImp = nil;
 
 @implementation AdViewAdapterWooboo
-//@synthesize woobooView;
 
 + (AdViewAdNetworkType)networkType {
-  return AdViewAdNetworkTypeWOOBOO;
+    return AdViewAdNetworkTypeWOOBOO;
 }
 
 + (void)load {
@@ -115,15 +76,18 @@ AdapterImp *gAdapterImp = nil;
 }
 
 //sample @"afc507fbcab54cd2b56beacaba74efdc".
-- (void)getAd {
-  NSString *apID;
-  if ([adViewDelegate respondsToSelector:@selector(woobooApIDString)]) {
-    apID = [adViewDelegate woobooApIDString];
-  }
-  else {
-    apID = networkConfig.pubId;
-  }
-	
+- (NSString*)appID {
+    NSString *appID;
+    if ([adViewDelegate respondsToSelector:@selector(woobooApIDString)]) {
+        appID = [adViewDelegate woobooApIDString];
+    }
+    else {
+        appID = networkConfig.pubId;
+    }
+    return appID;
+}
+
+- (void)getAd {	
 	Class woobooViewClass = NSClassFromString (@"CommonADView");
 	
 	if (nil == woobooViewClass) {
@@ -133,78 +97,45 @@ AdapterImp *gAdapterImp = nil;
 	}
 	
 	if (nil == gAdapterImp) gAdapterImp = [[AdapterImp alloc] init];
-	
-	gAdapterImp.adapter = self;
-	CommonADView *commonADView = (CommonADView*)[gAdapterImp getAdView:apID Test:[self testMode]];
+	[gAdapterImp setAdapterValue:YES ByAdapter:self];
+	CommonADView *commonADView = (CommonADView*)[[gAdapterImp getIdelAdView] retain];
 	if (nil == commonADView) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
-	}	
+	}
 	
 	self.adNetworkView = commonADView;
-	/*
-	if (nil != commonADView) {
-		CGRect frm = commonADView.frame;
-		frm.origin.y = 0;
-		commonADView.frame = frm;
-	}*/
-    
-	[adViewView adapter:self shouldAddAdView:commonADView];
 	[commonADView release];
 }
 
 - (void)stopBeingDelegate {
-  CommonADView *adView = (CommonADView *)self.adNetworkView;
+    CommonADView *adView = (CommonADView *)self.adNetworkView;
 	if (adView != nil) {
-		gAdapterImp.adapter = nil;
-		[gAdapterImp appendAdView:adView];
-//		[adView requestADWillStop];
+		[gAdapterImp addIdelAdView:adView];
+        [gAdapterImp setAdapterValue:NO ByAdapter:self];
 		self.adNetworkView = nil;
-  }
-  //  self.woobooView = nil;
+    }
+}
+
+- (BOOL)canMultiBeingDelegate {
+    return NO;
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = 0;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = 0;
-	} else {
-		self.nSizeAd = 0;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    int flagArr[] = {0,0,
+        0,0,
+        0,0};
+    
+    [self setSizeParameter:flagArr size:nil];
 }
 
 - (void)dealloc {
-  [super dealloc];
-}
-
-
-- (BOOL)testMode {
-    if ([adViewDelegate respondsToSelector:@selector(adViewTestMode)])
-        return [adViewDelegate adViewTestMode];
-    return NO;
+    [super dealloc];
 }
 
 #pragma mark Woooboo methods
@@ -216,10 +147,10 @@ AdapterImp *gAdapterImp = nil;
 }
 
 /* 获取广告失败的时候调用 */
-- (void)onFailedToReceiveAD:(NSString*)error;
+- (void)onFailedToReceiveAD:(NSString*)error
 {
 	AWLogInfo(@"Failed from Wooboo, Error:%@", error);
-    [adViewView adapter:self didFailAd:[NSError errorWithDomain:error code:0 userInfo:nil]];
+    [adViewView adapter:self didFailAd:[NSError errorWithDomain:error code:-1 userInfo:nil]];
 }
 
 @end

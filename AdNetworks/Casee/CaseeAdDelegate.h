@@ -63,9 +63,12 @@
  */
 - (void)didCloseFullScreenAd;
 
-//
-// test settings
-//
+/**
+ * Fail to receive fullscreen ad;
+ */
+
+- (void)failToReceiveFullScreenAdWithError:(NSError*) error;
+
 
 /**
  * Specify whether this is in test(development) mode or production mode. Default is NO.
@@ -80,8 +83,9 @@
  */
 - (NSTimeInterval)adInterval;
 
+#pragma mark - User prama setting.
 /**
- * get prama assign by developer own
+ * Get prama assign by developer own
  * it would be take a few seconds
  */
 

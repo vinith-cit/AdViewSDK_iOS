@@ -49,4 +49,6 @@
 - (BOOL)helperUseGpsMode;
 - (BOOL)helperUseLandscapeMode;
 
+- (BOOL)isTestMode;
+
 @end

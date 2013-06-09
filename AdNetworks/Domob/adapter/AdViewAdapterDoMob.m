@@ -13,19 +13,12 @@
 #import "AdViewAdNetworkRegistry.h"
 #import "DMTools.h"
 #import "AdViewAdapterDoMob.h"
-#import "SingletonAdapterBase.h"
 
 #define TestUserSpot @"all"
 
 @interface AdViewAdapterDoMob ()
 - (NSString *)appIdForAd;
 @end
-
-@interface AdViewAdapterDomobImpl : SingletonAdapterBase <DMAdViewDelegate> 
-
-@end
-
-static AdViewAdapterDomobImpl *gDomobImpl = nil;
 
 
 @implementation AdViewAdapterDoMob
@@ -49,9 +42,7 @@ static AdViewAdapterDomobImpl *gDomobImpl = nil;
 		return;
 	}
 	
-	if (nil == gDomobImpl) gDomobImpl = [[AdViewAdapterDomobImpl alloc] init];
-	[gDomobImpl setAdapterValue:YES ByAdapter:self];
-	DMAdView* adView = (DMAdView*)[gDomobImpl getIdelAdView];
+	DMAdView* adView = (DMAdView*)[[self makeAdView] retain];
 	if (nil == adView) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
@@ -75,9 +66,7 @@ static AdViewAdapterDomobImpl *gDomobImpl = nil;
 
 - (void)stopBeingDelegate {
   DMAdView *adView = (DMAdView *)self.adNetworkView;
-	AWLogInfo(@"--Domob stopBeingDelegate--");
-	[gDomobImpl setAdapterValue:NO ByAdapter:self];
-	[self cleanupDummyHackTimer];
+  AWLogInfo(@"--Domob stopBeingDelegate--");
 	
   if (adView != nil) {
 	  adView.delegate = nil;
@@ -86,41 +75,17 @@ static AdViewAdapterDomobImpl *gDomobImpl = nil;
 	self.adNetworkView = nil;
 }
 
-- (void)cleanupDummyRetain {
-	[gDomobImpl setAdapterValue:NO ByAdapter:self];
-	[super cleanupDummyRetain];
-}
-
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.sSizeAd = DOMOB_AD_SIZE_320x50;
-				break;
-			case AdviewBannerSize_300x250:
-				self.sSizeAd = DOMOB_AD_SIZE_300x250;
-				break;
-			case AdviewBannerSize_480x60:
-				self.sSizeAd = DOMOB_AD_SIZE_488x80;
-				break;
-			case AdviewBannerSize_728x90:
-				self.sSizeAd = DOMOB_AD_SIZE_728x90;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.sSizeAd = DOMOB_AD_SIZE_728x90;
-	} else {
-		self.sSizeAd = DOMOB_AD_SIZE_320x50;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    CGSize sizeArr[] = {DOMOB_AD_SIZE_320x50,DOMOB_AD_SIZE_728x90,
+        DOMOB_AD_SIZE_320x50,DOMOB_AD_SIZE_300x250,
+        DOMOB_AD_SIZE_488x80,DOMOB_AD_SIZE_728x90};
+    
+    [self setSizeParameter:nil size:sizeArr];
 }
 
 - (void)dealloc {
@@ -140,11 +105,7 @@ static AdViewAdapterDomobImpl *gDomobImpl = nil;
 	//return @"56OJycJIuMWsQqo0JM";
 }
 
-@end
-
-@implementation AdViewAdapterDomobImpl
-
-- (UIView*)createAdView {
+- (UIView*)makeAdView {
 	Class dMAdViewClass = NSClassFromString (@"DMAdView");
 	
 	if (nil == dMAdViewClass) {
@@ -152,12 +113,12 @@ static AdViewAdapterDomobImpl *gDomobImpl = nil;
 		return nil;
 	}
 	
-	if (nil == mAdapter) {
+	if (nil == self) {
 		AWLogInfo(@"have not set domob adapter.");
 		return nil;
 	}
 	
-	AdViewAdapterDoMob *adapter = (AdViewAdapterDoMob*)mAdapter;
+	AdViewAdapterDoMob *adapter = (AdViewAdapterDoMob*)self;
 	
 	[adapter updateSizeParameter];
 	DMAdView* adView = [[dMAdViewClass alloc] initWithPublisherId:[adapter appIdForAd]
@@ -169,9 +130,9 @@ static AdViewAdapterDomobImpl *gDomobImpl = nil;
 	}
 	
     adView.delegate = self; // 设置 Delegate
-    adView.rootViewController = [mAdapter.adViewDelegate viewControllerForPresentingModalView];
+    adView.rootViewController = [self.adViewDelegate viewControllerForPresentingModalView];
 	
-	return adView;
+	return [adView autorelease];
 }
 
 #pragma mark DoMobDelegate methods
@@ -181,10 +142,8 @@ static AdViewAdapterDomobImpl *gDomobImpl = nil;
 {
     AWLogInfo(@"Domob success to load ad.");
 	
-	if (![self isAdViewValid:adView]) return;
-	
-    [mAdapter cleanupDummyHackTimer];
-	[mAdapter.adViewView adapter:mAdapter didReceiveAdView:adView];
+    [self cleanupDummyHackTimer];
+	[self.adViewView adapter:self didReceiveAdView:adView];
 }
 
 // 加载广告失败后，回调该方法
@@ -192,24 +151,22 @@ static AdViewAdapterDomobImpl *gDomobImpl = nil;
 {
     AWLogInfo(@"Domob fail to load ad. %@", error);
 	
-	if (![self isAdViewValid:adView]) return;
-	
-    [mAdapter cleanupDummyHackTimer];
-	[mAdapter.adViewView adapter:mAdapter didFailAd:nil];
+    [self cleanupDummyHackTimer];
+	[self.adViewView adapter:self didFailAd:error];
 }
 
 // 当将要呈现出 Modal View 时，回调该方法。如打开内置浏览器。
 - (void)dmWillPresentModalViewFromAd:(DMAdView *)adView
 {
     AWLogInfo(@"Domob will present modal view.");    
-	[mAdapter helperNotifyDelegateOfFullScreenModal];
+	[self helperNotifyDelegateOfFullScreenModal];
 }
 
 // 当呈现的 Modal View 被关闭后，回调该方法。如内置浏览器被关闭。
 - (void)dmDidDismissModalViewFromAd:(DMAdView *)adView
 {
     AWLogInfo(@"Domob did dismiss modal view.");
-	[mAdapter helperNotifyDelegateOfFullScreenModalDismissal];
+	[self helperNotifyDelegateOfFullScreenModalDismissal];
 }
 
 @end

@@ -27,11 +27,13 @@
 
 #import "CJSONSerializer.h"
 #import "AdViewExtraManager.h"
+#import "AdViewDBManager.h"
 
 #define kAdViewConfigRegetTimeInteval		1800.		//seconds
 
 
 #define CONFIG_FILE_NAME		@"Library/adview_config.dat"
+#define CONFIG_FILE_DB          @"Library/adview_config.db"
 
 
 static AdViewConfigStore *gStore = nil;
@@ -52,7 +54,7 @@ static AdViewConfigStore *gStore = nil;
 
 @synthesize reachability = reachability_;
 @synthesize connection = connection_;
-@synthesize needParseAgain;
+@synthesize fetchingConfig = fetchingConfig_;
 
 + (AdViewConfigStore *)sharedStore {
   if (gStore == nil) {
@@ -72,8 +74,38 @@ static AdViewConfigStore *gStore = nil;
   self = [super init];
   if (self != nil) {
     configs_ = [[NSMutableDictionary alloc] init];
+      
+      NSString *dbPath = [NSHomeDirectory()
+                     stringByAppendingPathComponent:CONFIG_FILE_DB];
+      dbManager = [AdViewDBManager sharedDBManagerWithPath:dbPath];
+      [dbManager ensureAdViewConfigTable];
   }
   return self;
+}
+
+- (void)setNeedParseConfig {
+    for (AdViewConfig *config in [configs_ allValues])
+        config.needParse = YES;
+}
+
+- (AdViewConfig*)getBufferConfig:(NSString*)appKey
+{
+    AdViewConfig *config = [configs_ objectForKey:appKey];
+    if (config != nil) return config;
+    
+    NSData *data = [dbManager loadAdViewConfig:appKey];
+    if (nil != data) {
+        AdViewError *advErr = nil;
+        AdViewConfig *config = [[AdViewConfig alloc] initWithAppKey:appKey
+                                                           delegate:nil];
+        BOOL bParse = [config parseConfig:data error:&advErr];
+        if (!bParse) {
+            [config release];
+            return nil;
+        }
+        return [config autorelease];
+    }
+    return nil;
 }
 
 - (AdViewConfig *)getConfig:(NSString *)appKey
@@ -89,24 +121,34 @@ static AdViewConfigStore *gStore = nil;
 #if 0			
 			return [self fetchConfig:appKey blockMode:YES delegate:delegate];
 #else
-			return [self fetchFileConfig:appKey blockMode:YES
+			return [self fetchFileConfig:appKey
+                               blockMode:YES
 								  method:ConfigMethod_DataFile 
 								delegate:delegate];
 #endif			
 		}
-		else if (needParseAgain) {
+		else if (config.needParse) {
 			AdViewConfig *config1 = [[AdViewConfig alloc] initWithAppKey:appKey
 															   delegate:delegate];
+            BOOL    bKeyChanged = ![self.fetchingConfig.appKey isEqualToString:appKey];
+            
 			config1.fetchBlockMode = YES;
 			config1.fetchType = config.fetchType | FetchTypeMemory;
-			fetchingConfig_ = config1;
-			[configs_ setObject:config1 forKey:appKey];
-			[config1 release];			
+			self.fetchingConfig = config1;
+			//[configs_ setObject:config1 forKey:appKey];
+			[config1 release];
+            
+            if (bKeyChanged) {
+                NSData *data = [dbManager loadAdViewConfig:appKey];
+                if (nil != data) {
+                    [receivedData_ setLength:0];
+                    [receivedData_ appendData:data];
+                }
+            }
 			
 			[self performSelectorOnMainThread:@selector(startParseConfig)
 								   withObject:self
 								waitUntilDone:NO];
-			self.needParseAgain = NO;
 			return config1;
 		}
 		
@@ -131,23 +173,28 @@ static AdViewConfigStore *gStore = nil;
 #if 0
 	return [self fetchConfig:appKey blockMode:YES delegate:delegate];
 #else
-	return [self fetchFileConfig:appKey blockMode:YES method:ConfigMethod_DataFile delegate:delegate];
+	return [self fetchFileConfig:appKey blockMode:YES
+                          method:ConfigMethod_DataFile delegate:delegate];
 #endif
 }
 
 - (AdViewConfig *)fetchConfig:(NSString *)appKey
 					blockMode:(BOOL)block
                       delegate:(id <AdViewConfigDelegate>)delegate {
+  if (nil == appKey) {
+      AWLogWarn(@"Nil appKey, can not get config.");
+      return nil;
+  }
 
   AdViewConfig *config = [[AdViewConfig alloc] initWithAppKey:appKey
                                                        delegate:delegate];
 	config.fetchBlockMode = block;
-  if (fetchingConfig_ != nil) {
+  if (self.fetchingConfig != nil) {
     AWLogWarn(@"Another fetch is in progress, wait until finished.");
     [config release];
     return nil;
   }
-  fetchingConfig_ = config;
+  self.fetchingConfig = config;
 
 	reachCheckNum = 0;
   if (![self checkReachability]) {
@@ -156,7 +203,7 @@ static AdViewConfigStore *gStore = nil;
   }
 
   config.fetchType = FetchTypeNetwork;
-  [configs_ setObject:config forKey:appKey];
+  //[configs_ setObject:config forKey:appKey];
   [config release];
   return config;
 }
@@ -169,29 +216,38 @@ static AdViewConfigStore *gStore = nil;
 	AdViewConfig *config = [[AdViewConfig alloc] initWithAppKey:appKey
                                                        delegate:delegate];
 	config.fetchBlockMode = block;
-	if (fetchingConfig_ != nil) {
+	if (self.fetchingConfig != nil) {
 		AWLogWarn(@"Another fetch is in progress, wait until finished.");
 		[config release];
 		return nil;
 	}
-	fetchingConfig_ = config;
+	self.fetchingConfig = config;
 	
-	[configs_ setObject:config forKey:appKey];
+	//[configs_ setObject:config forKey:appKey];
 	[config release];
 	
-	receivedData_ = [[NSMutableData alloc] init];
+    if (nil == receivedData_)
+        receivedData_ = [[NSMutableData alloc] init];
 	NSData *data = nil;
 	NSString *filePath_in = nil;
 	
 	if (cfgMethod == ConfigMethod_DataFile) {
-		filePath_in = [NSHomeDirectory()
+        data = [dbManager loadAdViewConfig:appKey];
+        
+        if (nil == data) {
+            filePath_in = [NSHomeDirectory()
 							 stringByAppendingPathComponent:CONFIG_FILE_NAME];
-		BOOL bExist = [self checkFileExists:filePath_in];
-		AWLogInfo(@"data config path:%@, exit:%d", filePath_in, bExist);
-		if (bExist) {
-			data = [NSData dataWithContentsOfFile:filePath_in];
-		}
-	} else if (cfgMethod = ConfigMethod_OfflineFile) {
+            BOOL bExist = [self checkFileExists:filePath_in];
+            AWLogInfo(@"data config path:%@, exit:%d", filePath_in, bExist);
+            if (bExist) {
+                data = [NSData dataWithContentsOfFile:filePath_in];
+                
+                //save to db, and remove this.
+                [dbManager saveAdViewConfig:data Key:appKey];
+                [[NSFileManager defaultManager] removeItemAtPath:filePath_in error:nil];
+            }
+        }
+	} else if (cfgMethod == ConfigMethod_OfflineFile) {
 		NSString *offFileName = [appKey stringByAppendingString:@".txt"];
 		filePath_in = [[[NSBundle mainBundle] bundlePath]
 					   stringByAppendingPathComponent:offFileName];
@@ -234,6 +290,10 @@ static AdViewConfigStore *gStore = nil;
   [connection_ release];
   [receivedData_ release];	receivedData_ = nil;
   [configs_ release];
+
+    [AdViewDBManager closeDBManager:dbManager];
+    dbManager = nil;
+    
   [super dealloc];
 }
 
@@ -243,7 +303,7 @@ static AdViewConfigStore *gStore = nil;
 // Check reachability first
 - (BOOL)checkReachability {
   AWLogInfo(@"Checking if config is reachable at %@",
-             fetchingConfig_.configURL);
+             self.fetchingConfig.configURL);
 
   // Normally reachability_ should be nil so a new one will be created.
   // In a testing environment, it may already have been assigned with a mock.
@@ -251,12 +311,12 @@ static AdViewConfigStore *gStore = nil;
   // reachable, in -reachabilityBecameReachable.
   if (reachability_ == nil) {
     reachability_ = [AWNetworkReachabilityWrapper
-                     reachabilityWithHostname:[fetchingConfig_.configURL host]
+                     reachabilityWithHostname:[self.fetchingConfig.configURL host]
                      callbackDelegate:self];
     [reachability_ retain];
   }
   if (reachability_ == nil) {
-    [fetchingConfig_ notifyDelegatesOfFailure:
+    [self.fetchingConfig notifyDelegatesOfFailure:
      [AdViewError errorWithCode:AdViewConfigConnectionError
                      description:
       @"Error setting up reachability check to config server"]];
@@ -267,7 +327,7 @@ static AdViewConfigStore *gStore = nil;
 	  [self reachabilityBecameReachable:reachability_];
   }
   else if (![reachability_ scheduleInCurrentRunLoop]) {
-    [fetchingConfig_ notifyDelegatesOfFailure:
+    [self.fetchingConfig notifyDelegatesOfFailure:
      [AdViewError errorWithCode:AdViewConfigConnectionError
                      description:
       @"Error scheduling reachability check to config server"]];
@@ -282,7 +342,7 @@ static AdViewConfigStore *gStore = nil;
 - (void)startFetchingAssumingReachable {
   // go fetch config
   NSURLRequest *configRequest
-    = [NSURLRequest requestWithURL:fetchingConfig_.configURL];
+    = [NSURLRequest requestWithURL:self.fetchingConfig.configURL];
 
   // Normally connection_ should be nil so a new one will be created.
   // In a testing environment, it may alreay have been assigned with a mock.
@@ -301,26 +361,31 @@ static AdViewConfigStore *gStore = nil;
                                 @"Error creating connection to config server"]];
     return;
   }
-  receivedData_ = [[NSMutableData alloc] init];
+  if (nil != receivedData_)
+    receivedData_ = [[NSMutableData alloc] init];
 }
 
 // Clean up after fetching failed
 - (void)failedFetchingWithError:(AdViewError *)error {
   // notify
-  [fetchingConfig_ notifyDelegatesOfFailure:error];
+  [self.fetchingConfig notifyDelegatesOfFailure:error];
 
   // remove the failed config from the cache
-  [configs_ removeObjectForKey:fetchingConfig_.appKey];
+  // [configs_ removeObjectForKey:self.fetchingConfig.appKey];
   // the config is only retained by the dict,now released
 
-  [self finishedFetching];
+    [connection_ release], connection_ = nil;
+    //[receivedData_ release], receivedData_ = nil;
+    self.fetchingConfig = nil;
 }
 
 // Clean up after fetching, success or failed
 - (void)finishedFetching {
+  [configs_ setObject:self.fetchingConfig forKey:self.fetchingConfig.appKey];
+    
   [connection_ release], connection_ = nil;
   //[receivedData_ release], receivedData_ = nil;
-  fetchingConfig_ = nil;
+  self.fetchingConfig = nil;
 }
 
 // config file exist? last saved?
@@ -336,7 +401,7 @@ static AdViewConfigStore *gStore = nil;
 
 - (void)startParseConfig {
 	AdViewError *advErr = nil;
-	BOOL bParse = [fetchingConfig_ parseConfig:receivedData_ error:&advErr];
+	BOOL bParse = [self.fetchingConfig parseConfig:receivedData_ error:&advErr];
 	if (!bParse) [self failedFetchingWithError:advErr];
 	else [self finishedFetching];
 }
@@ -421,7 +486,17 @@ static AdViewConfigStore *gStore = nil;
     AWLogError(@"Unrecognized connection object %s:%d", __FILE__, __LINE__);
     return;
   }
+    
+#if 1
+    [dbManager saveAdViewConfig:receivedData_ Key:self.fetchingConfig.appKey];
+	NSTimeInterval nowTi = [[NSDate date] timeIntervalSince1970];
+    NSString *last_Key = [NSString stringWithFormat:@"%@%@", LAST_NET_CONFIG_TIME,
+                          self.fetchingConfig.appKey];
+	[[AdViewExtraManager createManager] storeObject:[NSNumber numberWithDouble:nowTi]
+											 forKey:last_Key];
+#endif
 	
+#if 0
 	// backup config file to used if config server is down.
 	NSString *filePath = [NSHomeDirectory()
 						  stringByAppendingPathComponent:CONFIG_FILE_NAME];
@@ -430,10 +505,11 @@ static AdViewConfigStore *gStore = nil;
 	NSTimeInterval nowTi = [[NSDate date] timeIntervalSince1970];
 	[[AdViewExtraManager createManager] storeObject:[NSNumber numberWithDouble:nowTi]
 											 forKey:LAST_NET_CONFIG_TIME];
-	
-#if 0		//modify config.txt to test adv working.	
+#endif
+    
+#if 0		//modify config.txt to test adv working.
 	NSString *filePath_in = [NSHomeDirectory()
-						  stringByAppendingPathComponent:@"Documents/config_1.dat"];
+						  stringByAppendingPathComponent:@"Library/config_1.dat"];
 	
 	NSData *data = [NSData dataWithContentsOfFile:filePath_in];
 	[receivedData_ setLength:0];
@@ -441,7 +517,7 @@ static AdViewConfigStore *gStore = nil;
 #endif
 	
 	AdViewError *advErr = nil;
-	BOOL bParse = [fetchingConfig_ parseConfig:receivedData_ error:&advErr];
+	BOOL bParse = [self.fetchingConfig parseConfig:receivedData_ error:&advErr];
 	if (!bParse) [self failedFetchingWithError:advErr];
 	else [self finishedFetching];
 }

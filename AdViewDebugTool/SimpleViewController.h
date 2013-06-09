@@ -32,6 +32,10 @@
 - (IBAction)rollOver:(id)sender;
 - (IBAction)showModalView:(id)sender;
 - (IBAction)toggleRefreshAd:(id)sender;
+
+- (IBAction)changeAdSize:(id)sender;
+- (IBAction)toggleTestAd:(id)sender;
+
 - (void)adjustLayoutToOrientation:(UIInterfaceOrientation)newOrientation;
 - (void)adjustAdSize;
 

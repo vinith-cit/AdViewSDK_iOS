@@ -1,15 +1,18 @@
 /*
  
- Copyright 2010 www.adview.cn. All rights reserved.
+ Adview .
  
  */
 
 #import "AdViewAdNetworkAdapter.h"
+#import "IMAdView.h"
 #import "IMAdDelegate.h"
-@class InMobiAdView;
+#import "IMAdRequest.h"
+#import "IMAdError.h"
 
-@interface AdViewAdapterInMobi : AdViewAdNetworkAdapter {
 
+@interface AdViewAdapterInMobi : AdViewAdNetworkAdapter<IMAdDelegate> {
+    
 }
 
 + (AdViewAdNetworkType)networkType;

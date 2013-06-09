@@ -22,6 +22,33 @@
 #import "RootViewController.h"
 #import "adViewLog.h"
 
+@interface AdViewUIApplication : UIApplication
+
+@end
+
+@implementation AdViewUIApplication
+
+- (BOOL)openURL:(NSURL*)url {
+    BOOL ret = [super openURL:url];
+    
+    if (ret) {
+        NSLog(@"openURL:%@", url);
+    }
+    
+    return ret;
+}
+
+- (void)sendEvent:(UIEvent *)event {
+    //no thing.
+    if (event.type == UIEventTypeTouches)
+    {
+    }
+    
+    [super sendEvent:event];
+}
+
+@end
+
 @implementation AdViewSDK_SampleAppDelegate
 
 @synthesize window;
@@ -36,6 +63,9 @@
   ADVLogSetLogLevel(AWLogLevelDebug);
 #endif
 	[window addSubview:[navigationController view]];
+#ifdef __IPHONE_6_0
+    window.rootViewController = navigationController;
+#endif
   [window makeKeyAndVisible];
 }
 

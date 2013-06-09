@@ -3,22 +3,22 @@
 //  AdOn
 //
 //  Created by Shark on 2010/6/2.
-//  Copyright 2010 www.adview.cn. All rights reserved.
+//  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import "AdOnPlatform.h"
 
-#define ADON_SIZE_320x48    CGSizeMake(320,48)
+#define ADON_SIZE_320x48    CGSizeMake(320,48)  //size for iPhone
 
-#define ADON_SIZE_480x72    CGSizeMake(480,72)
+#define ADON_SIZE_480x72    CGSizeMake(480,72)  //size for iPad
 
-#define ADON_SIZE_640x96    CGSizeMake(640,96)
+#define ADON_SIZE_640x96    CGSizeMake(640,96)  //size for iPad
 
-#define ADON_SIZE_700x108   CGSizeMake(700,108)
+#define ADON_SIZE_700x105   CGSizeMake(700,105) //size for iPad
 
-#define ADON_SIZE_320X270   CGSizeMake(320,270)
+#define ADON_SIZE_320X270   CGSizeMake(320,270) //size for iPad
 
 @protocol VponAdOnDelegate; 
 

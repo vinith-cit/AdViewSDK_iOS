@@ -5,11 +5,11 @@
  */
 
 #import "AdViewAdNetworkAdapter.h"
-#import "SmartMadAdView.h"
+#import "SMAdBannerView.h"
 
 /*架势无线*/
 
-@interface AdViewAdapterSmartMad : AdViewAdNetworkAdapter <SmartMadAdViewDelegate, SmartMadAdEventDelegate> {
+@interface AdViewAdapterSmartMad : AdViewAdNetworkAdapter <SMAdBannerViewDelegate> {
 }
 
 + (AdViewAdNetworkType)networkType;

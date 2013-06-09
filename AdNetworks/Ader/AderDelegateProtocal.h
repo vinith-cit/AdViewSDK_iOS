@@ -2,7 +2,6 @@
 //  GAdsDelegateProtocal.h
 //  GAds-SDK
 //
-//  Created by guowei huang on 12-2-23.
 //  Copyright (c) 2012年 renren. All rights reserved.
 
 #import <Foundation/Foundation.h>

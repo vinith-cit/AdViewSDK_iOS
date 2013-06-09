@@ -113,6 +113,8 @@ typedef enum {
 @property (nonatomic, assign) BOOL fetchBlockMode;
 @property (nonatomic, assign) int fetchType;
 
+@property (nonatomic, assign) BOOL needParse;
+
 + (BOOL)isDeviceForeign;
 
 @end

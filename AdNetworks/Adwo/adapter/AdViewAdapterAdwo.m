@@ -13,17 +13,17 @@
 #import "AdViewAdNetworkRegistry.h"
 #import "AwAdView.h"
 #import "AdViewAdapterAdwo.h"
+#import "AdviewObjCollector.h"
 
 @interface AdViewAdapterAdwo ()
 - (NSString *)adwoPublisherIdForAd;
-- (int)mode;
 @end
 
 
 @implementation AdViewAdapterAdwo
 
 + (AdViewAdNetworkType)networkType {
-  return AdViewAdNetworkTypeADWO;
+    return AdViewAdNetworkTypeADWO;
 }
 
 + (void)load {
@@ -32,7 +32,7 @@
 	}
 }
 
-- (void)getAd {	
+- (void)getAd {
 	Class awAdViewClass = NSClassFromString (@"AWAdView");
 	
 	if (nil == awAdViewClass) {
@@ -42,82 +42,89 @@
 	}
 	
 	[self updateSizeParameter];
-    AWAdView* adView = [[awAdViewClass alloc] initWithAdwoPid:[self adwoPublisherIdForAd] adIdType:1 
-												   adTestMode: [self mode] 
-												 adSizeForPad:self.nSizeAd];
+    AWAdView* adView = [[awAdViewClass alloc] initWithAdwoPid:[self adwoPublisherIdForAd]
+                                                   adTestMode:![self isTestMode]];
 	if (nil == adView) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
 	}
 	
+    AWLogInfo(@"Adwo view:%@", adView);
+    
     adView.frame = self.rSizeAd;
     adView.delegate = self;
     
-	adView.adRequestTimeIntervel = 60;//时间不要低于60s，以免影响用户体验
-	adView.userGpsEnabled = [self helperUseGpsMode];//如果客户应用不支持定位
+    [adView performSelector:@selector(setAGGChannel:) withObject:[NSNumber numberWithInteger:ADWOSDK_AGGREGATION_CHANNEL_ADVIEW]];    //
     
-	self.adNetworkView = adView;
-	[adView loadAd];
-	[adView killTimer];
+    adView.spreadChannel = ADWOSDK_AGGREGATION_CHANNEL_ADVIEW;
+    
+	adView.adRequestTimeIntervel = 16;//时间不要低于60s，以免影响用户体验
+	//adView.userGpsEnabled = [self helperUseGpsMode];//如果客户应用不支持定位
+    
+    [self addActAdViewInContain:adView rect:self.rSizeAd];
+        
+    AWLogInfo(@"Adwo adtype:%d", self.nSizeAd);
+    [adView loadAd:self.nSizeAd];
 	[adView release];
+    
+    [self setupDummyHackTimer:14.0f];
 }
 
 - (void)stopBeingDelegate {
-  AWAdView *adView = (AWAdView *)self.adNetworkView;
+    AWAdView *adView = (AWAdView *)self.actAdView;
 	AWLogInfo(@"--Adwo stopBeingDelegate--");
-  if (adView != nil) {
-	  [adView killTimer];
-	  adView.delegate = nil;
-	  self.adNetworkView = nil;
-  }
+    [self cleanupDummyHackTimer];
+    
+    if (adView != nil) {
+        [adView pauseAd];
+        if (!self.bGotView)
+            [self.adNetworkView removeFromSuperview];
+        else {
+            //here can get image for actAdView, and to remove actAdView.
+            //[self getImageOfActAdViewForRemove];
+        }
+        if (self == adView.delegate)
+            adView.delegate = nil;
+        self.adNetworkView = nil;
+        self.actAdView = nil;
+    }
+}
+
+- (void)cleanupDummyRetain {
+    [self cleanupDummyHackTimer];
+    [super cleanupDummyRetain];
+    
+    AWAdView *adView = (AWAdView *)self.actAdView;
+    [adView pauseAd];
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = ADWO_ADS_BANNER_SIZE_FOR_IPAD_320x50;
-				self.rSizeAd = CGRectMake(0, 0, 320, 50);
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = ADWO_ADS_BANNER_SIZE_FOR_IPAD_320x50;
-				self.rSizeAd = CGRectMake(0, 0, 320, 50);
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = ADWO_ADS_BANNER_SIZE_FOR_IPAD_320x50;
-				self.rSizeAd = CGRectMake(0, 0, 320, 50);
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = ADWO_ADS_BANNER_SIZE_FOR_IPAD_720x110;
-				self.rSizeAd = CGRectMake(0, 0, 720, 110);
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = ADWO_ADS_BANNER_SIZE_FOR_IPAD_720x110;
-		self.rSizeAd = CGRectMake(0, 0, 720, 110);
-	} else {
-		self.nSizeAd = ADWO_ADS_BANNER_SIZE_FOR_IPAD_320x50;
-		self.rSizeAd = CGRectMake(0, 0, 320, 50);
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    int flagArr[] = {ADWO_ADSDK_AD_TYPE_BANNER_SIZE_FOR_IPAD_320x50,
+        ADWO_ADSDK_AD_TYPE_BANNER_SIZE_FOR_IPAD_720x110,
+        ADWO_ADSDK_AD_TYPE_BANNER_SIZE_FOR_IPAD_320x50,
+        ADWO_ADSDK_AD_TYPE_BANNER_SIZE_FOR_IPAD_320x50,
+        ADWO_ADSDK_AD_TYPE_BANNER_SIZE_FOR_IPAD_320x50,
+        ADWO_ADSDK_AD_TYPE_BANNER_SIZE_FOR_IPAD_720x110};
+    CGSize sizeArr[] = {CGSizeMake(320,50),CGSizeMake(720,110),
+        CGSizeMake(320,50),CGSizeMake(320,50),
+        CGSizeMake(320,50),CGSizeMake(720,110)};
+    
+    [self setSizeParameter:flagArr size:sizeArr];
 }
 
 - (void)dealloc {
-  [super dealloc];
+    [super dealloc];
 }
 
 #pragma mark AwAdDelegate methods
 
 - (UIViewController*)viewControllerForPresentingModalView {
-  return [adViewDelegate viewControllerForPresentingModalView];
+    return [adViewDelegate viewControllerForPresentingModalView];
 }
 
 - (NSString *)adwoPublisherIdForAd {
@@ -133,48 +140,73 @@
 	//return @"a2c491847b8e4be78b8aa223ae625e43";
 }
 
-- (void)adViewDidFailToLoadAd:(AWAdView *)view {
-    AWLogInfo(@"adViewDidFailToLoadAd");
+- (void)adwoAdViewDidFailToLoadAd:(AWAdView*)adView{
+    if (![NSThread isMainThread]) {
+        [self performSelectorOnMainThread:@selector(adwoAdViewDidFailToLoadAd:)
+                               withObject:adView waitUntilDone:NO];
+        return;
+    }
+    AWLogInfo(@"adwoAdViewDidFailToLoadAd");
+    [self cleanupDummyHackTimer];
+    
     [adViewView adapter:self didFailAd:nil];
 }
 
-- (void)adViewDidLoadAd:(AWAdView *)view {
-    AWLogInfo(@"adview size: %@", NSStringFromCGRect(view.frame));
-    AWLogInfo(@"====adViewDidLoadAd====");
-    [adViewView adapter:self didReceiveAdView:view];
+- (void)adwoAdViewDidLoadAd:(AWAdView*)adView {
+    if (![NSThread isMainThread]) {
+        [self performSelectorOnMainThread:@selector(adwoAdViewDidLoadAd:)
+                               withObject:adView waitUntilDone:NO];
+        return;
+    }
+    AWLogInfo(@"adwoAdViewDidLoadAd, size: %@", NSStringFromCGRect(adView.frame));
+    [self cleanupDummyHackTimer];
+    
+    adView.frame = self.rSizeAd;
+    [adViewView adapter:self didReceiveAdView:self.adNetworkView];
 }
 
-- (void)willPresentModalViewForAd:(AWAdView *)view {
-    AWLogInfo(@"willPresentModalViewForAd");
+- (void)adwoDidPresentModalViewForAd:(AWAdView*)adView {
+    AWLogInfo(@"adwoDidPresentModalViewForAd");
+    AWAdView *adView1 = (AWAdView *)self.actAdView;
+    [adView1 pauseAd];
+    
     [self helperNotifyDelegateOfFullScreenModal];
 }
 
-- (void)didDismissModalViewForAd:(AWAdView *)view {
-    AWLogInfo(@"didDismissModalViewForAd");
+- (void)adwoDidDismissModalViewForAd:(AWAdView*)adView {
+    AWLogInfo(@"adwoDidDismissModalViewForAd");
+    AWAdView *adView1 = (AWAdView *)self.actAdView;
+    [adView1 resumeAd];
+    
     [self helperNotifyDelegateOfFullScreenModalDismissal];
 }
 
-- (int)mode {
-	BOOL ret = NO;
-	if ([adViewDelegate respondsToSelector:@selector(adViewTestMode)])
-		ret = [adViewDelegate adViewTestMode];
+#pragma Report
 
-	if ( ret )
-		return 0;
-	else
-		return 1;
+- (BOOL)shouldSendExMetric {
+	return NO;
 }
 
-/*
-
-- (UIColor *)domobAdBackgroundColorForAd:(AwAdView *)awAdView {
-	return [self helperBackgroundColorToUse];
+// 用于获取请求计数
+- (void)adwoRequestAdAction:(AWAdView*)adView
+{
+    AWLogInfo(@"adwoRequestAdAction");
 }
 
-// 设置广告视图中文字的显示颜色
-- (UIColor *)domobPrimaryTextColorForAd:(AwAdView *)awAdView {
-	return [self helperTextColorToUse];
+// 用于获取广告点击计数
+- (void)adwoClickAdAction:(AWAdView*)adView
+{
+    AWLogInfo(@"adwoClickAdAction");
+    
+    [adViewView adapter:self shouldReport:self.adNetworkView DisplayOrClick:NO];
 }
- */
-	
+
+// 用于获取广告展示计数
+- (void)adwoShowAdAction:(AWAdView*)adView
+{
+    AWLogInfo(@"adwoShowAdAction");
+    
+    [adViewView adapter:self shouldReport:self.adNetworkView DisplayOrClick:YES];
+}
+
 @end

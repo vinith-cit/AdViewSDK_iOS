@@ -11,11 +11,10 @@
 #import "AdViewLog.h"
 #import "AdViewAdNetworkAdapter+Helpers.h"
 #import "AdViewAdNetworkRegistry.h"
-#import "SingletonAdapterBase.h"
 #import "AdviewObjCollector.h"
 
 @interface AdViewAdapterMobWin()
-- (UIView*)createAdView;
+- (UIView*)makeAdView;
 @end
 
 
@@ -42,7 +41,7 @@
 		return;
 	}
 	
-	MobWinBannerView *adBanner = (MobWinBannerView*)[self createAdView];
+	MobWinBannerView *adBanner = (MobWinBannerView*)[[self makeAdView] retain];
 	if (nil == adBanner) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
@@ -74,35 +73,16 @@
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = MobWINBannerSizeIdentifierUnknow;
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = MobWINBannerSizeIdentifier300x250;
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = MobWINBannerSizeIdentifier468x60;
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = MobWINBannerSizeIdentifier728x90;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = MobWINBannerSizeIdentifier728x90;
-	} else {
-		self.nSizeAd = MobWINBannerSizeIdentifierUnknow;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    int flagArr[] = {MobWINBannerSizeIdentifierUnknow,MobWINBannerSizeIdentifier728x90,
+        MobWINBannerSizeIdentifierUnknow,MobWINBannerSizeIdentifier300x250,
+        MobWINBannerSizeIdentifier468x60,MobWINBannerSizeIdentifier728x90};
+    
+    [self setSizeParameter:flagArr size:nil];
 }
 
 - (void)dealloc {
@@ -124,7 +104,7 @@
 	//return @"A495798C12C030F28E7711F3613DFC1B";
 }
 
-- (UIView*)createAdView {
+- (UIView*)makeAdView {
 	Class MobWinBannerViewClass = NSClassFromString (@"MobWinBannerView");
 	
 	if (nil == MobWinBannerViewClass) {
@@ -154,7 +134,7 @@
 
 	self.adNetworkView = adBanner;
 	//[adBanner startRequest];
-	return adBanner;
+	return [adBanner autorelease];
 }
 
 #pragma mark MobWinDelegate methods

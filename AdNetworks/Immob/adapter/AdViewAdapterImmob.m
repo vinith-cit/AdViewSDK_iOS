@@ -11,7 +11,6 @@
 #import "AdViewAdNetworkRegistry.h"
 #import "AdViewLog.h"
 #import "AdViewView.h"
-#import "SingletonAdapterBase.h"
 #import "AdviewObjCollector.h"
 
 #define LMMOB_CHANNEL_KEY		@"channelID"
@@ -21,7 +20,7 @@
 @interface AdViewAdapterImmob()
 
 - (void)updateAdFrame:(UIView*)view;
-- (UIView*)createAdView;
+- (UIView*)makeAdView;
 
 @end
 
@@ -48,7 +47,7 @@
 		return;
 	}
 	
-    immobView* lmmob_view = (immobView*)[self createAdView];
+    immobView* lmmob_view = (immobView*)[[self makeAdView] retain];
 	if (nil == lmmob_view) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
@@ -77,35 +76,16 @@
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = 0;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = 0;
-	} else {
-		self.nSizeAd = 0;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    int flagArr[] = {0,0,
+        0,0,
+        0,0};
+    
+    [self setSizeParameter:flagArr size:nil];
 }
 
 - (void) dealloc
@@ -119,7 +99,7 @@
 //    view.frame = r;	
 }
 
-- (UIView*)createAdView {
+- (UIView*)makeAdView {
     NSString *appIdString = self.networkConfig.pubId;
     AWLogInfo(@"LMMob: application id: %@", appIdString);
     
@@ -136,7 +116,7 @@
 	[lmmob_view.UserAttribute setObject:@"adview" forKey:LMMOB_CHANNEL_KEY];
 
     [self updateAdFrame:lmmob_view];
-	return lmmob_view;
+	return [lmmob_view autorelease];
 }
 
 #pragma mark immobViewDelegate
@@ -161,7 +141,7 @@
 	AWLogInfo(@"immobView fail, code:%d", errorCode);
 	self.bWaitAd = NO;
 	
-	[self.adViewView adapter:self didFailAd:nil];
+	[self.adViewView adapter:self didFailAd:[NSError errorWithDomain:@"err code" code:errorCode userInfo:nil]];
 }
 
 - (void) onPresentScreen:(immobView *)immobView

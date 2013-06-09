@@ -97,5 +97,10 @@
 - (void)startAutoRefresh;
 - (BOOL)isAutoRefreshStarted;
 
+/**
+ * 清除缓存及正在播放的广告，并停止dView的自动刷新广告功能。
+ */
+- (void)clearAdsAndStopAutoRefresh;
+
 @end
 

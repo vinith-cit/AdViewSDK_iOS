@@ -12,6 +12,8 @@
  * 有些Adapter对象必须等待网络成功或失败后才能释放，因此必须先收集起来，延长到一定时间后释放。
  */
 
+#define INFINITE_WAIT   -1
+
 @interface AdviewObjCollector : NSObject {
 	NSMutableArray	*arrObjs;
 	NSObject		*lockObj;
@@ -23,5 +25,10 @@
 + (AdviewObjCollector*)sharedCollector;
 
 - (void)addObj:(NSObject*)obj;
+- (void)addObj:(NSObject*)obj wait:(int)seconds;
+
+- (void)removeObj:(NSObject*)obj;
+
+- (void)setAdapterAdViewViewNil:(NSObject*)_adView;
 
 @end

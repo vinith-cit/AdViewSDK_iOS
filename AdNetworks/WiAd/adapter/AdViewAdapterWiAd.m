@@ -48,8 +48,7 @@
 		return;
 	}
 
-	adView.frame = self.rSizeAd;
-	adView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+	//adView.frame = self.rSizeAd;
 
     //设置Delegate对象
     adView.delegate = self;
@@ -71,41 +70,19 @@
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = kWiAdViewStyleBanner320_50;
-				self.rSizeAd = CGRectMake(0, 0, 320, 50);
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = kWiAdViewStyleBanner320_270;
-				self.rSizeAd = CGRectMake(0, 0, 320, 270);
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = kWiAdViewStyleBanner508_80;
-				self.rSizeAd = CGRectMake(0, 0, 508, 80);
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = kWiAdViewStyleBanner768_110;
-				self.rSizeAd = CGRectMake(0, 0, 768, 110);
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = kWiAdViewStyleBanner768_110;
-		self.rSizeAd = CGRectMake(0, 0, 768, 110);
-	} else {
-		self.nSizeAd = kWiAdViewStyleBanner320_50;
-		self.rSizeAd = CGRectMake(0, 0, 320, 50);
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    int flagArr[] = {kWiAdViewStyleBanner320_50,kWiAdViewStyleBanner768_110,
+        kWiAdViewStyleBanner320_50,kWiAdViewStyleBanner320_270,
+        kWiAdViewStyleBanner508_80,kWiAdViewStyleBanner768_110};
+    CGRect rectArr[] = {CGRectMake(0, 0, 320, 50), CGRectMake(0, 0, 768, 110),
+         CGRectMake(0, 0, 320, 50), CGRectMake(0, 0, 320, 270),
+         CGRectMake(0, 0, 508, 80), CGRectMake(0, 0, 768, 110)};
+    
+    [self setSizeParameter:flagArr rect:rectArr];
 }
 
 - (void)dealloc {

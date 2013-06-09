@@ -12,6 +12,7 @@
 #import "AdViewAdNetworkAdapter+Helpers.h"
 #import "AdViewAdNetworkRegistry.h"
 #import "AdViewAdapterMobiSage.h"
+#import "AdviewObjCollector.h"
 
 #define TestUserSpot @"all"
 
@@ -49,7 +50,7 @@
 
 - (void) mobiSageCallback: (UIView*) view
 {
-	AWLogInfo(@"mobiSageCallback, won't do.");
+	AWLogInfo(@"mobiSageCallback, need not do.");
 }
 
 - (void) delayMobiSageStartShowAd: (UIView*) view {
@@ -115,16 +116,17 @@ NotificationReceiver *gReceiver = nil;
 	}
 }
 
-- (void)getAd {
+- (void)actGetAd {
     NSString *apID = @"";
-
+    NSTimeInterval tmStart = [[NSDate date] timeIntervalSince1970];
+    
 	Class mobiSageAdBannerClass = NSClassFromString (@"MobiSageAdBanner");
 	if (nil == mobiSageAdBannerClass) {
 		[adViewView adapter:self didFailAd:nil];
 		AWLogInfo(@"no mobisage lib, can not create.");
 		return;
 	}
-
+    
 	if ([adViewDelegate respondsToSelector:@selector(mobiSageApIDString)]) {
 		apID = [adViewDelegate mobiSageApIDString];
 	}
@@ -133,43 +135,38 @@ NotificationReceiver *gReceiver = nil;
 	}
 	
 	[self updateSizeParameter];
+    
+    NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
 	
 #if 0	//根据厂商建议，不调用此。
     Class mobiSageAdViewManagerClass = NSClassFromString (@"MobiSageManager");
-	if (nil != mobiSageAdViewManagerClass) 
+	if (nil != mobiSageAdViewManagerClass)
 		[[mobiSageAdViewManagerClass getInstance] setPublisherID:apID];
 #endif
 	
 	UIView* dummyView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.sSizeAd.width, self.sSizeAd.height)];
-    NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
-    MobiSageAdBanner* adView = [[mobiSageAdBannerClass alloc] initWithAdSize:self.nSizeAd PublisherID:apID];
+    MobiSageAdBanner* adView = [[mobiSageAdBannerClass alloc] initWithAdSize:self.nSizeAd PublisherID:apID withDelegate:self];
 	
 	if (nil == adView) {
 		[adViewView adapter:self didFailAd:nil];
 		[dummyView release];
 		return;
 	}
-#if 1
-	if (nil == gReceiver) gReceiver = [[NotificationReceiver alloc] init];
-	if (nil != gReceiver) {
-		gReceiver.adatper = self;
-		
+    adView.delegate = self;
+    if (nil != gReceiver) {
 		[nc addObserver:gReceiver selector:@selector(mobiSageStartShowAd:) name:MobiSageAdView_Start_Show_AD object:adView];
 		[nc addObserver:gReceiver selector:@selector(mobiSageStopShowAd:) name:MobiSageAdView_Pause_Show_AD object:adView];
 		[nc addObserver:gReceiver selector:@selector(mobiSageCallback:) name:MobiSageAdView_Refresh_AD object:adView];
-		[nc addObserver:gReceiver selector:@selector(mobiSageWillPopAd:) name:MobiSageAdView_Pop_AD_Window object:nil];
-		[nc addObserver:gReceiver selector:@selector(mobiSageHidePopAd:) name:MobiSageAdView_Hide_AD_Window object:nil];
-	}
-#else
-    [nc addObserver:self selector:@selector(mobiSageStartShowAd:) name:MobiSageAdView_Start_Show_AD object:adView];
-    [nc addObserver:self selector:@selector(mobiSageStopShowAd:) name:MobiSageAdView_Pause_Show_AD object:adView];
-	[nc addObserver:self selector:@selector(mobiSageRefreshAd:) name:MobiSageAdView_Refresh_AD object:self.mobiSageAdView];
-    [nc addObserver:self selector:@selector(mobiSageWillPopAd:) name:MobiSageAdView_Pop_AD_Window object:nil];
-    [nc addObserver:self selector:@selector(mobiSageHidePopAd:) name:MobiSageAdView_Hide_AD_Window object:nil];
-#endif
+		[nc addObserver:gReceiver selector:@selector(mobiSageWillPopAd:) name:MobiSageAdView_Pop_AD_Window object:adView];
+		[nc addObserver:gReceiver selector:@selector(mobiSageHidePopAd:) name:MobiSageAdView_Hide_AD_Window object:adView];
+        
+        [nc addObserver:gReceiver selector:@selector(mobiSageActionError:) name:MobiSageAction_Error object:adView];
+    }
+
+    
 	adView.frame = CGRectMake(0, 0, self.sSizeAd.width,self.sSizeAd.height);
 	[adView setSwitchAnimeType:Random];
-	[adView	satInterval:Ad_NO_Refresh];
+	[adView	setInterval:Ad_NO_Refresh];
     dummyView.backgroundColor = [UIColor clearColor];
     //[dummyView addSubview:adView];
     self.adNetworkView = dummyView;
@@ -177,61 +174,72 @@ NotificationReceiver *gReceiver = nil;
     [self.adViewInternal addSubview:adView];
     self.mobiSageAdView = adView;
     [adView release];
-    //[self.adViewView adapter:self shouldAddAdView:self.adViewInternal];
     [dummyView release];
+    
+    NSTimeInterval tmEnd = [[NSDate date] timeIntervalSince1970];
+    
+    AWLogInfo(@"mobisage getad time:%f", tmEnd - tmStart);
+}
 
+//For first load mobisage will use 5-9 second, use background mode.
+- (void)getAd {
+    //[self performSelectorInBackground:@selector(actGetAd) withObject:nil];
     [self setupDefaultDummyHackTimer];
+	if (nil == gReceiver) gReceiver = [[NotificationReceiver alloc] init];
+	if (nil != gReceiver) {
+		gReceiver.adatper = self;
+	}
+#if 0       //如果异步处理，未完成就释放，可能出错，因此屏蔽。
+    if ([NSThread isMultiThreaded]) {
+        adThread_ = [[NSThread alloc] initWithTarget:self selector:@selector(actGetAd) object:nil];
+        [adThread_ setName:@"mobisage_getad"];
+        [adThread_ setThreadPriority:0.1f];
+        [adThread_ start];
+    } else
+#endif
+    {
+        [self performSelector:@selector(actGetAd)];
+    }
 }
 
 - (void)stopBeingDelegate {
+    AWLogInfo(@"--MobiSage stopBeingDelegate");
+    
     NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
     [nc removeObserver:self];
 	
-	gReceiver.adatper = nil;
+    MobiSageAdBanner *banner = (MobiSageAdBanner*)self.mobiSageAdView;
+    banner.delegate = nil;
+    
 	[self cleanupDummyHackTimer];
+	gReceiver.adatper = nil;
 }
 
 - (void)cleanupDummyRetain {
-	gReceiver.adatper = nil;
 	[super cleanupDummyRetain];
+    
+    gReceiver.adatper = nil;
+    if ([adThread_ isExecuting]) {
+        self.adViewView = nil;
+        self.adViewDelegate = nil;
+        [[AdviewObjCollector sharedCollector] addObj:self];
+    }
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = Ad_320X40;
-				self.sSizeAd = CGSizeMake(320, 40);
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = Ad_320X270;
-				self.sSizeAd = CGSizeMake(320, 270);
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = Ad_480X40;
-				self.sSizeAd = CGSizeMake(480, 40);
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = Ad_748X60;
-				self.sSizeAd = CGSizeMake(748, 60);
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = Ad_748X60;
-		self.sSizeAd = CGSizeMake(748, 60);
-	} else {
-		self.nSizeAd = Ad_320X40;
-		self.sSizeAd = CGSizeMake(320, 40);
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    int flagArr[] = {Ad_320X50,Ad_728X90,
+        Ad_320X50,Ad_300X250,
+        Ad_468X60,Ad_728X90};
+    CGSize sizeArr[] = {CGSizeMake(320, 50), CGSizeMake(728, 90),
+        CGSizeMake(320, 50), CGSizeMake(300, 250),
+        CGSizeMake(468, 60), CGSizeMake(728, 90)};
+    
+    [self setSizeParameter:flagArr size:sizeArr];
 }
 
 - (void) mobiSageStartShowAd: (UIView*) view
@@ -251,7 +259,7 @@ NotificationReceiver *gReceiver = nil;
 - (void) mobiSageWillPopAd: (UIView*) view
 {
 	AWLogInfo(@"mobiSageWillPopAd");
-    //[self helperNotifyDelegateOfFullScreenModal];
+    [self helperNotifyDelegateOfFullScreenModal];
 }
 
 - (void) mobiSageRefreshAd: (UIView*) view
@@ -262,11 +270,19 @@ NotificationReceiver *gReceiver = nil;
 - (void) mobiSageHidePopAd: (UIView*) view
 {
 	AWLogInfo(@"mobiSageHidePopAd");
-    //[self helperNotifyDelegateOfFullScreenModalDismissal];
+    [self helperNotifyDelegateOfFullScreenModalDismissal];
+}
+
+- (void) mobiSageActionError: (UIView*) view
+{
+	AWLogInfo(@"mobiSageActionError");
 }
 
 - (void)dealloc {
 	AWLogInfo(@"adapter mobisage dealloc");
+    if ([adThread_ isExecuting]) [adThread_ cancel];
+    [adThread_ release];
+    adThread_ = nil;
 	
     [self.mobiSageAdView removeFromSuperview];
 	self.mobiSageAdView = nil;
@@ -275,8 +291,15 @@ NotificationReceiver *gReceiver = nil;
 	
 	[self.adViewInternal removeFromSuperview];
     self.adViewInternal = nil;
+    self.adNetworkView = nil;
 	
 	[super dealloc];
+}
+
+#pragma mark delegate methods.
+
+- (UIViewController *)viewControllerToPresent {
+    return [adViewDelegate viewControllerForPresentingModalView];
 }
 
 @end

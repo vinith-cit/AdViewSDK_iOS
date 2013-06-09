@@ -16,6 +16,11 @@
 
 @interface immobAnalytics : NSObject
 
-+ (void) sendRequest:(NSString *)creativeID;
+
++ (void)onStart:(NSString *)creativeID;
++ (void)onPause;
++ (void)onResume;
++ (void)onDestroy;
+
 
 @end

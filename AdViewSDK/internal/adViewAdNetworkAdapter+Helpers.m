@@ -23,11 +23,15 @@
 #import "AdViewView+.h"
 #import "AdViewConfig.h"
 #import "AdViewAdNetworkConfig.h"
+#import "AdviewObjCollector.h"
 
 @implementation AdViewAdNetworkAdapter (Helpers)
 
 - (void)helperNotifyDelegateOfFullScreenModal {
   // don't request new ad when modal view is on
+  [[AdviewObjCollector sharedCollector] addObj:self wait:INFINITE_WAIT];
+  self.nAdBlockFlag |= AdViewAdNetworkBlockFlag_PresentScreen;
+
   [adViewView setInShowingModalView:YES];
   if ([adViewDelegate respondsToSelector:@selector(adViewWillPresentFullScreenModal)]) {
     [adViewDelegate adViewWillPresentFullScreenModal];
@@ -39,6 +43,11 @@
     [adViewDelegate adViewDidDismissFullScreenModal];
   }
   [adViewView setInShowingModalView:NO];
+    
+  if (self.nAdBlockFlag & AdViewAdNetworkBlockFlag_PresentScreen) {
+    self.nAdBlockFlag &= (~AdViewAdNetworkBlockFlag_PresentScreen);
+    [[AdviewObjCollector sharedCollector] performSelector:@selector(removeObj:) withObject:self afterDelay:0.1];
+  }
 }
 
 - (UIColor *)helperBackgroundColorToUse {
@@ -96,6 +105,14 @@
 #else
 	return -1;
 #endif
+}
+
+- (BOOL)isTestMode {
+	if (nil != self.adViewDelegate
+		&& [self.adViewDelegate respondsToSelector:@selector(adViewTestMode)]) {
+		return [self.adViewDelegate adViewTestMode];
+	}
+	return NO;
 }
 
 + (BOOL)helperIsIpad {

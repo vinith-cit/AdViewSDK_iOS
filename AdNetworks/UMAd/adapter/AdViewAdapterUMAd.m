@@ -107,39 +107,21 @@
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([self.adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [self.adViewDelegate PreferBannerSize];
-	}
-		
-#if 1	//to umeng, only 320X50 in iphone, and the other in ipad.
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.sSizeAd = [UMAdBannerView bannerSizeofSize320x50];
-				break;
-			case AdviewBannerSize_300x250:
-				self.sSizeAd = [UMAdBannerView bannerSizeofSize320x50];
-				break;
-			case AdviewBannerSize_480x60:
-				self.sSizeAd = [UMAdBannerView bannerSizeofSize480x75];
-				break;
-			case AdviewBannerSize_728x90:
-				self.sSizeAd = [UMAdBannerView bannerSizeofSize480x75];
-				break;
-			default:
-				break;
-		}
-	} else
-#endif
-		if (isIPad) {
-		self.sSizeAd = [UMAdBannerView bannerSizeofSize480x75];
-	} else {
-		self.sSizeAd = [UMAdBannerView bannerSizeofSize320x50];
-	}
-	self.rSizeAd = CGRectMake(0, 0, self.sSizeAd.width, self.sSizeAd.height);
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    Class umad_bannerview_class = NSClassFromString(UMADBANNERVIEW_CLASS_NAME);
+    if (nil == umad_bannerview_class) return;
+    CGSize sizeArr[] = {[umad_bannerview_class bannerSizeofSize320x50],
+        [umad_bannerview_class bannerSizeofSize480x75],
+        [umad_bannerview_class bannerSizeofSize320x50],
+        [umad_bannerview_class bannerSizeofSize320x50],
+        [umad_bannerview_class bannerSizeofSize480x75],
+        [umad_bannerview_class bannerSizeofSize480x75]};
+    
+    [self setSizeParameter:nil size:sizeArr];
 }
 
 - (void) dealloc
@@ -167,7 +149,7 @@
 - (void) UMADBannerView:(UMAdBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
 {
     AWLogInfo(@"AdView: UMAd error: %@", [error localizedDescription]);
-    [self.adViewView adapter:self didFailAd:nil];
+    [self.adViewView adapter:self didFailAd:error];
 }
 
 - (void) UMADBannerViewActionWillBegin:(UMAdBannerView *)banner

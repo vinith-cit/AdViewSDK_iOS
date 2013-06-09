@@ -31,8 +31,8 @@
 	}
 }
 
-+ (CGRect)adRect {
-	return CGRectMake(0, 0, 320, 48);
+- (CGRect)adRect {
+	return self.rSizeAd;
 }
 
 - (void)getAd {
@@ -46,19 +46,15 @@
 		return;
 	}
 	[self updateSizeParameter];
-    BaiduMobAdView* sharedAdView = [[baiduViewClass alloc] init];
+    AWLogInfo(@"init size:%@", NSStringFromCGRect(self.rSizeAd));
+    BaiduMobAdView* sharedAdView = [[baiduViewClass alloc] initWithFrame:self.rSizeAd];
 	if (nil == sharedAdView) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
 	}
 	
 	sharedAdView.delegate = self;
-	sharedAdView.frame = self.rSizeAd;
-//	NSString *typeStr = networkConfig.pubId3;
-//	int type = [typeStr intValue];
-//	if (2 == type) sharedAdView.AdType = BaiduMobAdViewTypeText;
-//	else 
-		sharedAdView.AdType = BaiduMobAdViewTypeImage;	//type by config.
+	//sharedAdView.AdType = BaiduMobAdViewTypeBanner;	//type by config.
 	
 	sharedAdView.autoplayEnabled = NO;
 	
@@ -69,7 +65,7 @@
 		if (nil != controller && nil != controller.view)
 		{
 			[controller.view addSubview:sharedAdView];
-			sharedAdView.frame = [AdViewAdapterBaidu adRect];
+			//sharedAdView.frame = [self adRect];
             sharedAdView.userInteractionEnabled = NO;
 			sharedAdView.hidden = YES;
 		}
@@ -79,8 +75,7 @@
 	sharedAdView.textColor = txtColor;
 	
 	self.adNetworkView = sharedAdView;
-	
-    [adViewView adapter:self shouldAddAdView:sharedAdView];
+
 	[sharedAdView start];
 	[sharedAdView release];
 }
@@ -90,7 +85,7 @@
 	AWLogInfo(@"--Baidu stopBeingDelegate--");
   if (adView != nil) {
 	  if (adView.delegate == self) {
-		  [adView removeFromSuperview];
+		  //[adView removeFromSuperview];
 		  adView.delegate = nil;
 	  }
 	  self.adNetworkView = nil;	//empty it.
@@ -103,42 +98,21 @@
     BaiduMobAdView *adView = (BaiduMobAdView *)self.adNetworkView;
     if (nil != adView) {
         adView.delegate = nil;
-        [adView removeFromSuperview];
+        //[adView removeFromSuperview];
     }
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	self.rSizeAd = CGRectMake(0, 0, kBaiduAdViewSizeDefaultWidth, kBaiduAdViewSizeDefaultHeight);
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = 0;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = 0;
-	} else {
-		self.nSizeAd = 0;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    CGSize sizeArr[] = {kBaiduAdViewBanner320x48,kBaiduAdViewBanner728x90,
+        kBaiduAdViewBanner320x48,kBaiduAdViewSquareBanner300x250,
+        kBaiduAdViewBanner468x60,kBaiduAdViewBanner728x90};
+    
+    [self setSizeParameter:nil size:sizeArr];
 }
 
 - (void)dealloc {
@@ -160,8 +134,7 @@
 	}
     
 #if 0
-    if ([adViewDelegate respondsToSelector:@selector(adViewTestMode)]
-        && [adViewDelegate adViewTestMode] == YES) {
+    if ([self isTestMode]) {
         return @"debug";
     }
 #endif
@@ -185,6 +158,11 @@
     return specStr;	//@"debug";
 }
 
+- (NSString*) channelId
+{
+    return @"e498eab7";
+}
+
 -(BOOL) enableLocation
 {
     //启用location会有一次alert提示
@@ -194,25 +172,13 @@
 
 -(void) willDisplayAd:(BaiduMobAdView*) adview
 {
-	/*
-	 UIDeviceOrientation co = [UIDevice currentDevice].orientation;
-	 if (UIDeviceOrientationIsPortrait(co))
-	 {
-		 adview.frame = kAdViewPortraitRect;
-	 }
-	 else
-	 {
-		 adview.frame = kAdViewLandscapeRect;
-	 }	*/
     //视图即将被显示。
-    
-	AWLogInfo(@"willDisplay");
+	AWLogInfo(@"willDisplayAd");
 #if NEED_IN_REALVIEW
 	adview.hidden = NO;
     adview.userInteractionEnabled = YES;
 	BaiduMobAdView *view = [adview retain];
 #endif
-	adview.frame = [AdViewAdapterBaidu adRect];
     [adViewView adapter:self didReceiveAdView:adview];
 #if NEED_IN_REALVIEW
 	[view release];
@@ -222,7 +188,10 @@
 -(void) failedDisplayAd:(BaiduMobFailReason) reason;
 {
     AWLogInfo(@"fail, reason:%d", reason);
-	[adViewView adapter:self didFailAd:nil];
+    NSString *errStr = [NSString stringWithFormat:@"fail reason:%@",
+                        (BaiduMobFailReason_NOAD==reason)?@"No Ad":@"Exception"];
+	[adViewView adapter:self didFailAd:[NSError errorWithDomain:errStr
+                                                           code:-1 userInfo:nil]];
 }
 
 - (BOOL)shouldSendExMetric {

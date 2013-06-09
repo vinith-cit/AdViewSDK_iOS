@@ -6,31 +6,34 @@
 @protocol KOpenAPIAdViewDelegate <NSObject>
 
 @optional
--(UIColor*)adTextColor;
--(UIColor*)adBackgroundColor;
--(void)didReceivedAd:(KOpenAPIAdView*)adView;
--(void)didFailToReceiveAd:(KOpenAPIAdView*)adView Error:(NSError*)error;
+- (NSString*)appPwd;
 
--(NSString*) KOpenAPIAdViewHost;
--(int)autoRefreshInterval;	//<=0 - none, <10 - 10, unit: seconds
--(int)gradientBgType;		//-1 - none, 0 - fix, 1 - random
+- (UIColor*)adTextColor;
+- (UIColor*)adBackgroundColor;
+- (void)didReceivedAd:(KOpenAPIAdView*)adView;
+- (void)didFailToReceiveAd:(KOpenAPIAdView*)adView Error:(NSError*)error;
 
--(UIViewController*)viewControllerForShowModal;
+- (NSString*) KOpenAPIAdViewHost;
+- (int)autoRefreshInterval;	//<=0 - none, <15 - 15, unit: seconds
+- (int)gradientBgType;		//-1 - none, 0 - fix, 1 - random
+
+- (UIViewController*)viewControllerForShowModal;
 
 - (void)adViewWillPresentScreen:(KOpenAPIAdView *)adView;
 - (void)adViewDidDismissScreen:(KOpenAPIAdView *)adView;
 
+- (BOOL)testMode;
+- (BOOL)logMode;
+
 @required
 
--(NSString*) appId;
--(BOOL) testMode;
--(BOOL) logMode;
+- (NSString*)appId;
 
 @end
 
 @interface KOpenAPIAdView : UIView
 
-#define KOPENAPIADVIEW_SIZE_320x48		CGSizeMake(320, 48)
+#define KOPENAPIADVIEW_SIZE_320x50		CGSizeMake(320, 50)
 #define KOPENAPIADVIEW_SIZE_480x44		CGSizeMake(480, 44)
 #define KOPENAPIADVIEW_SIZE_300x250		CGSizeMake(300, 250)
 #define KOPENAPIADVIEW_SIZE_480x60		CGSizeMake(480, 60)
@@ -38,6 +41,10 @@
 
 #define KOPENAPIADTYPE_DEFAULT		0			//adview app ad
 #define KOPENAPIADTYPE_SUIZONG		1			//suizong
+#define KOPENAPIADTYPE_IMMOB		2			//Immob, server response limit
+#define KOPENAPIADTYPE_INMOBI		3           //inmobi
+#define KOPENAPIADTYPE_ADUU			4           //Aduu
+#define KOPENAPIADTYPE_WQMOBILE		5           //wq
 
 @property (nonatomic, assign) id<KOpenAPIAdViewDelegate> delegate;
 @property (nonatomic, retain) CLLocation*				location;

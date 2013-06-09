@@ -24,22 +24,26 @@
 #import "TableController.h"
 #import "BottomBannerController.h"
 #import "AdProviderController.h"
-#import "LocationController.h"
+#import "AdViewLocationController.h"
 #import "AdViewView.h"
+#import "AdViewUtils.h"
 #import "SampleConstants.h"
+#import "AdSingleTestViewController.h"
 
-#define CONFIG_PREFETCH_ROW 5
+#define CONFIG_PREFETCH_ROW 6
 
 @implementation RootViewController
 
-/*
+
 - (void)viewDidLoad {
   [super viewDidLoad];
 
   // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
   // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    NSDictionary *dict = [AdViewUtils getPlatformsForKey:@"SDK20111022530129m85is43b70r4iyc"];
+    NSLog(@"%@", dict);
 }
-*/
+
 
 /*
 - (void)viewWillAppear:(BOOL)animated {
@@ -97,14 +101,8 @@
 
   UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
   if (cell == nil) {
-    if ([UITableViewCell instancesRespondToSelector:@selector(initWithStyle:reuseIdentifier:)]) {
       // iPhone SDK 3.0
       cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
-    }
-    else {
-      // iPhone SDK 2.2.1
-      cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
-    }
   }
 
   switch (indexPath.row) {
@@ -158,6 +156,9 @@
 			  //cell.text = @"Ad Provider";
 		  }		  
 	  break;
+      case 5:
+          cell.textLabel.text = @"Single Test";
+          break;
     case CONFIG_PREFETCH_ROW:
     {
       NSString *configText;
@@ -208,19 +209,26 @@
     }
     case 3:
     {
-      LocationController *loc = [[LocationController alloc] init];
+      AdViewLocationController *loc = [[AdViewLocationController alloc] init];
       [self.navigationController pushViewController:loc animated:YES];
       [loc release];
       break;
     }
 	  case 4:
 	  {
-		  LocationController *provider = [[AdProviderController alloc] initWithStyle:UITableViewStylePlain];
+		  AdProviderController *provider = [[AdProviderController alloc] initWithStyle:UITableViewStylePlain];
 		  [self.navigationController pushViewController:provider animated:YES];
 		  [provider release];
 		  break;
 	  }
 		  break;
+      case 5:
+      {
+		  AdSingleTestViewController *testController = [[AdSingleTestViewController alloc] initWithNibName:nil bundle:nil];
+		  [self.navigationController pushViewController:testController animated:YES];
+		  [testController release];
+      }
+          break;
     case CONFIG_PREFETCH_ROW:
       if (configFetched) {
 //        [AdViewView updateAdViewConfigWithDelegate:self];

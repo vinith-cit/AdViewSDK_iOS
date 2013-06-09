@@ -13,24 +13,16 @@
 #import "AdViewAdNetworkAdapter+Helpers.h"
 #import "AdViewAdNetworkRegistry.h"
 #import "AdChinaBannerView.h"
+#import "SingletonAdapterBase.h"
 
 #define KADCHINA_DETAULT_FRAME (CGRectMake(0,0,KADVIEW_WIDTH,64))
 #define KADCHINA_LANDSCAPE_FRAME (CGRectMake(0,0,KLANDSCAPE_WIDTH,45))
 
 #define ADCHINA_FRAME_AUTO		0
 
-@interface AdViewAdapterAdChinaImpl : NSObject <AdChinaBannerViewDelegate> {
-	AdViewAdapterAdChina	*mAdapter;
-	NSMutableArray			*mIdelViewArr;
+@interface AdViewAdapterAdChinaImpl : SingletonAdapterBase <AdChinaBannerViewDelegate> {
 }
-
-@property (nonatomic, assign) AdViewAdapterAdChina	*mAdapter;
-@property (nonatomic, retain) NSMutableArray		*mIdelViewArr;
-
-- (void)setAdapter:(AdViewAdapterAdChina*)adapter;
-- (AdChinaBannerView*)getIdelAdChinaView:(UIViewController*)controller;
-- (void)addIdelAdChinaView:(AdChinaBannerView*)view;
-- (NSString *)adSpaceId:(AdChinaBannerView *)adView;
+- (NSString *)adSpaceId;
 
 @end
 
@@ -39,7 +31,7 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 @implementation AdViewAdapterAdChina
 
 + (AdViewAdNetworkType)networkType {
-  return AdViewAdNetworkTypeADCHINA;
+    return AdViewAdNetworkTypeADCHINA;
 }
 
 + (void)load {
@@ -49,19 +41,19 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 }
 
 - (void)getAd {
-	if (nil == gAdChinaImpl) 
+	if (nil == gAdChinaImpl)
 		gAdChinaImpl = [[AdViewAdapterAdChinaImpl alloc] init];
 	mDelegate = gAdChinaImpl;
-	[mDelegate setAdapter:self];
+	[mDelegate setAdapterValue:YES ByAdapter:self];
 	
-	AdChinaBannerView *adView = [mDelegate getIdelAdChinaView:[adViewDelegate viewControllerForPresentingModalView]];
+	AdChinaBannerView *adView = (AdChinaBannerView*)[[mDelegate getIdelAdView] retain];
 	if (nil == adView) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
 	}
 	
 	[adView setAnimationMask:AnimationMaskNone];
-	[adView setRefreshInterval:-1];
+	[adView setRefreshInterval:DisableRefresh];
 	
 #if ADCHINA_FRAME_AUTO
 	UIDeviceOrientation orientation;
@@ -80,62 +72,47 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 #else
     CGRect r = adView.frame;
     r.origin = CGPointMake(0, 0);
-	[self updateSizeParameter];
 	r.size = self.sSizeAd;
     adView.frame = r;
-//    adView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin
-//	| UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleTopMargin;
 #endif
 	
 	self.adNetworkView = adView;
+    [adView release];
+}
+
+
+- (BOOL)canMultiBeingDelegate {
+    return NO;
 }
 
 - (void)stopBeingDelegate {
-  AdChinaBannerView *adView = (AdChinaBannerView *)self.adNetworkView;
+    AdChinaBannerView *adView = (AdChinaBannerView *)self.adNetworkView;
 	AWLogInfo(@"--AdChina stopBeingDelegate--");
-  if (adView != nil) {
+    if (adView != nil) {
 #if 0
-	  [mDelegate addIdelAdChinaView:adView];
+        [mDelegate addIdelAdChinaView:adView];
 #else
-	  self.adNetworkView = nil;	//to test if can adchina view be alloced and released. fail.
+        //to test if adchina view can be alloced and released. if fail, should resue.
+        self.adNetworkView = nil;
 #endif
-	  [mDelegate setAdapter:nil];
-	  
-	  self.adNetworkView = nil;
-  }
+        [mDelegate setAdapterValue:NO ByAdapter:self];
+        
+        self.adNetworkView = nil;
+    }
 	mDelegate = nil;
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.sSizeAd = CGSizeMake(320, 48);
-				break;
-			case AdviewBannerSize_300x250:
-				self.sSizeAd = BannerSizeSquare;
-				break;
-			case AdviewBannerSize_480x60:
-				self.sSizeAd = BannerSizeVideo;
-				break;
-			case AdviewBannerSize_728x90:
-				self.sSizeAd = BannerSizeDefault;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.sSizeAd = BannerSizeDefault;
-	} else {
-		self.sSizeAd = BannerSizeDefault;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    CGSize sizeArr[] = {BannerSizeDefault,BannerSizeDefault,
+        CGSizeMake(320, 48),BannerSizeSquare,
+        BannerSizeVideo,BannerSizeDefault};
+    
+    [self setSizeParameter:nil size:sizeArr];
 }
 
 #if ADCHINA_FRAME_AUTO
@@ -151,64 +128,32 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 #endif
 
 - (void)dealloc {
-  [super dealloc];
+    [super dealloc];
 }
 
 @end
 
 @implementation AdViewAdapterAdChinaImpl
-@synthesize mAdapter;
-@synthesize mIdelViewArr;
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
 {
     return NO;
 }
 
-- (BOOL) isAdViewValid:(AdChinaBannerView*)adView {
-	if (nil == mAdapter || nil == mAdapter.adNetworkView || mAdapter.adNetworkView != (UIView*)adView) {
-		AWLogInfo(@"--AdChina stale delegate call--------");	
-		return NO;
-	}
-	return YES;
-}
-
-- (void)setAdapter:(AdViewAdapterAdChina*)adapter {
-	mAdapter = adapter;
-}
-
-- (AdChinaBannerView*)getIdelAdChinaView:(UIViewController *)controller {
+- (UIView*)makeAdView {
 	AdChinaBannerView	*ret;
-	
-	if (nil == mIdelViewArr) 
-		mIdelViewArr = [[NSMutableArray alloc] initWithCapacity:10];
-	
-	if ([mIdelViewArr count] > 0) {
-		ret = [mIdelViewArr objectAtIndex:[mIdelViewArr count]-1];
-		[mIdelViewArr removeLastObject];
-	}
-	else {
-		Class adChinaViewClass = NSClassFromString (@"AdChinaBannerView");
-		
-		if (0 == adChinaViewClass) {
-			AWLogInfo(@"no adchina lib, can not create.");
-			return 0;
-		}
-		
-		ret = [adChinaViewClass requestAdWithAdSpaceId:[self adSpaceId:nil] delegate:self
-												adSize:mAdapter.sSizeAd];
-		[ret setViewControllerForBrowser:controller];
-	}
+    
+    Class adChinaViewClass = NSClassFromString (@"AdChinaBannerView");
+    
+    if (0 == adChinaViewClass) {
+        AWLogInfo(@"no adchina lib, can not create.");
+        return nil;
+    }
+    [mAdapter updateSizeParameter];
+    ret = [adChinaViewClass requestAdWithAdSpaceId:[self adSpaceId] delegate:self
+                                             adSize:mAdapter.sSizeAd];
+    [ret setViewControllerForBrowser:[mAdapter.adViewDelegate viewControllerForPresentingModalView]];
 	return ret;
-}
-
-- (void)addIdelAdChinaView:(AdChinaBannerView*)view {
-	for (int i = 0; i < [mIdelViewArr count]; i++) {
-		if (view == [mIdelViewArr objectAtIndex:i])
-			return;
-	}
-	
-	[mIdelViewArr addObject:view];
 }
 
 - (void)dealloc {
@@ -221,58 +166,47 @@ static AdViewAdapterAdChinaImpl *gAdChinaImpl = nil;
 /**
  *	Be sure to return the id you get from AdChina
  */
-- (NSString *)adSpaceId:(AdChinaBannerView *)adView {
-	NSString *apID;
-	AdViewAdapterAdChina *adapter = mAdapter;
+- (NSString *)adSpaceId {
+	NSString *appID = @"";
 	
-	if (nil == adapter) return @""; 
-	
-	if ([adapter.adViewDelegate respondsToSelector:@selector(adChinaApIDString)]) {
-		apID = [adapter.adViewDelegate adChinaApIDString];
+	if ([mAdapter.adViewDelegate respondsToSelector:@selector(adChinaApIDString)]) {
+		appID = [mAdapter.adViewDelegate adChinaApIDString];
 	}
 	else {
-		apID = adapter.networkConfig.pubId;
+		appID = mAdapter.networkConfig.pubId;
 	}
-	return apID;
-	
+	return appID;
 	//return @"69329";
 }
 
 - (void)didGetBanner:(AdChinaBannerView *)adView {
-	if (nil != adView)
-		AWLogInfo(@"AdChina: Did receive ad:%dx%d", (int)adView.frame.size.width,
-				  (int)adView.frame.size.height);
-	
-	AdViewAdapterAdChina *adapter = mAdapter;
+	if (nil != adView) {
+		AWLogInfo(@"AdChina: Did receive ad:%@", NSStringFromCGSize(adView.frame.size));
+    }
 	
 	if (![self isAdViewValid:adView]) return;
 	
-	[adapter.adViewView adapter:adapter didReceiveAdView:adView];
+	[mAdapter.adViewView adapter:mAdapter didReceiveAdView:adView];
 }
 
 - (void)didFailToGetBanner:(AdChinaBannerView *)adView
 {
 	AWLogInfo(@"AdChina: Failed to receive ad");
-	AdViewAdapterAdChina *adapter = mAdapter;
 	
 	if (![self isAdViewValid:adView]) return;
 	
-	[adapter.adViewView adapter:adapter didFailAd:nil];
+	[mAdapter.adViewView adapter:mAdapter didFailAd:nil];
 }
 
 - (void)didEnterFullScreenMode
 {
-	AdViewAdapterAdChina *adapter = mAdapter;
-	
-	[adapter helperNotifyDelegateOfFullScreenModal];
+	[mAdapter helperNotifyDelegateOfFullScreenModal];
 	AWLogInfo(@"AdChina: Did click on an ad");
 }
 
 - (void)didExitFullScreenMode
 {
-	AdViewAdapterAdChina *adapter = mAdapter;
-	
-	[adapter helperNotifyDelegateOfFullScreenModalDismissal];
+	[mAdapter helperNotifyDelegateOfFullScreenModalDismissal];
 	AWLogInfo(@"AdChina: Did back from ad web");
 }
 

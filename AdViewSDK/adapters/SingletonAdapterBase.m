@@ -18,8 +18,8 @@
 - (id)init {
 	self = [super init];
 	if (self) {
-		self.mLockObj = [[NSObject alloc] init];
-		self.mIdelViewArr = [[NSMutableArray alloc] initWithCapacity:10];
+		self.mLockObj = [[[NSObject alloc] init] autorelease];
+		self.mIdelViewArr = [[[NSMutableArray alloc] initWithCapacity:10] autorelease];
 	}
 	return self;
 }
@@ -56,13 +56,13 @@
 			[self updateAdFrame:ret];
 		}
 		else {
-			return [self createAdView];
+			return [self makeAdView];
 		}
 	}
-	return ret;	
+	return [ret autorelease];
 }
 
-- (UIView*)createAdView {
+- (UIView*)makeAdView {
 	return nil;
 }
 

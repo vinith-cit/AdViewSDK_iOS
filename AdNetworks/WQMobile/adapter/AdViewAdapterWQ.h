@@ -5,14 +5,11 @@
  */
 
 #import "AdViewAdNetworkAdapter.h"
-#import "WQAdProtocol.h"
+#import "WQAdView.h"
 
-@interface AdViewAdapterWQ : AdViewAdNetworkAdapter {
-	
+@interface AdViewAdapterWQ : AdViewAdNetworkAdapter<WQAdViewDelegate> {
 }
 
 + (AdViewAdNetworkType)networkType;
-
-+ (void)setNeedInitSettingXMLFile;
 
 @end

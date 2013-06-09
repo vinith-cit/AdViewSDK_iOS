@@ -24,6 +24,7 @@
 #import "AWNetworkReachabilityDelegate.h"
 
 @class AWNetworkReachabilityWrapper;
+@class AdViewDBManager;
 
 typedef enum tagConfigMethod {
 	ConfigMethod_DataFile = 0,
@@ -43,6 +44,8 @@ typedef enum tagConfigMethod {
   NSURLConnection *connection_;
   NSMutableData *receivedData_;
 	int		reachCheckNum;
+    
+    AdViewDBManager *dbManager;
 }
 
 // Returns the singleton AdViewConfigStore object.
@@ -76,6 +79,9 @@ typedef enum tagConfigMethod {
 // For testing -- set mocks here.
 @property (nonatomic,retain) AWNetworkReachabilityWrapper *reachability;
 @property (nonatomic,retain) NSURLConnection *connection;
-@property (nonatomic,assign) BOOL			needParseAgain;
+@property (nonatomic,retain) AdViewConfig *fetchingConfig;
+
+- (void)setNeedParseConfig;
+- (AdViewConfig*)getBufferConfig:(NSString*)appKey;
 
 @end

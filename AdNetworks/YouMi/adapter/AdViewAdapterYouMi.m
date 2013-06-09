@@ -40,7 +40,7 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 	YouMiView *youMiView = nil;
 	//AWLogInfo(@"youmi --getAd--%@", self);
 	[gYouMiImpl setAdapterValue:YES ByAdapter:self];
-	youMiView = (YouMiView*)[gYouMiImpl getIdelAdView];
+	youMiView = (YouMiView*)[[gYouMiImpl getIdelAdView] retain];
 	
 	if (nil == youMiView) {
 		[adViewView adapter:self didFailAd:nil];
@@ -48,13 +48,13 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 	}
 
 	self.adNetworkView = youMiView;
-#if AD_VIEW_RETAIN	
-	[adViewView adapter:self didReceiveAdView:youMiView];
-#else
-	//[adViewView adapter:self shouldAddAdView:youMiView];
-#endif
+
 	[youMiView release];
 	AWLogInfo(@"YouMi getAd success!");
+}
+
+- (BOOL)canMultiBeingDelegate {
+    return NO;
 }
 
 - (void)stopBeingDelegate {
@@ -70,35 +70,17 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = YouMiBannerContentSizeIdentifier320x50;
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = YouMiBannerContentSizeIdentifier300x250;
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = YouMiBannerContentSizeIdentifier468x60;
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = YouMiBannerContentSizeIdentifier728x90;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = YouMiBannerContentSizeIdentifier728x90;
-	} else {
-		self.nSizeAd = YouMiBannerContentSizeIdentifier320x50;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    int flagArr[] = {YouMiBannerContentSizeIdentifier320x50,YouMiBannerContentSizeIdentifier728x90,
+        YouMiBannerContentSizeIdentifier320x50,YouMiBannerContentSizeIdentifier300x250,
+        YouMiBannerContentSizeIdentifier468x60,YouMiBannerContentSizeIdentifier728x90};
+    
+    [self setSizeParameter:flagArr size:nil];
+
 }
 
 - (void)dealloc {	
@@ -109,8 +91,10 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 
 @implementation AdViewAdapterYouMiImpl
 
-- (UIView*)createAdView {
+- (UIView*)makeAdView {
 	YouMiView *ret = nil;
+
+    Class youmiConfigClass = NSClassFromString (@"YouMiConfig");
 	Class youmiViewClass = NSClassFromString (@"YouMiView");
 	
 	if (0 == youmiViewClass) {
@@ -118,7 +102,11 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 		return nil;
 	}
 	
-	[youmiViewClass setShouldGetLocation:[mAdapter helperUseGpsMode]];
+	[youmiConfigClass performSelector:@selector(setAppID:) withObject:mAdapter.networkConfig.pubId];
+    [youmiConfigClass performSelector:@selector(setAppSecret:) withObject:mAdapter.networkConfig.pubId2];
+	[youmiConfigClass setShouldGetLocation:[mAdapter helperUseGpsMode]];
+    [youmiConfigClass setIsTesting:[self isTestMode]];
+    [youmiConfigClass setUseInAppStore:![self isTestMode]];
 	
 	[mAdapter updateSizeParameter];
 	
@@ -136,14 +124,10 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 	ret.backgroundColor = [mAdapter helperBackgroundColorToUse];
 	ret.subTextColor = [UIColor blueColor];
 	
-	ret.testing = [self isTestMode];
-	
 	mAdapter.adNetworkView = ret;
 	
-	[ret performSelector:@selector(setYppID:) withObject:mAdapter.networkConfig.pubId];
-    [ret performSelector:@selector(setAppSecret:) withObject:mAdapter.networkConfig.pubId2];
 	[ret performSelector:@selector(start)];
-	return ret;
+	return [ret autorelease];
 }
 
 - (void)dealloc {
@@ -210,7 +194,7 @@ static AdViewAdapterYouMiImpl *gYouMiImpl = nil;
 		AWLogInfo(@"%@", [error localizedDescription]);
 	if (![self isAdViewValid:adView])
 		return;
-	[mAdapter.adViewView adapter:mAdapter didFailAd:nil];
+	[mAdapter.adViewView adapter:mAdapter didFailAd:error];
 }
 
 - (void)willPresentScreen:(YouMiView *)adView {

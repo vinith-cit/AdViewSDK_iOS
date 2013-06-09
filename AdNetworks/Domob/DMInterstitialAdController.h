@@ -7,11 +7,26 @@
 #import <UIKit/UIKit.h>
 #import "DMAdView.h"
 
+/** 
+ * SDK不再提供背景图片样式选择功能
+ 
+typedef enum
+{
+    DMInterstitialBackgroundStyleBlack,
+    DMInterstitialBackgroundStyleWhite
+} DMInterstitialBackgroundStyle;
+ 
+*/
+
 @protocol DMInterstitialAdControllerDelegate;
 @interface DMInterstitialAdController : UIViewController
 
+// 广告内容是否已经加载好
 @property (nonatomic, readonly) BOOL isReady;
-@property (nonatomic, assign) NSObject<DMInterstitialAdControllerDelegate> *delegate; 
+// 设置委托对象
+@property (nonatomic, assign) NSObject<DMInterstitialAdControllerDelegate> *delegate;
+// 是否在展现插屏广告时，隐藏状态栏。默认为YES
+@property (nonatomic, assign) BOOL shouldHiddenStatusBar;
 
 // 初始化一个插屏广告控制器，默认尺寸为全屏
 - (id)initWithPublisherId:(NSString *)publisherId                   // Domob PublisherId
@@ -20,7 +35,24 @@
 // 初始化一个插屏广告控制器，使用开发者指定的尺寸
 - (id)initWithPublisherId:(NSString *)publisherId                   // Domob PublisherId
        rootViewController:(UIViewController *)rootViewController    // 插屏广告使用的RootViewController
-                     size:(CGSize)adSize;                           // 插屏广告的广告尺寸（默认为全屏）
+                     size:(CGSize)adSize;                           // 插屏广告的广告尺寸
+
+/** 
+ * 这两个接口不再建议使用，如果想自定义插屏广告的背景图片或关闭按钮，请参考使用手册
+ 
+// 初始化一个插屏广告控制器，使用开发者指定的由Domob提供的插屏背景风格
+- (id)initWithPublisherId:(NSString *)publisherId                   // Domob PublisherId
+       rootViewController:(UIViewController *)rootViewController    // 插屏广告使用的RootViewController
+                     size:(CGSize)adSize                            // 插屏广告的广告尺寸
+          backgroundStyle:(DMInterstitialBackgroundStyle)style;     // 插屏广告使用的背景图片样式，目前提供两种样式的背景图片
+
+// 初始化一个插屏广告控制器，使用开发者指定的尺寸和插屏背景图片
+- (id)initWithPublisherId:(NSString *)publisherId                   // Domob PublisherId
+       rootViewController:(UIViewController *)rootViewController    // 插屏广告使用的RootViewController
+                     size:(CGSize)adSize                            // 插屏广告的广告尺寸
+          backgroundImage:(UIImage *)image;                         // 插屏广告使用的自定义背景图片
+ 
+*/
 
 // 加载广告
 - (void)loadAd;
@@ -42,6 +74,10 @@
 
 // 设置用户性别
 - (void)setUserGender:(DMUserGenderType)userGender;
+
+// 加载指定URL的创意
+// format为"domob"或"mraid"
+- (void)loadCreativeWithCreativeFormat:(NSString *)format creativeURL:(NSString *)creativeURLStr size:(CGSize)adsize;
 @end
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

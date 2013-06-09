@@ -1,10 +1,7 @@
 //
 //  immobView.h
-//  
 //
-//  Created by si ruoxian on 12-6-1.
-//  Copyright (c) 2012年 __MyCompanyName__. All rights reserved.
-//
+//  Version 2.4.0 buildTime 130325
 
 #import <UIKit/UIKit.h>
 
@@ -48,14 +45,14 @@
 
 
 /**
- * Called when an ad is clicked and going to start a new page that will leave the application 
+ * Called when an ad is clicked and going to start a new page that will leave the application
  * 当广告调用一个新的页面并且会导致离开目前运行程序时被调用。如：调用本地地图程序。
  *
  */
 - (void) onLeaveApplication:(immobView *)immobView;
 
 /**
- * Called when an page is created in front of the app. 
+ * Called when an page is created in front of the app.
  * 当广告页面被创建并且显示在覆盖在屏幕上面时调用本方法。
  */
 - (void) onPresentScreen:(immobView *)immobView;

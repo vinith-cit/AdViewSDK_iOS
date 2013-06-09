@@ -67,7 +67,7 @@
     CGRect r = CGRectMake(0.0f, 0.0f, self.sSizeAd.width, self.sSizeAd.height);
     FtadBannerView* adfracta_view = [adfracta_view_class newFtadBannerViewWithPointAndSize:CGPointMake(0, 0) 
 																			  size:self.sSizeAd 
-																		adIdentify:@"adview_banner"
+																		adIdentify:@"AdView_Tool"
 																		  delegate:self];
 	
 	if (nil == adfracta_view) {
@@ -86,7 +86,7 @@
 	self.ftAdBanner = adfracta_view;
 	
 	Class FtadManager_Class = NSClassFromString(@"FtadManager");
-	self.ftAdManager = [[FtadManager_Class alloc] init];
+	self.ftAdManager = [[[FtadManager_Class alloc] init] autorelease];
 	//[self.ftAdManager setPublisherid:appID];
 	
 	self.ftAdManager.timeInterval = 0;
@@ -110,41 +110,16 @@
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([self.adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [self.adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = 0;
-				self.sSizeAd = AD_SIZE_320x48;
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = 0;
-				self.sSizeAd = AD_SIZE_320x270;
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = 0;
-				self.sSizeAd = AD_SIZE_488x80;
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = 0;
-				self.sSizeAd = AD_SIZE_768x116;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = 0;
-		self.sSizeAd = AD_SIZE_768x116;
-	} else {
-		self.nSizeAd = 0;
-		self.sSizeAd = AD_SIZE_320x48;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    CGSize sizeArr[] = {AD_SIZE_320x48,AD_SIZE_768x116,
+        AD_SIZE_320x48,AD_SIZE_320x270,
+        AD_SIZE_488x80,AD_SIZE_768x116};
+    
+    [self setSizeParameter:nil size:sizeArr];
 }
 
 - (void) dealloc

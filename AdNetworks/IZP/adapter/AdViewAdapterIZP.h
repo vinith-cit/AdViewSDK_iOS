@@ -9,7 +9,5 @@
 #import "IZPDelegate.h"
 
 @interface AdViewAdapterIZP : AdViewAdNetworkAdapter <IZPDelegate> {
-    NSTimer *timer;
 }
-- (void)loadAdTimeOut:(NSTimer*)theTimer;
 @end

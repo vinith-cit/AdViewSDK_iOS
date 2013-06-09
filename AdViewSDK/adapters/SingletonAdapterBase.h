@@ -22,11 +22,17 @@
 
 - (void)setAdapterValue:(BOOL)bSetOrClean ByAdapter:(AdViewAdNetworkAdapter*)adapter;
 
+/*
+ * For use of analyze of xcode, return one with +0 retain
+ */
 - (UIView*)getIdelAdView;
 - (void)addIdelAdView:(UIView*)view;
 - (BOOL)isTestMode;
 
-- (UIView*)createAdView;
+/*
+ * For use of analyze of xcode, return one with +0 retain
+ */
+- (UIView*)makeAdView;
 
 
 - (void)updateAdFrame:(UIView*)view;

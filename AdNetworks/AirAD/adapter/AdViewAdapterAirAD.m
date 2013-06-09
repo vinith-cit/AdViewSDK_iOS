@@ -15,7 +15,6 @@
 @interface AdViewAdapterAirAD (PIRVATE)
 
 - (NSString *)appId;
-- (BOOL)isTestMode;
 
 @end
 
@@ -82,35 +81,16 @@
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = 0;
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = 0;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = 0;
-	} else {
-		self.nSizeAd = 0;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    int flagArr[] = {0,0,
+        0,0,
+        0,0};
+    
+    [self setSizeParameter:flagArr size:nil];
 }
 
 - (void)dealloc {    
@@ -130,13 +110,6 @@
     
 	return apID;
 	//return @"123456789";
-}
-
-- (BOOL)isTestMode {
-	if ([adViewDelegate respondsToSelector:@selector(adViewTestMode)]) {
-		return [adViewDelegate adViewTestMode];
-	}
-	return NO;
 }
 
 #pragma mark AirADDelegate methods

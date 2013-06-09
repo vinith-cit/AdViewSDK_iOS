@@ -56,6 +56,6 @@ void _ADVLogDebug(NSString *format, ...);
 #define AWLogInfo(...) _ADVLogInfo(__VA_ARGS__)
 #endif
 
-#ifndef AWLogInfo
+#ifndef AWLogDebug
 #define AWLogDebug(...) _ADVLogDebug(__VA_ARGS__)
 #endif

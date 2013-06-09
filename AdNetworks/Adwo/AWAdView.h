@@ -1,127 +1,127 @@
 //
 //  AWAdView.h
-//  Copyright 2011 Adwo.com All rights reserved.
+//  AdwoSDK3.0
 //
+//  Created by zenny_chen on 12-8-17.
+//  Copyright (c) 2012年 zenny_chen. All rights reserved.
+//
+
 #import <UIKit/UIKit.h>
-#import <Foundation/Foundation.h>
-#import <MessageUI/MessageUI.h>
-#import <MediaPlayer/MPMoviePlayerViewController.h>
-#import <MediaPlayer/MPMoviePlayerController.h>
-#import <CoreLocation/CoreLocation.h>
 
+@class AWAdViewAttributes;
+@class AWAdView;
 
-@class AWTimer;
-@class AWAdDevice;
-@interface UIDevice (Hardware)
-+ (NSString *) getSysInfoByName:(char *)typeSpecifier;
-+ (NSString *) platform;
-@end
+#define ADWO_SPECIAL_SLOTID4APPFUN      -1
 
-
-enum ADWO_ADS_BANNER_SIZE_FOR_IPAD
+enum ADWO_ADSDK_AD_TYPE
 {
-    ADWO_ADS_BANNER_SIZE_FOR_IPAD_320x50 = 1 << 0,
-    ADWO_ADS_BANNER_SIZE_FOR_IPAD_640x100 = 1 << 1,
-    ADWO_ADS_BANNER_SIZE_FOR_IPAD_720x110 = 1 << 2
+    /** Banner types */
+    // For normal banner(320x50)
+    ADWO_ADSDK_AD_TYPE_NORMAL_BANNER = 1,
+    
+    // For banner on iPad
+    ADWO_ADSDK_AD_TYPE_BANNER_SIZE_FOR_IPAD_320x50 = 10,
+    ADWO_ADSDK_AD_TYPE_BANNER_SIZE_FOR_IPAD_720x110,
+    
+    /** Full-screen types */
+    ADWO_ADSDK_AD_TYPE_FULL_SCREEN = 100
 };
 
-@class AWAdView;
+enum ADWOSDK_SPREAD_CHANNEL
+{
+    ADWOSDK_SPREAD_CHANNEL_APP_STORE,
+    ADWOSDK_SPREAD_CHANNEL_91_STORE
+};
+
+enum ADWOSDK_AGGREGATION_CHANNEL
+{
+    ADWOSDK_AGGREGATION_CHANNEL_NONE,
+    ADWOSDK_AGGREGATION_CHANNEL_GUOHEAD,
+    ADWOSDK_AGGREGATION_CHANNEL_ADVIEW,
+    ADWOSDK_AGGREGATION_CHANNEL_MOGO,
+    ADWOSDK_AGGREGATION_CHANNEL_ADWHIRL,
+    ADWOSDK_AGGREGATION_CHANNEL_ADSAGE
+};
+
+enum ADWOSDK_REQUEST_ERRRO_CODE
+{
+    // Ad request
+    ADWOSDK_REQUEST_ERRRO_CODE_SERVER_BUSY = 0xe0,
+    ADWOSDK_REQUEST_ERRRO_CODE_NO_AD,
+    ADWOSDK_REQUEST_ERRRO_CODE_UNKNOWN_ERROR,
+    ADWOSDK_REQUEST_ERRRO_CODE_INEXIST_PID,
+    ADWOSDK_REQUEST_ERRRO_CODE_INACTIVE_PID,
+    ADWOSDK_REQUEST_ERRRO_CODE_REQUEST_DATA,
+    ADWOSDK_REQUEST_ERRRO_CODE_RECEIVED_DATA,
+    ADWOSDK_REQUEST_ERRRO_CODE_NO_AD_IP,
+    ADWOSDK_REQUEST_ERRRO_CODE_NO_AD_POOL,
+    ADWOSDK_REQUEST_ERRRO_CODE_NO_AD_LOW_RANK,
+    ADWOSDK_REQUEST_ERRRO_CODE_BUNDLE_ID,
+    
+    ADWOSDK_REQUEST_ERRRO_CODE_RESPONSE_ERROR,
+    ADWOSDK_REQUEST_ERRRO_CODE_NETWORK_CONNECT,
+    ADWOSDK_REQUEST_ERRRO_CODE_INVALID_REQUEST_URL,
+    
+    // Ad Load
+    ADWOSDK_REQUEST_ERRRO_CODE_AD_LOAD_ERROR
+};
+
 
 @protocol AWAdViewDelegate <NSObject>
 
-@required
-
-- (UIViewController*)viewControllerForPresentingModalView;
-
 @optional
 
-- (void)adViewDidFailToLoadAd:(AWAdView *)view;
-- (void)adViewDidLoadAd:(AWAdView *)view;
-- (void)willPresentModalViewForAd:(AWAdView *)view;
-- (void)didDismissModalViewForAd:(AWAdView *)view;
+- (void)adwoAdViewDidFailToLoadAd:(AWAdView*)adView;
+- (void)adwoAdViewDidLoadAd:(AWAdView*)adView;
+- (void)adwoFullScreenAdDismissed:(AWAdView*)adView;
+- (void)adwoDidPresentModalViewForAd:(AWAdView*)adView;
+- (void)adwoDidDismissModalViewForAd:(AWAdView*)adView;
 
 @end
 
-@interface AWAdView : UIView <UIWebViewDelegate,UIAlertViewDelegate>
+
+@interface AWAdView : UIView
 {
-    id <AWAdViewDelegate> _delegate;
+@private
     
-    BOOL _isLoading;
-    NSURLConnection *_conn;
-    NSURLConnection *_connDownloadPic;
-    NSURLConnection * _connBeconUrl;
-    NSURLConnection *_connNewUrl;
+    NSInteger adRequestTimeIntervel;
+    NSInteger adSlotID;
+    NSInteger errorCode;
+    NSObject<AWAdViewDelegate> *delegate;
+    enum ADWOSDK_SPREAD_CHANNEL spreadChannel;
     
-	AWTimer *_autorefreshTimer;
-    NSMutableData *_data;
-    NSMutableData *_dataPic;
-    NSMutableData *_fixData; 
-    NSMutableData *_dataUrl;
-    UIView *_adContentView;
-    UIView *_adTempView;
-    int _animationType;
-    BOOL _adActionInProgress;
-    BOOL _autorefreshTimerNeedsScheduling;
-    BOOL _ignoresAutorefresh;
-    CGSize _originalSize;
-    CGSize creativeSize;
-    NSMutableArray *_clickedAds; 
+@public
     
-    NSString *_adUnitId;         // 系统ID,  由开发者在adwo.com 注册获得, 16个字符，32字节
-    SInt8 _adIdType;             
-    SInt8 _adPayType;            // 计费方式  1：计费 或者 0：测试
-    SInt8 _adSizeForPad;
-    
-    int _adType;            
-    
-    int _adId;                   
-    unsigned short _lastDataLen; 
-    NSString * _clickURL;        
-    NSString *_realClickURL;     
-    int _clickType;     
-    SInt8 _adTextLen;            
-    NSString *_adTextContent;    
-    NSURL *_adPicDownLoadURL;       
-    NSURL *_adFSPicDwonLoadURL;        
-    short _beaconflag;           
-    NSURL *_beaconURL;           
-    UIColor * _fontColor;          // 字体颜色
-    
-    int _deviceType;    //设备名字
-    SInt8 _sysVertion;  
-    CLLocationManager *_locManager;
-    
-    float _adRequestTimeIntervel; //广告请求间隔时间 
-    int ant[3];     // 增加的3个接收字段（v2.4）
-    NSMutableArray*  _showBeacons; 
-    NSMutableArray*  _clickBeacons;  
-    NSMutableArray*  _controlBeacons;
-    BOOL isToCancelAll;
-    BOOL isSameAdClicked;
-    CGSize _websize;
-    CGSize _viewSize;
-    UIButton *button1;
-    NSString *_reUrl;
-    AWAdDevice *adDevice;
-    UIWebView *_webview;
+    AWAdViewAttributes *attrs;
 }
 
-@property (nonatomic,assign) id <AWAdViewDelegate> delegate;
-@property (nonatomic,assign) SInt8 adSizeForPad;
+// 广告请求时间间隔
+@property(assign, nonatomic) NSInteger adRequestTimeIntervel;
 
-@property (nonatomic,assign) float adRequestTimeIntervel;//广告请求间隔时间//
-@property (nonatomic,assign) bool userGpsEnabled; // 是否允许SDK获得用户位置信息
+// 广告位ID
+@property(assign, nonatomic) NSInteger adSlotID;
+
+// 主要推广渠道
+@property(assign, nonatomic) enum ADWOSDK_SPREAD_CHANNEL spreadChannel;
+
+// AWAdView代理
+@property(assign, nonatomic) NSObject<AWAdViewDelegate> *delegate;
+
+// 请求失败错误码
+@property(assign, nonatomic, readonly) NSInteger errorCode;
 
 
-- (id)initWithAdwoPid:(NSString *)unid adIdType:(SInt8)adIdType adTestMode:(SInt8) adTestMode adSizeForPad:(SInt8)adSizeForPad;
+- (id)initWithAdwoPid:(NSString *)pid adTestMode:(BOOL)isReleaseMode;
 
-- (void)loadAd;
+- (BOOL)loadAd:(enum ADWO_ADSDK_AD_TYPE)adType;
+
+- (BOOL)showFullScreenAd:(UIView*)baseView orientation:(UIInterfaceOrientation)currOrientation;
+- (void)orientationChanged:(UIInterfaceOrientation)orientation;
 
 - (void)pauseAd;
 
 - (void)resumeAd;
 
-- (void)killTimer;
-
 @end
+
 

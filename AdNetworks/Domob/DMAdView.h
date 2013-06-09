@@ -54,6 +54,12 @@ typedef enum
 // 设置用户性别
 - (void)setUserGender:(DMUserGenderType)userGender;
 
+// 加载指定URL的创意
+// format为"domob"或"mraid"
+- (void)loadCreativeWithCreativeFormat:(NSString *)format andCreativeURL:(NSString *)creativeURLStr;
+- (void)loadCreativeWithCreativeFormat:(NSString *)format creativeURL:(NSString *)creativeURLStr size:(CGSize)adsize;
+// 通知AdView，设备方向改变。如果你需要AdView自动调整自身属性来支持方向改变，你需要在App方向改变时调用该方法。
+- (void)rotateToOrientation:(UIInterfaceOrientation)newOrientation;
 @end
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +70,8 @@ typedef enum
 - (void)dmAdViewSuccessToLoadAd:(DMAdView *)adView;
 // 加载广告失败后，回调该方法
 - (void)dmAdViewFailToLoadAd:(DMAdView *)adView withError:(NSError *)error;
-
+// 当广告视图被点击时，回调该方法
+- (void)dmAdViewDidClicked:(DMAdView *)adView;
 // 当将要呈现出 Modal View 时，回调该方法。如打开内置浏览器。
 - (void)dmWillPresentModalViewFromAd:(DMAdView *)adView;
 // 当呈现的 Modal View 被关闭后，回调该方法。如内置浏览器被关闭。

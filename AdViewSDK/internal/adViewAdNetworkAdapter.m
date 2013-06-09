@@ -19,11 +19,13 @@
 */
 
 #import "AdViewAdNetworkAdapter.h"
+#import "AdViewAdNetworkAdapter+Helpers.h"
 #import "AdViewViewImpl.h"
 #import "AdViewConfig.h"
 #import "AdViewAdNetworkConfig.h"
 #import "AdViewLog.h"
 #import "AdViewAdNetworkRegistry.h"
+#import <QuartzCore/QuartzCore.h>
 
 BOOL isForeignAd(AdViewAdNetworkType type)
 {
@@ -52,11 +54,16 @@ static NSTimeInterval gDummyTimeInterval = 15.0f;
 
 @synthesize bWaitAd;
 
+@synthesize bGotView = _bGotView;
+
 @synthesize nSizeAd;
 @synthesize rSizeAd;
 @synthesize sSizeAd;
 
 @synthesize dummyHackTimer;
+@synthesize actAdView;
+
+@synthesize nAdWaitFlag, nAdBlockFlag;
 
 - (id)initWithAdViewDelegate:(id<AdViewDelegate>)delegate
                          view:(AdViewView *)view
@@ -94,11 +101,6 @@ static NSTimeInterval gDummyTimeInterval = 15.0f;
 
 - (BOOL)isBannerAnimationOK:(AWBannerAnimationType)animType {
   return YES;
-}
-
-- (void)updateSizeParameter {
-	self.nSizeAd = 0;
-	self.rSizeAd = CGRectMake(0, 0, 320.0f, 50.0f);
 }
 
 - (void) setupDummyHackTimer:(NSTimeInterval)interval
@@ -140,6 +142,16 @@ static NSTimeInterval gDummyTimeInterval = 15.0f;
 	[self cleanupDummyHackTimer];		//this timer will retain self.
 }
 
+- (BOOL) canClearDelegate {      //can set adViewView and adViewDelegate as nil.
+    return (AdViewAdNetworkBlockFlag_None == self.nAdBlockFlag);
+}
+
+//can being delegate even more than one instances being delegate.
+- (BOOL) canMultiBeingDelegate
+{
+    return YES;
+}
+
 - (void)dealloc {
   [self stopBeingDelegate];
   adViewDelegate = nil;
@@ -148,6 +160,70 @@ static NSTimeInterval gDummyTimeInterval = 15.0f;
   [networkConfig release], networkConfig = nil;
   [adNetworkView release], adNetworkView = nil;
   [super dealloc];
+}
+
+#pragma mark util method for adapter
+- (void)updateSizeParameter {
+	self.nSizeAd = 0;
+	self.rSizeAd = CGRectMake(0, 0, 320, 50);
+    self.sSizeAd = CGSizeMake(320, 50);
+}
+
+//get index of size in size parameter array.
+- (int)getSizeIndex {
+	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
+	int	nSizeId = AdviewBannerSize_Auto;
+	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
+		nSizeId = [adViewDelegate PreferBannerSize];
+	}
+    if (isIPad && AdviewBannerSize_Auto == nSizeId) ++nSizeId;
+    return nSizeId;
+}
+
+- (void)setSizeParameter:(int*)flags size:(CGSize*)sizes {
+	int nSizeId = [self getSizeIndex];
+    
+    if (nil != flags) self.nSizeAd = flags[nSizeId];
+    if (nil != sizes) self.sSizeAd = sizes[nSizeId];
+    self.rSizeAd = CGRectMake(0,0,self.sSizeAd.width,self.sSizeAd.height);
+}
+
+- (void)setSizeParameter:(int*)flags rect:(CGRect*)rects {
+	int nSizeId = [self getSizeIndex];
+    
+    if (nil != flags) self.nSizeAd = flags[nSizeId];
+    if (nil != rects) self.rSizeAd = rects[nSizeId];
+    self.sSizeAd = self.rSizeAd.size;
+}
+
+/**
+ * Get image of act ad view, add to show, and remove act ad view.
+ */
+- (void)getImageOfActAdViewForRemove {
+    if (nil == self.actAdView) return;
+
+    UIGraphicsBeginImageContext(self.actAdView.bounds.size);
+    [self.actAdView.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage *viewImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    UIImageView *iv = [[UIImageView alloc] initWithImage:viewImage];
+    [self.adNetworkView addSubview:iv];
+    [iv release];
+    [self.actAdView removeFromSuperview];
+}
+
+/**
+ * Added act ad view by a contain view as adNetWorkView.
+ */
+- (void)addActAdViewInContain:(UIView*)actView rect:(CGRect)rect
+{
+    [actView setFrame:rect];
+    UIView *view1 = [[UIView alloc] initWithFrame:rect];
+    [view1 addSubview:actView];
+	self.adNetworkView = view1;
+    self.actAdView = actView;
+    [view1 release];
 }
 
 @end

@@ -5,14 +5,16 @@
  */
 
 #import "AdViewAdNetworkAdapter.h"
-#import "mobiSageSDK.h"
+#import "MobiSageSDK.h"
 
 /**/
 
-@interface AdViewAdapterMobiSage : AdViewAdNetworkAdapter {
+@interface AdViewAdapterMobiSage : AdViewAdNetworkAdapter<MobiSageAdViewDelegate> {
 @private
     UIView* adViewInternal;
     UIView* mobiSageAdView;
+    
+    NSThread *adThread_;
 }
 
 + (AdViewAdNetworkType)networkType;

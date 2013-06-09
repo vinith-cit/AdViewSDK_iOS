@@ -1,257 +1,175 @@
+//
+//  IMAdRequest.h
+//  InMobi AdNetwork SDK
+//
+//  Copyright 2013 InMobi Technology Services Ltd. All rights reserved.
+//
 
+#import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
-#import <CoreLocation/CoreLocation.h>
 
 /**
- * IMAdRequest.h
- * @description Specifies optional parameters for ad requests.
- * @author: InMobi
- * Copyright (c) 2012 InMobi Pte Limited. All rights reserved.
+ * User Gender.
  */
-
-@interface IMAdRequest : NSObject
-
-/**
- * The Gender type
- */
-typedef enum
-{
-    /**
-     * Gender type none.
-     */
-	G_None,
-    /**
-     * Gender type male.
-     */
-	G_M,
-    /**
-     * Gender type female
-     */
-	G_F
-} GenderType;
+typedef enum {
+    kIMGenderNone,
+    kIMGenderMale,
+    kIMGenderFemale,
+} IMGenderType;
 
 /**
- * The Ethnicity type.
+ * User Ethnicity.
  */
-typedef enum
-{
-    /**
-     * Ethnicity type none.
-     */
-	Eth_None,
-    /**
-     * Ethnicity type Mixed.
-     */
-	Eth_Mixed,
-    /**
-     * Ethnicity type Asian.
-     */
-	Eth_Asian,
-    /**
-     * Ethnicity type Black.
-     */
-	Eth_Black,
-    /**
-     * Ethnicity type Hispanic.
-     */
-	Eth_Hispanic,
-    /**
-     * Ethnicity type American.
-     */
-	Eth_NativeAmerican,
-    /**
-     * Ethnicity type White.
-     */
-	Eth_White,
-    /**
-     * Ethnicity type Others.
-     */
-	Eth_Other
-} EthnicityType;
+typedef enum {
+    kIMEthnicityNone,
+    kIMEthnicityMixed,
+    kIMEthnicityAsian,
+    kIMEthnicityBlack,
+    kIMEthnicityHispanic,
+    kIMEthnicityNativeAmerican,
+    kIMEthnicityWhite,
+    kIMEthnicityOther,
+} IMEthnicityType;
 
 /**
- * The Education type.
+ * User Education.
  */
-typedef enum
-{
-    /**
-     * Education type None.
-     */
-	Edu_None, 
-    /**
-     * Education type High School.
-     */
-	Edu_HighSchool,
-    /**
-     * Education type In College.
-     */
-	Edu_InCollege,
-    /**
-     * Education type Bachelors Degree.
-     */
-	Edu_BachelorsDegree,
-    /**
-     * Education type Masters.
-     */
-	Edu_MastersDegree,
-    /**
-     * Education type PhD.
-     */
-	Edu_DoctoralDegree,
-    /**
-     * Education type Others.
-     */
-	Edu_Other
-    
-} EducationType;
+typedef enum {
+    kIMEducationNone,
+    kIMEducationHighSchool,
+    kIMEducationInCollege,
+    kIMEducationBachelorsDegree,
+    kIMEducationMastersDegree,
+    kIMEducationDoctoralDegree,
+    kIMEducationOther,
+} IMEducationType;
+
 /**
- * The IMIDType enum.
+ * User ids may be provided to deliver more relevant ids.
  */
-typedef enum
-{
+typedef enum {
     /**
-     * The login value for IMIDType.
+     * User login id such as facebook, twitter, etc.
      */
-    ID_LOGIN,
+    kIMLoginID,
     /**
-     * The session value for IMIDType.
+     * This is useful for maintaining different sessions with same login id.
      */
-    ID_SESSION
-    
+    kIMSessionID,
 } IMIDType;
 
 /**
- * Device ID Type
+ IMAdRequest class specifies optional targetting parameters that may be
+ specified for an ad request. These parameters will be useful to deliver more relevant ads.
  */
-typedef enum 
-{
-    /**
-     * Device ID type None
-     */
-    DeviceID_NONE   = 1 << 0,
-    /**
-     * Device ID type ODIN1
-     */
-    DeviceID_ODIN1  = 1 << 1,
-    /**
-     * Device ID type UDID
-     */
-    DeviceID_UDID =   1 << 2
-    
-} DeviceIDMask;
+@interface IMAdRequest : NSObject {
+
+}
 
 /**
- * Returns an auto-released IMAdRequest instance.
+ * Returns an autoreleased IMAdRequest instance.
  */
-+ (id)request;
++ (IMAdRequest *)request;
 
-#pragma Optional properties to be specified for targeted advertising during an ad request.
-
+#pragma mark Optional Parameters for targeted advertising during an Ad Request
+/**
+ * Gender of the user may be used to deliver more relevant ads.
+ */
+@property (nonatomic, assign) IMGenderType gender;
+/**
+ * Educational qualification of user may be used to deliver more relevant ads.
+ */
+@property (nonatomic, assign) IMEducationType education;
+/**
+ * Ethnicity of the user may be used to deliver more relevant ads.
+ */
+@property (nonatomic, assign) IMEthnicityType ethnicity;
+/**
+ * Date of birth of the user may be used to deliver more relevant ads.
+ */
+@property (nonatomic, retain) NSDate *dateOfBirth;
+- (void)setDateOfBirthWithMonth:(NSUInteger)m day:(NSUInteger)d
+                           year:(NSUInteger)y;
+/**
+ * Optional, if the user has specified income.
+ * @note Income should be in USD.
+ */
+@property (nonatomic, assign) NSUInteger income;
+/**
+ * Age of the user may be used to deliver more relevant ads.
+ */
+@property (nonatomic, assign) NSUInteger age;
 /**
  * Postal code of the user may be used to deliver more relevant ads.
  */
-@property( nonatomic,copy) NSString *postalCode; 
+@property (nonatomic, copy) NSString *postalCode;
 /**
  * Area code of the user may be used to deliver more relevant ads.
  */
-@property( nonatomic,copy) NSString *areaCode;
-/**
- * Date of birth of the user may be used to deliver more relevant ads.
- * @note - The date should be of the format dd-mm-yyyy.
- */
-@property( nonatomic,copy) NSString *dateOfBirth; 
-/**
- * Gender of the user may be used to deliver more relevant ads.
- * @note - Look for the IMAdRequest.h class to set the relevant values. 
- */
-@property( nonatomic,assign) GenderType gender; 
+@property (nonatomic, copy) NSString *areaCode;
+
+#pragma mark Setting Contextual Information
 /**
  * Use contextually relevant strings to deliver more relevant ads.
  * Example: @"offers sale shopping"
  */
-@property( nonatomic,copy) NSString *keywords;
-/**
- * Search string provided by the user. Example: @"Hotel Bangalore India"
- */
-@property( nonatomic,copy) NSString *searchString;
-/**
- * Optional, if the user has specified income.
- * @note - Income should be in USD.
- */
-@property( nonatomic,assign) NSUInteger income; 
-/**
- * Educational qualification of the user may be used to deliver more relevant ads.
- */
-@property( nonatomic,assign) EducationType education;		
-/**
- * Ethnicity of the user may be used to deliver more relevant ads.
- * @note - Look for the IMAdRequest.h class to set the relevant values.
- */
-@property( nonatomic,assign) EthnicityType ethnicity;
-/**
- * Age of the user may be used to deliver more relevant ads.
- * @note - Look for the IMAdRequest.h class to set the relevant values. 
- */
-@property( nonatomic,assign) NSUInteger age;
+@property (nonatomic, copy) NSString *keywords;
 /**
  * Use contextually relevant strings to deliver more relevant ads.
  * Example: @"cars bikes racing"
  */
-@property( nonatomic,copy) NSString *interests;
+@property (nonatomic, copy) NSString *interests;
 /**
  * Provide additional values to be passed in the ad request as key-value pair.
  */
 @property (nonatomic, retain) NSDictionary *paramsDictionary;
+
+#pragma mark Setting User Location
 /**
- * Set testMode to YES for receiving test ads.
- * @note - Default value is NO.
- */
-@property ( nonatomic , assign) BOOL testMode;
-/**
- * Use this property to set the user's current location to deliver more relevant ads.
- * Disclaimer: Do not use Core Location just for advertising. Ensure that it is used
- * in your app for more constructive reasons as well. It is both a good idea and part of
+ * Use this to set the user's current location to deliver more relevant ads.
+ * However do not use Core Location just for advertising, make sure it is used
+ * for more beneficial reasons as well.  It is both a good idea and part of
  * Apple's guidelines.
  */
-@property (nonatomic,retain) CLLocation *location;
+- (void)setLocationWithLatitude:(CGFloat)latitude
+                      longitude:(CGFloat)longitude
+                       accuracy:(CGFloat)accuracyInMeters;
 /**
  * Provide user's city in the format "city-state-country" for
  * city-level targetting.
  */
-- (void)setLocationWithCity:(NSString *)_city state:(NSString *)_state country:(NSString *)_country;
-/**
- * The login ID value.
- */
-@property (nonatomic, copy) NSString *loginID;
-/**
- * The session ID value.
- */
-@property (nonatomic, copy) NSString *sessionID;
-/**
- * The Device ID Mask.
- */
-@property (nonatomic, assign) DeviceIDMask deviceIDMask;
+- (void)setLocationWithCity:(NSString *)_city
+                      state:(NSString *)_state
+                    country:(NSString *)_country;
 
+#pragma mark Setting User IDs
 /**
- * Set the IMIDType with the given value.
- * @param idType - The IMIDType to set.
- * @param value - The value of IMIDType.
+ * Use this to set user ids such as facebook, twitter etc to deliver more
+ * relevant ads.
+ *
+ * @param idType id type.
+ * @param idValue id value.
  */
-- (void) addIDType:(IMIDType)idType withValue: (NSString *)value;
-
+- (void)addIDType:(IMIDType)idType withValue:(NSString *)idValue;
 /**
- * @param idType - The IMIDType to remove.
- * This callback fails silently if no value is found.
+ * Use this to remove the user ids which was set before. This fails silently if
+ * the id type was not set before.
+ *
+ * @param idType id type to remove.
  */
 - (void)removeIDType:(IMIDType)idType;
-
 /**
- * @param idType - The idType for which the value should be returned.
- * @return - The value corresponing to this idType. Else returns null.
+ * This returns the id value for given type. Returns nil, if it's not set.
+ *
+ * @param idType id type.
+ * @return id value.
  */
 - (NSString *)getIDType:(IMIDType)idType;
+
+#pragma mark --Deprecated methods
 /**
- * For internal purposes only.
+ * @warning This property is deprecated.Please see http://developer.inmobi.com for additional details.
  */
-@property (nonatomic, copy) NSString *cityLocation;
+@property (nonatomic, assign) BOOL testMode;
+
 @end

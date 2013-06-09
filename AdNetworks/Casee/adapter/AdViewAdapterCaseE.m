@@ -71,35 +71,16 @@
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.nSizeAd = caseeAdSizeIdentifier_320x48;
-				break;
-			case AdviewBannerSize_300x250:
-				self.nSizeAd = caseeAdSizeIdentifier_300x250;
-				break;
-			case AdviewBannerSize_480x60:
-				self.nSizeAd = caseeAdSizeIdentifier_364x60;
-				break;
-			case AdviewBannerSize_728x90:
-				self.nSizeAd = caseeAdSizeIdentifier_728x90;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.nSizeAd = caseeAdSizeIdentifier_728x90;
-	} else {
-		self.nSizeAd = caseeAdSizeIdentifier_320x48;
-	}
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    int flagArr[] = {CaseeAdSizeIdentifier_320x50,CaseeAdSizeIdentifier_728x90,
+        CaseeAdSizeIdentifier_320x50,CaseeAdSizeIdentifier_300x250,
+        CaseeAdSizeIdentifier_364x60,CaseeAdSizeIdentifier_728x90};
+    
+    [self setSizeParameter:flagArr size:nil];
 }
 
 - (void)dealloc {
@@ -155,7 +136,7 @@
 - (void)adView:(CaseeAdView *)adView failedWithError:(NSError *)error
 {
     AWLogInfo(@"adview failed with error: %@", error);
-	[adViewView adapter:self didFailAd:nil];
+	[adViewView adapter:self didFailAd:error];
 	
 	self.bWaitAd = NO;
 }
@@ -187,7 +168,7 @@
  * Specify whether this is in test(development) mode or production mode. Default is NO.
  */ 
 - (BOOL)isTestMode {
-    return YES;
+	return [super isTestMode];
 }
 
 /**

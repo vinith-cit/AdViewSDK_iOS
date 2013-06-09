@@ -5,15 +5,9 @@
 //  Created by jaygao on 11-9-8.
 //  Copyright 2011年 Baidu. All rights reserved.
 //
+//  Baidu Mobads SDK Version 3.0
+//
 
-/**
- *  广告banner类型
- */
-typedef enum  {
-    BaiduMobAdViewTypeText = 1,
-    BaiduMobAdViewTypeImage = 2,
-    
-} BaiduMobAdViewType ;
 
 /**
  *  性别类型
@@ -56,6 +50,12 @@ typedef enum _BaiduMobFailReason
  *  应用在mounion.baidu.com上的计费名
  */
 - (NSString*) appSpec;
+
+/**
+ *  渠道id
+ */
+- (NSString*) channelId;
+
 
 @optional
 /**

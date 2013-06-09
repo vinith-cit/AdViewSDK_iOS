@@ -54,6 +54,7 @@
 			[darts addObject:[NSNumber numberWithDouble:[dartstr doubleValue]]];
 		}
 		self.adView.testDarts = darts;
+        [darts release];
 	}
 }
 
@@ -152,14 +153,8 @@
 
   UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
   if (cell == nil) {
-    if ([UITableViewCell instancesRespondToSelector:@selector(initWithStyle:reuseIdentifier:)]) {
-      // iPhone SDK 3.0
+
       cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId] autorelease];
-    }
-    else {
-      // iPhone SDK 2.2.1
-      cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:cellId] autorelease];
-    }
     if (cellId == AdCellIdentifier) {
       [cell.contentView addSubview:adView];
     }
@@ -308,11 +303,11 @@
   replacement.backgroundColor = [UIColor blackColor];
   replacement.textColor = [UIColor whiteColor];
   replacement.textAlignment = UITextAlignmentCenter;
-  replacement.text = [NSString stringWithFormat:@"Event performed, view %x", adViewView];
+  replacement.text = [NSString stringWithFormat:@"Event performed, view %@", adViewView];
   [adViewView replaceBannerViewWith:replacement];
   [replacement release];
   [self adjustAdSize];
-  self.label.text = [NSString stringWithFormat:@"Event performed, view %x", adViewView];
+  self.label.text = [NSString stringWithFormat:@"Event performed, view %@", adViewView];
 }
 
 @end

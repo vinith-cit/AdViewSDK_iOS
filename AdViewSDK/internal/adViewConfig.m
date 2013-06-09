@@ -78,6 +78,8 @@ BOOL advDoubleVal(double *var, id val) {
 @synthesize fetchBlockMode;
 @synthesize fetchType;
 
+@synthesize needParse = _needParse;
+
 #pragma mark -
 
 + (BOOL)isDeviceForeign {
@@ -144,6 +146,7 @@ BOOL advDoubleVal(double *var, id val) {
 }
 
 - (BOOL)addDelegate:(id<AdViewConfigDelegate>)delegate {
+  if (nil == delegate) return NO;
   for (NSValue *w in delegates) {
     id<AdViewConfigDelegate> existing = [w nonretainedObjectValue];
     if (existing == delegate) {
@@ -206,12 +209,12 @@ BOOL advDoubleVal(double *var, id val) {
   id bgColor = [configDict objectForKey:@"background_color_rgb"];
   if (bgColor != nil && [bgColor isKindOfClass:[NSDictionary class]]) {
     [backgroundColor release];
-    backgroundColor = [UIColorHelper initWithDict:(NSDictionary *)bgColor];
+    backgroundColor = [[UIColorHelper initWithDict:(NSDictionary *)bgColor] retain];
   }
   id txtColor = [configDict objectForKey:@"text_color_rgb"];
   if (txtColor != nil && [txtColor isKindOfClass:[NSDictionary class]]) {
     [textColor release];
-    textColor = [UIColorHelper initWithDict:txtColor];
+    textColor = [[UIColorHelper initWithDict:txtColor] retain];
   }
   id tempVal;
   tempVal = [configDict objectForKey:@"refresh_interval"];
@@ -577,6 +580,7 @@ BOOL advDoubleVal(double *var, id val) {
         AWLogWarn(@"Cannot create ad network config from %@: %@", c,
                   adNetConfigError != nil? [adNetConfigError localizedDescription]:@"");
 		  if (!bIsLangMatch) AWLogWarn(@"for ad country code not match");
+          [adNetConfig release];
       }
     }
   }
@@ -593,7 +597,8 @@ BOOL advDoubleVal(double *var, id val) {
 
 - (BOOL)parseConfig:(NSData *)data error:(NSError **)error {
   if (hasConfig) {
-    *error = [AdViewError errorWithCode:AdViewConfigDataError
+    if (nil != error)
+      *error = [AdViewError errorWithCode:AdViewConfigDataError
                              description:@"Already has config, will not parse"];
     return NO;
   }

@@ -11,29 +11,23 @@
 #import "AdViewLog.h"
 #import "AdViewAdNetworkAdapter+Helpers.h"
 #import "AdViewAdNetworkRegistry.h"
-#import "WQAdSDK.h"
-#import "SingletonAdapterBase.h"
+
+#import <QuartzCore/QuartzCore.h>
 
 #define NEED_IN_REALVIEW 0
 
-@interface AdViewAdapterWQImpl : SingletonAdapterBase <WQAdProtocol> 
+#define WQMOB_SIZE_320x50 CGSizeMake(320,50)
 
-- (void)InitSettingXML;
 
+@interface AdViewAdapterWQ (PRIVATE)
+
+- (UIView *)makeAdView;
 - (NSString *)appId;
 - (NSString *)publisherId;
 
 @end
 
-static BOOL		gNeedInitSettingXML = YES;
-
-static AdViewAdapterWQImpl *gWQImpl = nil;
-
 @implementation AdViewAdapterWQ
-
-+ (void)setNeedInitSettingXMLFile {
-	gNeedInitSettingXML = YES;
-}
 
 + (AdViewAdNetworkType)networkType {
 	return AdViewAdNetworkTypeWQ;
@@ -54,141 +48,79 @@ static AdViewAdapterWQImpl *gWQImpl = nil;
 		return;
 	}
 	
-	if (nil == gWQImpl) gWQImpl = [[AdViewAdapterWQImpl alloc] init];
-	[gWQImpl setAdapterValue:YES ByAdapter:self];
-	
-	WQAdView *wqBanner = (WQAdView*)[gWQImpl getIdelAdView];
+	WQAdView *wqBanner = (WQAdView*)[[self makeAdView] retain];
 	if (nil == wqBanner) {
 		[adViewView adapter:self didFailAd:nil];
 		return;
 	}
-	
-	self.adNetworkView = wqBanner;
+    
+    CGRect r = CGRectMake(0, 0, self.sSizeAd.width, self.sSizeAd.height);
+    wqBanner.delegate = self;
+    [wqBanner performSelector:@selector(setAdPlatform:AdPlatformVersion:)
+                   withObject:ADVIEW_WQ_TAG
+                   withObject:ADVIEW_VERSION_STR];
+    [self addActAdViewInContain:wqBanner rect:r];
+    
 #if NEED_IN_REALVIEW
 	if ([adViewDelegate respondsToSelector:@selector(viewControllerForPresentingModalView)])
 	{
 		UIViewController *controller = [adViewDelegate viewControllerForPresentingModalView];
 		if (nil != controller && nil != controller.view)
 		{
-			[controller.view addSubview:wqBanner];
-			wqBanner.frame = CGRectMake(0, 0, 320, 48);
-			wqBanner.hidden = YES;
+			[controller.view addSubview:self.adNetworkView];
+			self.adNetworkView.hidden = YES;
 		}
 	}
 #endif
-	[adViewView adapter:self shouldAddAdView:wqBanner];
-	[wqBanner startRequestAd];	
-	[wqBanner release];
+    
+	 [wqBanner startWithAdSlotID:[self appId] AccountKey:[self publisherId] InViewController:
+     [self.adViewDelegate viewControllerForPresentingModalView]];
+	 [wqBanner release];
+     AWLogInfo(@"WQ getad");
 }
 
 - (void)stopBeingDelegate {
-	WQAdView *wqBanner = (WQAdView *)self.adNetworkView;
-	AWLogInfo(@"WQ stop being delegate");
-	[gWQImpl setAdapterValue:NO ByAdapter:self];
+	WQAdView *wqBanner = (WQAdView *)self.actAdView;
+    AWLogInfo(@"WQ stop being delegate");
 	if (wqBanner != nil) {
-		[gWQImpl addIdelAdView:wqBanner];
-		self.adNetworkView = nil;
+        if (!self.bGotView) [self.adNetworkView removeFromSuperview];
+        else [self getImageOfActAdViewForRemove];
+        
+		wqBanner.delegate = nil;
+        self.actAdView = nil;
+        self.adNetworkView = nil;
 	}
+}
+
+//For wq's delegate is retain property, should release here.
+- (void)cleanupDummyRetain {
+    [super cleanupDummyRetain];
+    
+    AWLogInfo(@"WQ cleanupDummyRetain");
+    WQAdView *wqBanner = (WQAdView *)self.actAdView;
+    wqBanner.delegate = nil;
 }
 
 - (void)updateSizeParameter {
-	BOOL isIPad = [AdViewAdNetworkAdapter helperIsIpad];
-	
-	AdviewBannerSize	sizeId = AdviewBannerSize_Auto;
-	if ([adViewDelegate respondsToSelector:@selector(PreferBannerSize)]) {
-		sizeId = [adViewDelegate PreferBannerSize];
-	}
-	
-	if (sizeId > AdviewBannerSize_Auto) {
-		switch (sizeId) {
-			case AdviewBannerSize_320x50:
-				self.sSizeAd = WQMOB_SIZE_320x48;
-				break;
-			case AdviewBannerSize_300x250:
-				self.sSizeAd = WQMOB_SIZE_320x48;
-				break;
-			case AdviewBannerSize_480x60:
-				self.sSizeAd = WQMOB_SIZE_320x48;
-				break;
-			case AdviewBannerSize_728x90:
-				self.sSizeAd = WQMOB_SIZE_320x48;
-				break;
-			default:
-				break;
-		}
-	} else if (isIPad) {
-		self.sSizeAd = WQMOB_SIZE_320x48;
-	} else {
-		self.sSizeAd = WQMOB_SIZE_320x48;
-	}
-}
-
-- (void)dealloc {
-	[super dealloc];
-}
-
-@end
-
-@implementation AdViewAdapterWQImpl
-
-
-#pragma mark util
-
-- (void)InitSettingXML {
-#if 1	//specific sdk will not use AppSettings.xml file.
-	Class WQAdSDKClass = NSClassFromString (@"WQAdSDK");
-	if (nil == WQAdSDKClass) return;
-	[WQAdSDKClass init:[self appId] withPubID:[self publisherId]
-  withRefreshRate:30
-	   isTestMode:[self isTestMode]];
-#else
-	NSString *fmtStr = @"<AppSettings>\n"
-	"<AppID>%@</AppID>\n"
-	"<PublisherID>%@</PublisherID>\n"
-	"<URL>http://www.adview.cn/wqmobile</URL>\n"
-	"<AppStoreURL><![CDATA[http://itunes.apple.com/jp/app/happybird]]></AppStoreURL>\n" 
-	"<UseLocationInfo>N</UseLocationInfo>\n"
-	"<RefreshRate>10</RefreshRate>\n" 
-	"<TestMode>%@</TestMode>\n"
-	"<NextADCount>3</NextADCount>\n" 
-	"<LoopTimes>2</LoopTimes>\n"
-	"<OfflineADCount>3</OfflineADCount>\n" 
-	"<OfflineADSurvivalDays>1</OfflineADSurvivalDays>\n" 
-	"<UseEmbeddedBrowser>Y</UseEmbeddedBrowser>\n"
-	"<PreferIncome>Y</PreferIncome>\n"			
-	"<StretchStrategy>stretch</StretchStrategy>\n"
-	"<BackgroundColor>ffffff</BackgroundColor>\n"
-	"<TextColor>000000</TextColor>\n"
-	"<Width>320</Width>\n"
-	"<Height>48</Height>\n" 
-	"<TopLeft-x>0</TopLeft-x>\n"
-	"<TopLeft-y>0</TopLeft-y>\n"
-	"<BackgroundTransparency>0.8</BackgroundTransparency>\n"
-	"</AppSettings>";
-	
-	NSString *testModeStr = [self isTestMode]?@"Y":@"N";
-	NSString *settingStr = [[NSString alloc] initWithFormat:fmtStr, [self appId],
-							[self publisherId], testModeStr];
-	
-	//NSBundle *bundle = [NSBundle mainBundle];
-	//NSString *dir = [bundle bundlePath];
-	NSString *dir = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
-	AWLogInfo(@"App path:%@", dir);
-	
-	NSString* xmlPath = [dir stringByAppendingPathComponent:@"AppSettings.xml"];
-	
-	[settingStr writeToFile:xmlPath atomically:YES encoding:NSUTF8StringEncoding error:nil];
-	[settingStr release];
-#endif
+    /*
+     * auto for iphone, auto for ipad,
+     * 320x50, 300x250,
+     * 480x60, 728x90
+     */
+    CGSize sizeArr[] = {WQMOB_SIZE_320x50,WQMOB_SIZE_320x50,
+        WQMOB_SIZE_320x50,WQMOB_SIZE_320x50,
+        WQMOB_SIZE_320x50,WQMOB_SIZE_320x50};
+    
+    [self setSizeParameter:nil size:sizeArr];
 }
 
 - (NSString *)appId {
 	NSString *apID;
-	if ([mAdapter.adViewDelegate respondsToSelector:@selector(WQAppIDString)]) {
-		apID = [mAdapter.adViewDelegate WQAppIDString];
+	if ([self.adViewDelegate respondsToSelector:@selector(WQAppIDString)]) {
+		apID = [self.adViewDelegate WQAppIDString];
 	}
 	else {
-		apID = mAdapter.networkConfig.pubId;
+		apID = self.networkConfig.pubId;
 	}
     
 	return apID;
@@ -197,11 +129,11 @@ static AdViewAdapterWQImpl *gWQImpl = nil;
 
 - (NSString*)publisherId {
 	NSString *idStr;
-	if ([mAdapter.adViewDelegate respondsToSelector:@selector(WQPublisherIDString)]) {
-		idStr = [mAdapter.adViewDelegate WQPublisherIDString];
+	if ([self.adViewDelegate respondsToSelector:@selector(WQPublisherIDString)]) {
+		idStr = [self.adViewDelegate WQPublisherIDString];
 	}
 	else {
-		idStr = mAdapter.networkConfig.pubId2;
+		idStr = self.networkConfig.pubId2;
 	}
     
 	return idStr;
@@ -209,62 +141,80 @@ static AdViewAdapterWQImpl *gWQImpl = nil;
 
 //PublisherID
 
+- (void)dealloc {
+	[super dealloc];
+}
 
-- (UIView*)createAdView {
+
+#pragma mark util
+
+
+- (UIView*)makeAdView {
 	Class WQAdViewClass = NSClassFromString (@"WQAdView");
 	
 	if (nil == WQAdViewClass) {
-		[mAdapter.adViewView adapter:mAdapter didFailAd:nil];
+		[self.adViewView adapter:self didFailAd:nil];
 		AWLogInfo(@"no WQMobile lib support, can not create.");
 		return nil;
 	}
-	
-	if (gNeedInitSettingXML) {
-		//gNeedInitSettingXML = NO;
-		
-		[self InitSettingXML];
-	}
-	[mAdapter updateSizeParameter];
-	CGRect rect = CGRectMake(0, 0, mAdapter.sSizeAd.width, mAdapter.sSizeAd.height);
-	WQAdView *wqBanner = [[WQAdViewClass requestAdOfRect:rect withDelegate:self] retain];
-	return wqBanner;
+	[self updateSizeParameter];
+	//CGRect rect = CGRectMake(0, 0, self.sSizeAd.width, self.sSizeAd.height);
+	WQAdView *wqBanner = [[WQAdViewClass alloc] init];
+	return [wqBanner autorelease];
 }
 
 
 #pragma mark WQDelegate methods
 
--(void) didReceivedAd:(WQAdView*) adView {
+//广告视图将要关闭
+- (void)onWQAdDismiss:(WQAdView *)adview {
+	AWLogInfo(@"wqmobile onWQAdDismiss");
+}
+
+//广告视图进入屏幕展示状态，请勿释放
+-(void)onWQAdWillPresentScreen:(WQAdView *) adview
+{
+    AWLogInfo(@"wqmobile onWQAdWillPresentScreen");
+    
+	[self helperNotifyDelegateOfFullScreenModal];
+}
+
+//广告视图结束屏幕展示状态，可以释放
+-(void)onWQAdDidDismissScreen:(WQAdView *) adview
+{
+	AWLogInfo(@"wqmobile onWQAdDidDismissScreen");
+    
+	[self helperNotifyDelegateOfFullScreenModalDismissal];
+}
+
+//广告视图获取缓慢提醒
+- (void)onWQAdLoadTimeout:(WQAdView*) adview {
+    AWLogInfo(@"wqmobile onWQAdLoadTimeout");
+}
+
+- (void)onWQAdReceived:(WQAdView *)adview {
+    if (![NSThread isMainThread]) {
+        [self performSelectorOnMainThread:@selector(onWQAdReceived:)
+                               withObject:adview
+                            waitUntilDone:NO];
+        return;
+    }
 #if NEED_IN_REALVIEW
-	[adView setHidden:NO];
+	[self.adNetworkView setHidden:NO];
+    if (!self.bGotView)
+        [self.adNetworkView removeFromSuperview];
 #endif
-	if (![self isAdViewValid:adView]) return;
 		
-	CGRect r = CGRectMake(0, 0, mAdapter.sSizeAd.width, mAdapter.sSizeAd.height);
-	[adView setAdRect:r];	
-	[mAdapter.adViewView adapter:mAdapter didReceiveAdView:adView];
+	//CGRect r = CGRectMake(0, 0, self.sSizeAd.width, self.sSizeAd.height);
+	//adview.frame = r;
+
+	[self.adViewView adapter:self didReceiveAdView:self.adNetworkView];
 }
 
--(void) didFailToReceiveAd:(WQAdView*) adView {
+- (void)onWQAdFailed:(WQAdView *)adview {
 	AWLogInfo(@"WQMobile didFailToReceiveAd");
-	if (![self isAdViewValid:adView]) return;
 	
-	[mAdapter.adViewView adapter:mAdapter didFailAd:nil];
-}
-
--(void) applicationWillPaused:(WQAdView *)adView {
-	AWLogInfo(@"wq applicationWillPaused");
-	
-	//[mAdapter helperNotifyDelegateOfFullScreenModal];
-}
-
--(void) applicationWillTerminated:(WQAdView *)adView {
-	AWLogInfo(@"applicationWillTerminated");
-}
-
--(void) applicationResumed:(WQAdView*) adView {
-	AWLogInfo(@"wq applicationResumed");
-	
-	[mAdapter helperNotifyDelegateOfFullScreenModalDismissal];
+	[self.adViewView adapter:self didFailAd:nil];
 }
 
 @end

@@ -1,71 +1,53 @@
 //
 //  WQAdView.h
-//  WQMobile
+//  
 //
-//  Created by Yuehui Zhang on 1/5/11.
-//  Copyright 2011 WQ Mobile. All rights reserved.
+//  Created by WQMobile.
+//
 //
 
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-/**
- * 传统的广告大小, 320x48.
- */
-#define WQMOB_SIZE_320x48     CGSizeMake(320,48)
 
+@class WQAdView;
 
-@protocol WQAdProtocol;
+@protocol WQAdViewDelegate;
+@protocol WQAdViewDelegate <NSObject>
+@optional
 
-/**
- * 广告控件所处的屏幕位置
- */
-typedef enum WQ_ADVIEW_LOCATION{
-	WQ_LOCATION_TOP,/**< 最顶部 */  
-	WQ_LOCATION_BOTTOM,/**< 最底部 */  
-	WQ_LOCATION_OTHERS/**< 其他位置 */  
-} WQViewLocation;
+//广告视图获取广告成功
+- (void)onWQAdReceived:(WQAdView *)adview;
 
-/**
- * control for WQMobile
- */
-@interface WQAdView : UIView 
+//广告视图获取广告失败
+- (void)onWQAdFailed:(WQAdView *)adview;
 
-/**
- * 构造一个广告控件.
- * @param location 控件所处的屏幕位置
- * @param size 广告控件的位置
- * @param delegate 处理该控件的委托对象
- **/
-+(WQAdView *) requestAdByLocation:(WQViewLocation) location withSize:(CGSize)size withDelegate:(id<WQAdProtocol>)delegate;
+//广告视图将要关闭
+- (void)onWQAdDismiss:(WQAdView *)adview;
 
-/**
- * 构造一个广告控件.
- * @param rect 广告控件的rect属性
- * @param delegate 处理该控件的委托对象
- **/
-+(WQAdView *) requestAdOfRect:(CGRect)rect withDelegate:(id<WQAdProtocol>)delegate;
+//广告视图获取缓慢提醒
+- (void)onWQAdLoadTimeout:(WQAdView*) adview;
 
-/**
- * 相当于执行 [WQAdView requestAdByLocation:WQ_LOCATION_BOTTOM withSize:WQMOB_SIZE_320x48 withDelegate:delegate];
- * @param delegate 处理该控件的委托对象
- **/
-+(WQAdView *) requestAdWithDelegate:(id<WQAdProtocol>)delegate;
+@end
+@interface WQAdView : UIView
+@property(nonatomic,retain) id <WQAdViewDelegate> delegate;
 
-/**
- * 设定一张默认图片
- * @param img 显示的图片对象
- **/
--(void) setDefaultImage:(UIImage*) img;
+//广告视图初始化（不使用位置服务）
+- (id)init;
 
-/**
- * 设置广告控件的位置大小信息
- * @param rect 要切换的信息
- **/
--(void) setAdRect:(CGRect) rect;
+//广告视图初始化，是否使用位置服务
+- (id)init:(BOOL)enableLocation;
 
-/**
- * 触发广告提取.
- **/
--(void) startRequestAd;
+//广告视图初始化并使用位置服务
+- (id)initWithLocation;
+
+//广告视图使用frame初始化（不使用位置服务）
+- (id)initWithFrame:(CGRect)frame;
+
+//广告视图使用frame初始化并使用位置服务
+- (id)initWithLocationWithFrame:(CGRect)frame;
+
+//通过使用提供的AdSlotID和AccountKey在指定的controller中开始获取广告（controller可为nil）
+- (void)startWithAdSlotID:(NSString *)adslotid AccountKey:(NSString *)accountKey InViewController:(UIViewController *)controller;
 
 @end

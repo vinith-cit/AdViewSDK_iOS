@@ -4,13 +4,13 @@ Adview .
  
 */
 
-#import "AdViewAdNetworkAdapter.h"
+#import "AdViewAdapterOpenAPI.h"
 #import "KOpenAPIAdView.h"
 
 
 /*Adview openapi ad -- suizong.*/
 
-@interface AdViewAdapterSuiZong : AdViewAdNetworkAdapter <KOpenAPIAdViewDelegate> {
+@interface AdViewAdapterSuiZong : AdViewAdapterOpenAPI {
 
 }
 

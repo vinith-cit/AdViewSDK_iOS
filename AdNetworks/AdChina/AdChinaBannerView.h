@@ -12,7 +12,7 @@
 
 #define isPhone                 (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
 
-#define BannerSizeDefault		(isPhone? CGSizeMake(320, 48) : CGSizeMake(728, 90))
+#define BannerSizeDefault		(isPhone? CGSizeMake(320, 48) : CGSizeMake(728, 90))     // 8:1
 #define BannerSizeSquare        (isPhone? CGSizeMake(320, 48) : CGSizeMake(360, 360))    // 1:1
 #define BannerSizeVertical      (isPhone? CGSizeMake(320, 48) : CGSizeMake(336, 480))    // 7:10
 #define BannerSizeVideo         (isPhone? CGSizeMake(320, 48) : CGSizeMake(480, 360))    // 4:3

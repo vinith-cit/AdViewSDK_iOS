@@ -3,7 +3,7 @@
 //  ADS
 //
 //  Created by jack on 10/12/10.
-//  Copyright 2010 www.adview.cn. All rights reserved.
+//  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

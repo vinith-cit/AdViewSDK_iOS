@@ -93,9 +93,25 @@
   }
 }
 
+#ifndef __IPHONE_6_0
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
   return [viewControllerForPresenting shouldAutorotateToInterfaceOrientation:interfaceOrientation];
 }
+
+#else
+
+- (BOOL)shouldAutorotate
+{
+    return [viewControllerForPresenting shouldAutorotate];
+}
+
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return [viewControllerForPresenting supportedInterfaceOrientations];
+}
+
+#endif
 
 - (void)didReceiveMemoryWarning {
 	// Releases the view if it doesn't have a superview.
@@ -121,7 +137,11 @@
         break;
     }
   }
+#ifdef __IPHONE_6_0
+  [viewController presentViewController:self animated:YES completion:nil];
+#else
   [viewController presentModalViewController:self animated:YES];
+#endif
 }
 
 - (void)loadURL:(NSURL *)url {
@@ -229,7 +249,12 @@
 }
 
 - (IBAction)close:(id)sender {
+#ifdef __IPHONE_6_0
+  [viewControllerForPresenting dismissViewControllerAnimated:YES completion:nil];
+#else
   [viewControllerForPresenting dismissModalViewControllerAnimated:YES];
+#endif
+
 }
 
 @end

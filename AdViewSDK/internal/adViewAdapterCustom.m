@@ -260,7 +260,7 @@
     AWLogInfo(@"Got custom ad '%@' %@ %@ %d %d %d", text, redirectURL,
                clickMetricsURL, adType, launchType, animType);
 
-    self.adView = [[AdViewCustomAdView alloc] initWithDelegate:self
+    AdViewCustomAdView *view1 = [[AdViewCustomAdView alloc] initWithDelegate:self
                                                            text:text
                                                     redirectURL:redirectURL
                                                 clickMetricsURL:clickMetricsURL
@@ -269,7 +269,8 @@
                                                        animType:animType
                                                 backgroundColor:[self helperBackgroundColorToUse]
                                                       textColor:[self helperTextColorToUse]];
-    [self.adView release];
+    self.adView = view1;
+    [view1 release];
     self.adNetworkView = adView;
     [redirectURL release];
     [clickMetricsURL release];

@@ -11,14 +11,23 @@
 #import "AWNetworkReachabilityWrapper.h"
 #import "AdViewConfig.h"
 #import "AdViewDeviceCollector.h"
+
+@class AdViewViewConst;
+
 #define ALL_ORG_DELEGATE_METHODS		0	/*some original delegate methods is not present*/
 
 #define USER_TEST_SERVER			0
 #define DEBUG_INFO					0
 
+#define ADVIEW_NAME                 [AdViewViewConst sdkName]
+#define ADVIEW_VERSION_STR          [AdViewViewConst sdkVersion]
+
+#define ADVIEW_WQ_TAG               [AdViewViewConst wqTag]
+
 #if USER_TEST_SERVER		//test server, ip server
 
 #define kAdViewDefaultConfigURL				@"http://124.207.233.119/agent/agent1.php"
+                                          //@"http://124.207.233.119/agent/agent1.php"
 #define kAdViewDefaultImpMetricURL			@"http://124.207.233.119/agent/agent2.php"
 #define kAdViewDefaultClickMetricURL		@"http://124.207.233.119/agent/agent3.php"
 #define kAdViewDefaultCustomAdURL			@"http://124.207.233.119/agent/custom.php"
@@ -60,6 +69,15 @@
 @class AdViewAdNetworkAdapter;
 @class AdViewConfigStore;
 @class AWNetworkReachabilityWrapper;
+
+@interface AdViewViewConst : NSObject
+
++ (NSString*)sdkName;
++ (NSString*)sdkVersion;
+
++ (NSString*)wqTag;
+
+@end
 
 @interface AdViewView ()
 
@@ -110,6 +128,8 @@ shouldAddAdView:(UIView *)view;
 
 @end
 
+@class AdViewReachability;
+
 @interface AdViewViewImpl : AdViewView<AdViewConfigDelegate,
 							AWNetworkReachabilityDelegate, AdViewDeviceCollectorDelegate> {
 	AdViewConfig *config;
@@ -121,7 +141,7 @@ shouldAddAdView:(UIView *)view;
 	BOOL ignoreAutoRefreshTimer;
 	BOOL ignoreNewAdRequests;
 	BOOL appInactive;
-	BOOL showingModalView;
+	BOOL showingModalView;                  
 	
 	BOOL requesting;
 	AdViewAdNetworkAdapter *currAdapter;
@@ -144,6 +164,9 @@ shouldAddAdView:(UIView *)view;
 	AWNetworkReachabilityWrapper *rollOverReachability;
 	
 	NSUInteger configFetchAttempts;
+                                
+    AdViewReachability* internetReach;
+    BOOL                bNetReachable;
 }
 
 /**

@@ -26,38 +26,30 @@
 + (id)initWithDict:(NSDictionary *)dict {
   id red, green, blue, alpha;
   CGFloat r, g, b, a;
-	
-	UIColor *ret = [[UIColor alloc]init];
 
   red   = [dict objectForKey:@"red"];
   if (red == nil) {
-    [ret release];
     return nil;
   }
   green = [dict objectForKey:@"green"];
   if (green == nil) {
-    [ret release];
     return nil;
   }
   blue  = [dict objectForKey:@"blue"];
   if (blue == nil) {
-    [ret release];
     return nil;
   }
 
   NSInteger temp;
   if (!advIntVal(&temp, red)) {
-    [ret release];
     return nil;
   }
   r = (CGFloat)temp/255.0;
   if (!advIntVal(&temp, green)) {
-    [ret release];
     return nil;
   }
   g = (CGFloat)temp/255.0;
   if (!advIntVal(&temp, blue)) {
-    [ret release];
     return nil;
   }
   b = (CGFloat)temp/255.0;
@@ -69,7 +61,7 @@
     a = (CGFloat)temp_f;
   }
 
-  return [ret initWithRed:r green:g blue:b alpha:a];
+  return [UIColor colorWithRed:r green:g blue:b alpha:a];
 }
 
 @end

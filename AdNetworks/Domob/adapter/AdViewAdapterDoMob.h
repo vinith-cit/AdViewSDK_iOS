@@ -8,7 +8,7 @@
 #import "DMAdView.h"
 
 
-@interface AdViewAdapterDoMob : AdViewAdNetworkAdapter {
+@interface AdViewAdapterDoMob : AdViewAdNetworkAdapter<DMAdViewDelegate> {
 
 }
 
